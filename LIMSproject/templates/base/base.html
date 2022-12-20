@@ -18,8 +18,8 @@
             <a class='nav-left' href="#"><img class='nav-logo' src="{% static 'img/logo.png' %}" alt=""></a>
             <div class='nav-right'>
                 <ul>
-                    <!--<li><a href=""></a></li>
-                    <li><a href=""></a></li>-->
+                    <!--<li><a href=""></a></li>-->
+                    <li>{{ usuario }}</li>
                     <li><a href="{% url 'users:logout' %}">logout</a></li>
                 </ul>
             </div>

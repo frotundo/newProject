@@ -1,3 +1,5 @@
+"""LIMS views."""
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
@@ -5,4 +7,6 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def index(request):
+    """Index view."""
     return render(request, 'base/base.html')
+

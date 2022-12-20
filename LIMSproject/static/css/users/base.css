@@ -52,3 +52,12 @@ button {
 button:hover {
     background: #acc835;
 }
+
+.login-error {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    background-color: #f7d7da;
+    color: rgb(85, 0, 0);
+    padding: 15px;
+    border-radius: 5px;
+}

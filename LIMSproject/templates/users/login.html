@@ -5,6 +5,9 @@
 <form action="{% url 'users:login' %}" method="POST">
     {% csrf_token %}
     <img class='logo' src="{% static 'img/logo.png' %}" alt="">
+    {% if error %}
+        <p class="login-error">{{ error }}</p>
+    {% endif %}
     {% comment %} <label for="">Usuario</label> {% endcomment %}
     <input type="text" placeholder='Nombre de Usuario' name='username'>
     

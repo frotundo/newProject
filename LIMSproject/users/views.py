@@ -1,3 +1,5 @@
+"""Users views."""
+
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 
@@ -14,7 +16,9 @@ def login_view(request):
             login(request, user)
             return redirect('lims:index')
         else:
-            return render(request, 'users/login.html', {'error' : 'Invalid username or password'})
+            return render(request, 'users/login.html', {
+                'error' : 'Nombre de usuario o contraseña inválida.',
+                })
     return render(request, 'users/login.html')
 
 def logout_view(request):
