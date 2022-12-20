@@ -1,0 +1,18 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% block title %}Login{% endblock  %}
+{% block content %}
+<form action="{% url 'users:login' %}" method="POST">
+    {% csrf_token %}
+    <img class='logo' src="{% static 'img/logo.png' %}" alt="">
+    {% comment %} <label for="">Usuario</label> {% endcomment %}
+    <input type="text" placeholder='Nombre de Usuario' name='username'>
+    
+    {% comment %} <label for="">Contraseña</label> {% endcomment %}
+    <input type="password" placeholder='********' name="password">
+    
+    <button type="submit">Entrar</button>
+</form>
+
+{% endblock  %}
+
