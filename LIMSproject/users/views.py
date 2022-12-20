@@ -1,4 +1,4 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 
 
@@ -12,7 +12,12 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            return redirect('users:login')
+            return redirect('lims:index')
         else:
             return render(request, 'users/login.html', {'error' : 'Invalid username or password'})
     return render(request, 'users/login.html')
+
+def logout_view(request):
+    """Logout view."""
+    logout(request)
+    return redirect('users:login')
