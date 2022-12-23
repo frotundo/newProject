@@ -9,10 +9,10 @@
         <p class="login-error">{{ error }}</p>
     {% endif %}
     {% comment %} <label for="">Usuario</label> {% endcomment %}
-    <input type="text" placeholder='Nombre de Usuario' name='username'>
+    <input type="text" placeholder='Nombre de Usuario' name='username' required >
     
     {% comment %} <label for="">Contraseña</label> {% endcomment %}
-    <input type="password" placeholder='********' name="password">
+    <input type="password" placeholder='********' name="password" required >
     
     <button type="submit">Entrar</button>
 </form>

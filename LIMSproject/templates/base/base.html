@@ -10,17 +10,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Document{% endblock  %}</title>
+    <title>{% block title %}Algoritmos{% endblock  %}</title>
 </head>
 <body>
     <header>
         <nav>
-            <a class='nav-left' href="#"><img class='nav-logo' src="{% static 'img/logo.png' %}" alt=""></a>
+            <a class='nav-left' href="{% url 'lims:index' %}"><img class='nav-logo' src="{% static 'img/logo.png' %}" alt=""></a>
             <div class='nav-right'>
                 <ul>
                     <!--<li><a href=""></a></li>-->
-                    <li>{{ usuario }}</li>
-                    <li><a href="{% url 'users:logout' %}">logout</a></li>
+                    <li>{{ user.first_name }} {{ user.last_name }}</li>
+                    <li><a href="{% url 'users:logout' %}">Logout</a></li>
                 </ul>
             </div>
         </nav>
