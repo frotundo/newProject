@@ -8,12 +8,13 @@ html {
 }
 
 body {
-    background: #f8f8f8;
+    /* background: #f8f8f8; */
     font-size: 1.4rem;
     height: 100vh;
     display: grid;
     place-items : center;
 }
+
 form {
     background: white;
     width: 350px;

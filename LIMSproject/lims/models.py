@@ -16,7 +16,6 @@ class Cliente(models.Model):
     def __str__(self):
         return self.titular
 
-
 class ContactoCliente(models.Model):
     """Contact client model."""
     
@@ -66,9 +65,9 @@ class Proyecto(models.Model):
     tipo_de_Muestreo = models
     norma_de_referencia = models
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
-    punto_de_muestreo = models.ForeignKey(PuntoDeMuestreo, null=True, blank=True, on_delete=models.CASCADE)
-    norma_de_referencia = models.ForeignKey(NormaDeReferencia, null=True, blank=True, on_delete=models.CASCADE)
-    rCA = models.ForeignKey(RCACliente, null=True, blank=True, on_delete=models.CASCADE)
+    punto_de_muestreo = models.ForeignKey(PuntoDeMuestreo, null=True, blank=True, on_delete=models.PROTECT)
+    norma_de_referencia = models.ForeignKey(NormaDeReferencia, null=True, blank=True, on_delete=models.PROTECT)
+    rCA = models.ForeignKey(RCACliente, null=True, blank=True, on_delete=models.PROTECT)
     
     def __str__(self):
         return self.nombre_de_Proyecto

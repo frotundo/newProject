@@ -12,12 +12,15 @@
     <title>{% block title %}Document{% endblock  %}</title>
 </head>
 <body>
-
+    <div style="width:100wh; height:100vh; position: absolute; z-index: -1;" id="particles-js"></div>
     {% block content %}{% endblock  %}
 
     {% block extrajs %}
     
     {% endblock  %}
+
+    <script src="{% static 'js/particles.min.js' %}"></script>
+    <script src="{% static 'js/activador.js' %}"></script>
 </body>
 </html>
 
