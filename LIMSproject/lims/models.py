@@ -73,6 +73,18 @@ class Proyecto(models.Model):
         return self.nombre_de_Proyecto
 
 
+class Envase(models.Model):
+    """ Envase model."""
+
+    nombre = models.CharField(max_length=100)
+    volumen = models.CharField(max_length=10)
+    material = models.CharField(max_length=100)
+    Preservante = models.CharField(max_length=254)
+
+    def __str__(self):
+        return self.nombre
+
+
 class Servicio(models.Model):
     """Service model."""
 
@@ -81,20 +93,12 @@ class Servicio(models.Model):
     fecha_de_recepción = models.DateField()
     norma_de_referencia = models.ManyToManyField(NormaDeReferencia)
     rCA = models.ManyToManyField(RCACliente)
+    envase = models.ManyToManyField(Envase) #Revisar
     #punto_de_muestreo =  #Revisar
 
-
-class Envase(models.Model):
-    """ Envase model."""
-
-    nombre = models.CharField(max_length=100)
-    volumen = models.CharField(max_length=10)
-    material = models.CharField(max_length=100)
-    Preservante = models.CharField(max_length=254)
-    servicio = models.ManyToManyField(Servicio) #Revisar
-
     def __str__(self):
-        return self.nombre
+        return self.codigo_muestra
+
 
 
 class Parametro(models.Model):

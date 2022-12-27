@@ -1,0 +1,10 @@
+<form action="" method='POST'>
+    {% csrf_token %}
+    <label for="lang">Cliente</label>
+      <select name="cliente" id="lang" size='1'>
+        {% for cliente in clientes %}
+            <option value="{{ forloop.counter }}">{{ cliente.titular }}</option>
+        {% endfor %}
+      </select>
+    <button class='button-add1' type="submit">Guardar</button>
+</form>

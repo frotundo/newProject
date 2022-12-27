@@ -26,3 +26,4 @@ class ClientAdmin(admin.ModelAdmin):
 admin.site.register(models.Cliente, ClientAdmin)
 admin.site.register(models.Proyecto)
 admin.site.register(models.NormaDeReferencia)
+admin.site.register(models.Servicio)

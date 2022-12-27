@@ -1,0 +1,42 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Cliente</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+        <table>
+            <tr>
+                <td><Label>Titular</Label></td>
+                <td><input type="text" name="titular" id="" placeholder="Razon social" required></td>
+                
+            </tr>
+            
+            <tr>
+                <td><Label>RUT</Label></td>
+                <td><input type="text" name="rut" id="" placeholder="123456789-1" required></td>
+            </tr>
+    
+            <tr>
+                <td><Label>Dirección</Label></td>
+                <td><input type="text" name="direccion" id="" placeholder="Dirección" required></td>
+            </tr>
+            
+            <tr>
+                <td><Label>Actividad</Label></td>
+                <td><input type="text" name="actividad" id="" placeholder="Actividad" required></td>
+            </tr>
+        </table>
+        
+
+    <button class='button-add1' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

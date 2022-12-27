@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Clientes</h1>
+{% if error %}
+    {{error}}
+{% endif %}
+<table>
+    <tr>
+        <td class='item-list title-item-list'>Titular</td>
+        <td class='item-list title-item-list'>RUT</td>
+        <td class='item-list title-item-list'>Dirección</td>
+        <td class='item-list title-item-list'>Actividad</td>
+    </tr>
+{% for client in clients %}
+    <tr>
+        <td><a href="#" class='item-list'>{{ client.titular }}</a></td>
+        <td class='item-list'>{{ client.rut }}</td>
+        <td class='item-list'>{{ client.direccion }}</td>
+        <td class='item-list'>{{ client.actividad }}</td>
+    </tr>
+
+    
+{% endfor %}
+</table>
+
+
+{% endblock content %}
