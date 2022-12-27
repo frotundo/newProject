@@ -1,10 +1,18 @@
-main {
-    margin: 5% 20%;
-    width: 60%;
+body {
+    padding: 0 20%;
+    
+}
+main { 
+    padding: 15% 10% 10%;
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
     color: rgb(97, 95, 95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
 }
 
 .title {
+    
     font-size: 3rem;
     font-weight: bold;
     margin-bottom: 20px;
@@ -14,6 +22,7 @@ form {
     flex-direction: column;
 }
 td {
+    padding-left: 5px;
     max-width: 200px;
     max-height: 50px;
     vertical-align: center;
@@ -36,8 +45,11 @@ label {
     font-size: 1.8rem;   
 }
 
-input, .item-list {
-    /* margin-bottom: 20px; */
+.item-list {
+    font-size: 1.6rem;
+    max-width: 185px;
+}
+input {
     font-size: 1.6rem;
     width: 300px;
 }
@@ -47,9 +59,30 @@ input, .item-list {
     font-size: 1.8rem;
 }
 
+.select1 {
+    width: 400px;;
+}
 .button-add1 {
-    width: 300px;
+    width: 250px;
     margin: 20px auto 0;
-    font-size: 2rem;
+    border-radius: 10px;
+    font-size: 1.8rem;
+}
+
+.btn-selector {
+    width: 100px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.button-add1, .btn-selector {
+    padding: 5px;
+    color: white;
+    background: #0c7cbf;
+    cursor: pointer;
+}
+
+.button-add1:hover, .btn-selector:hover {
+    background: #acc835;
 }
 

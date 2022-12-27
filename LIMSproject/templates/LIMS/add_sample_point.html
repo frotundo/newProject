@@ -10,22 +10,29 @@
     {% csrf_token %}
         <label for="">¿Puntos de muestreo a agregar?</label>
         <input type="number" name='sp-number' value={{len_pm}} class='input-sp'>   
-        <button type="submit">Agregar</button>
+        <button type="submit" class='btn-selector'>Agregar</button>
 </form>
 
 <form action="" method='POST'>
     {% csrf_token %}
-    <label for="lang">Cliente</label>
-      <select name="cliente" id="lang" size='1'>
-        {% for cliente in clientes %}
-            <option value="{{ forloop.counter }}">{{ cliente.titular }}</option>
-        {% endfor %}
-      </select>
+    <table>
+        <tr>
+            <td><label for="lang">Cliente</label></td>
+            <td>
+                <select class='select1' name="cliente" id="lang" size='1'>
+                {% for cliente in clientes %}
+                    <option value="{{ cliente.id }}">{{ cliente.titular }}</option>
+                {% endfor %}
+                </select>
+            </td>
+        </tr>
+    </table>
+   
     <table>
         {% for n in pm %}
         <tr>
             <td><label for="">Nombre</label></td>
-            <td><input type="text" name="sample-point{{ forloop.counter }}"></td>
+            <td><input type="text" name="sample-point{{ forloop.counter }}" placeholder="Punto de muestreo"></td>
         </tr>
         {% endfor %}
         
