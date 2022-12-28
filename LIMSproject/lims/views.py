@@ -26,7 +26,7 @@ def clients(request):
 @login_required
 def add_client(request):
     """Add client view."""
-    # ID = len(models.Cliente.objects.all())
+
     if request.method == 'POST':
         titular = request.POST['titular']
         rut = request.POST['rut']
@@ -41,12 +41,127 @@ def add_client(request):
 @login_required
 def client(request, id_cliente):
     """Client model."""
-
     cliente = models.Cliente.objects.get(id=id_cliente)
+    contacts = models.ContactoCliente.objects.filter(cliente_id = id_cliente)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id = id_cliente)
+    legal_representatives = models.RepresentanteLegalCliente.objects.filter(cliente_id = id_cliente)
+    rcas = models.RCACliente.objects.filter(cliente_id = id_cliente)
     return render(request, 'LIMS/client.html', {
         'cliente':cliente,
+        'contacts': contacts,
+        'sample_points':sample_points,
+        'legal_representatives': legal_representatives,
+        'rcas': rcas,
     })
-    
+
+def client_add_legal_representative(request, id_cliente):
+    if request.method == 'POST':
+        if 'contact-number' in request.POST.keys():
+            if request.POST['contact-number'] != None:
+                pm = [x for x in range(int(request.POST['contact-number']))]
+                len_pm = len(pm)
+                if len_pm != 1:
+                    return render(request, 'lims/client_add_legal_representative.html', {
+                    'pm':pm,
+                    'len_pm': len_pm,
+                    })
+        else:
+            todo = []
+            for valor in request.POST.values():
+                todo.append(valor)
+            contactos = todo[1::2]
+            ruts = todo[2::2]
+            for contacto, rut in zip(contactos, ruts):
+                models.RepresentanteLegalCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente) 
+            return redirect('lims:client', id_cliente)
+    return render(request, 'lims/client_add_legal_representative.html', {
+        'pm':[0],
+        'len_pm': 1,
+    })
+
+@login_required
+def client_add_contact(request, id_cliente):
+    if request.method == 'POST':
+        if 'contact-number' in request.POST.keys():
+            if request.POST['contact-number'] != None:
+                pm = [x for x in range(int(request.POST['contact-number']))]
+                len_pm = len(pm)
+                if len_pm != 1:
+                    return render(request, 'lims/client_add_contact.html', {
+                    'pm':pm,
+                    'len_pm': len_pm,
+                    })
+        else:
+            todo = []
+            for valor in request.POST.values():
+                todo.append(valor)
+            contactos = todo[1::2]
+            ruts = todo[2::2]
+            for contacto, rut in zip(contactos, ruts):
+                models.ContactoCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente) 
+            return redirect('lims:client', id_cliente)
+    return render(request, 'lims/client_add_contact.html', {
+        'pm':[0],
+        'len_pm': 1,
+    })
+
+
+@login_required
+def client_add_sample_point(request, id_cliente):
+    '''Client add sample point view.'''
+
+    if request.method == 'POST':
+        if 'sp-number' in request.POST.keys():
+            if request.POST['sp-number'] != None:
+                pm = [x for x in range(int(request.POST['sp-number']))]
+                len_pm = len(pm)
+                if len_pm != 1:
+                    return render(request, 'lims/client_add_sample_point.html', {
+                    'pm':pm,
+                    'len_pm': len_pm,
+                    })
+        else:
+            puntos = []
+            for valor in request.POST.values():
+                puntos.append(valor)
+            puntos = puntos[1::]
+            for punto in puntos:
+                models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= id_cliente) 
+            return redirect('lims:client', id_cliente)
+
+    return render(request, 'LIMS/client_add_sample_point.html', {
+        'pm':[0],
+        'len_pm': 1,
+    })
+
+
+@login_required
+def client_add_rca(request, id_cliente):
+    '''Client add sample point view.'''
+
+    if request.method == 'POST':
+        if 'sp-number' in request.POST.keys():
+            if request.POST['sp-number'] != None:
+                pm = [x for x in range(int(request.POST['sp-number']))]
+                len_pm = len(pm)
+                if len_pm != 1:
+                    return render(request, 'lims/client_add_rca.html', {
+                    'pm':pm,
+                    'len_pm': len_pm,
+                    })
+        else:
+            puntos = []
+            for valor in request.POST.values():
+                puntos.append(valor)
+            puntos = puntos[1::]
+            for punto in puntos:
+                models.RCACliente.objects.create(rca_asociada= punto, cliente_id= id_cliente) 
+            return redirect('lims:client', id_cliente)
+
+    return render(request, 'LIMS/client_add_rca.html', {
+        'pm':[0],
+        'len_pm': 1,
+    })
 
 
 @login_required
@@ -58,53 +173,6 @@ def sample_points(request):
         'sp': sp,
         'clients': clients,
     })
-
-
-@login_required
-def client_sample_points(request, id_client):
-    '''Client sample points views'''
-    pass
-
-@login_required
-def add_sample_point(request):
-    """Add sample point view."""
-
-    clientes = models.Cliente.objects.all()
-    sp = models.PuntoDeMuestreo.objects.all()
-    if request.method == 'POST':
-        if 'cliente' not in request.POST.keys():
-            if request.POST['sp-number'] != None:
-                pm = [x for x in range(int(request.POST['sp-number']))]
-                len_pm = len(pm)
-                if len_pm != 1:
-                    return render(request, 'lims/add_sample_point.html', {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    'clientes': clientes,
-                    })
-        else:
-            client = request.POST['cliente']
-            puntos = []
-            for valor in request.POST.values():
-                puntos.append(valor)
-            puntos = puntos[2::]
-            print(puntos)
-            for punto in puntos:
-                if punto == "":
-                    continue
-                else:
-                    models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= client) 
-            return render(request, 'lims/sample_point.html', {
-                'sp': sp,
-                'clients': clientes,
-                # 'error': error,
-                })
-    return render(request, 'lims/add_sample_point.html', {
-        'pm':[0],
-        'len_pm': 1,
-        'clientes': clientes,
-    })
-
 
 @login_required
 def contact(request):
@@ -118,41 +186,38 @@ def contact(request):
 
 
 @login_required
-def add_contact(request):
-    """Add sample point view."""
+def normas_ref(request):
+    """Normas de referencias view."""
 
-    clientes = models.Cliente.objects.all()
-    sp = models.PuntoDeMuestreo.objects.all()
+    normas = models.NormaDeReferencia.objects.all()
+    return render(request, 'LIMS/normas_ref.html',{
+        'normas': normas,
+    })
+
+@login_required
+def add_normas_ref(request):
+    """Add Standards of reference view."""
+
     if request.method == 'POST':
-        if 'cliente' not in request.POST.keys():
+        if 'sp-number' in request.POST.keys():
             if request.POST['sp-number'] != None:
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'lims/add_sample_point.html', {
+                    return render(request, 'lims/add_normas_ref.html', {
                     'pm':pm,
                     'len_pm': len_pm,
-                    'clientes': clientes,
                     })
         else:
-            client = request.POST['cliente']
-            puntos = []
+            normas = []
             for valor in request.POST.values():
-                puntos.append(valor)
-            puntos = puntos[2::]
-            print(puntos)
-            for punto in puntos:
-                if punto == "":
-                    continue
-                else:
-                    models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= client) 
-            return render(request, 'lims/sample_point.html', {
-                'sp': sp,
-                'clients': clientes,
-                # 'error': error,
-                })
-    return render(request, 'lims/add_contact.html', {
+                normas.append(valor)
+            normas = normas[1::]
+            for norma in normas:
+                models.NormaDeReferencia.objects.create(norma=norma) 
+            return redirect('lims:normas_ref')
+
+    return render(request, 'LIMS/add_normas_ref.html', {
         'pm':[0],
         'len_pm': 1,
-        'clientes': clientes,
     })

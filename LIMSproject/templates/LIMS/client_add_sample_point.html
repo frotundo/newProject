@@ -1,0 +1,30 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+{% block content %}
+<h1 class="title">Agregar Punto de Muestreo</h1>
+
+<form class='form-contador' action="" method='POST'>
+    {% csrf_token %}
+        <label for="">¿Puntos de muestreo a agregar?</label>
+        <input type="number" name='sp-number' value='{{len_pm}}' class='input-sp'>   
+        <button type="submit" class='btn-selector'>Agregar</button>
+</form>
+
+<form action="" method='POST'>
+    {% csrf_token %}   
+    {% for n in pm %}
+        <table class='table-client'>
+            <tr>
+                <td class='item-add'><label for="">Nombre</label></td>
+                <td class='item-input'><input type="text" name="Punto{{ forloop.counter }}" placeholder="Punto de muestreo" required></td>
+            </tr>
+        </table>
+    {% endfor %}
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

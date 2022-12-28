@@ -15,7 +15,7 @@
 <body>
     <header>
         <nav>
-            <a class='nav-left' href="{% url 'lims:index' %}"><img class='nav-logo' src="{% static 'img/logo.png' %}" alt=""></a>
+            <a class='nav-left' href="{% url 'lims:index' %}"><img class='nav-logo' src="{% static 'img/logo.png' %}" alt="Logo de empresa"></a>
             <div class='nav-right'>
                 <ul>
                     <!--<li><a href=""></a></li>-->
@@ -32,7 +32,7 @@
                 <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:clients' %}">CLIENTES</a></li>
                 <li class='left-bar-item'><a class='link-bar' href="#">PROYECTOS</a></li>
                 <li class='left-bar-item'><a class='link-bar' href="#">SERVICIOS</a></li>
-                <li class='left-bar-item'><a class='link-bar' href="#">NORMAS DE REF</a></li>
+                <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:normas_ref' %}">NORMAS DE REF</a></li>
 
             </ul>
         </div>

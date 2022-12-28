@@ -1,0 +1,31 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">Normas de referencias</h1>
+    <a class='btn-add' href="{% url 'lims:add_normas_ref' %}">Agregar</a> 
+</div>
+
+{% if normas %}
+    <table>
+        <tr>
+            <td class='item-list title-item-list'>Norma</td>
+        </tr>
+    
+        {% for norma in normas %}
+        <tr>
+            <td class='item-list'>{{ norma.norma }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    No hay registro de normas de referencia.
+{% endif %}
+
+
+{% endblock content %}

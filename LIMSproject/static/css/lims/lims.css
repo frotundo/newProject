@@ -1,6 +1,5 @@
 body {
-    padding: 0 20%;
-    
+    padding-left: 20%;
 }
 
 main { 
@@ -11,10 +10,19 @@ main {
     color: rgb(97, 95, 95);
     box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
 }
-.title_contain {
+.title_contain, .subtitle_contain {
     width: 100%;
     display: flex;
     flex-direction: row;
+}
+
+.subtitle_contain {
+    border-top: 1px solid rgb(124, 122, 122);
+    padding-top: 10px;
+}
+
+.subtitle {
+    font-size: 2rem;
 }
 
 .title {
@@ -29,6 +37,10 @@ form {
 }
 table {
     width: 80%;
+}
+
+.table-client {
+    margin-bottom: 10px;
 }
 
 .item-add, .item-input {
@@ -75,7 +87,7 @@ label {
 tr {
     width: 100%;
 }
-.item-list-sp {
+.item-list-2, .item-list-sp  {
     font-size: 1.4rem;
     min-width: 300px;
     padding: 5px;
@@ -87,6 +99,7 @@ tr {
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
 input {
     font-size: 1.6rem;
     width: 50%;
@@ -138,3 +151,6 @@ input {
 }
 
 
+.subtitle_contain {
+    margin-top: 15px;
+}
