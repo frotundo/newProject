@@ -2,6 +2,7 @@ body {
     padding: 0 20%;
     
 }
+
 main { 
     padding: 15% 10% 10%;
     width: 100%;
@@ -9,6 +10,11 @@ main {
     height: auto;
     color: rgb(97, 95, 95);
     box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+}
+.title_contain {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
 }
 
 .title {
@@ -21,10 +27,26 @@ form {
     display: flex;
     flex-direction: column;
 }
-td {
-    padding-left: 5px;
-    max-width: 200px;
-    max-height: 50px;
+table {
+    width: 80%;
+}
+
+.item-add, .item-input {
+    padding: 5px 0;
+}
+.item-input {
+    width: 70%;
+}
+.item-input input {
+    width: 100%;
+}
+
+.item-list {
+    font-size: 1.4rem;
+    max-width: 180px;
+    padding: 5px;
+    /* max-width: 200px;
+    max-height: 50px; */
     vertical-align: center;
     height: 40px;
     white-space: nowrap;
@@ -32,57 +54,87 @@ td {
     overflow: hidden;
 }
 
+
 .form-contador{
     display: flex;
     align-items: center;
     flex-direction: row;
-    margin-bottom: 25px;
+    margin: 0 5px 25px;
+}
+
+.client-select{
+    margin-bottom: 15px;
 }
 .input-sp {
     width: 50px;
 }
 label {
-    font-size: 1.8rem;   
+    font-size: 1.4rem;   
 }
 
-.item-list {
-    font-size: 1.6rem;
-    max-width: 185px;
+tr {
+    width: 100%;
+}
+.item-list-sp {
+    font-size: 1.4rem;
+    min-width: 300px;
+    padding: 5px;
+    /* max-width: 200px;
+    max-height: 50px; */
+    vertical-align: center;
+    height: 40px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 input {
     font-size: 1.6rem;
-    width: 300px;
+    width: 50%;
 }
 
 .title-item-list {
     font-weight: bold;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
 }
 
 .select1 {
-    width: 400px;;
+    width: 400px;
+    margin-left: 20%;
 }
-.button-add1 {
+.button-save {
     width: 250px;
     margin: 20px auto 0;
     border-radius: 10px;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
 }
 
+.btn-add {
+    width: 100px;
+    height: 30px;
+    /* padding: 7px; */
+    font-size: 1.4rem;
+    text-align: center;
+    margin-left: 10px;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+}
 .btn-selector {
     width: 100px;
     border-radius: 5px;
     font-weight: bold;
 }
 
-.button-add1, .btn-selector {
+.button-save, .btn-selector, .btn-add {
     padding: 5px;
     color: white;
     background: #0c7cbf;
     cursor: pointer;
 }
 
-.button-add1:hover, .btn-selector:hover {
+.button-save:hover, .btn-selector:hover, .btn-add:hover {
     background: #acc835;
+    color: white;
 }
+
 

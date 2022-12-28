@@ -1,19 +1,5 @@
-<form action="" method='POST'>
-    {% csrf_token %}
-    <label for="lang">Cliente</label>
-      <select name="cliente" id="lang" size='1'>
-        {% for cliente in clientes %}
-            <option value="{{ cliente.id }}">{{ cliente.titular }}</option>
-        {% endfor %}
-      </select>
-      <table>
-        {% for n in pm %}
-        <tr>
-            <td><label for="">Punto de muestreo</label></td>
-            <td><input type="text" name="sample-point{{ forloop.counter }}"></td>
-        </tr>
-        {% endfor %}
-        
-    </table>
-    <button class='button-add1' type="submit">Guardar</button>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Save</button>
 </form>

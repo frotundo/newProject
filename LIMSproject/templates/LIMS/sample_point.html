@@ -1,0 +1,38 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">Puntos de Muestreo</h1>
+    <a class='btn-add' href="{% url 'lims:add_sample_point' %}">Agregar</a> 
+</div>
+
+{% if error %}
+    {{error}}
+{% endif %}
+<table>
+    <tr>
+        <td class='item-list-sp title-item-list'>Nombre</td>
+        <td class='item-list-sp title-item-list'>Titular</td>
+    </tr>
+{% for p in sp %}
+    <tr>
+        <td><a href="#" class='item-list-sp'>{{ p.nombre }}</a></td>
+        <td class='item-list-sp'>
+                {% for cliente in clients %}  
+                    {% if cliente.id == p.cliente_id %}
+                        {{ cliente.titular }}
+                    {% endif %}
+                {% endfor %}
+        </td>
+    </tr>
+
+    
+{% endfor %}
+</table>
+
+{% endblock content %}

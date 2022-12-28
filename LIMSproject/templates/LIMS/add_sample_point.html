@@ -9,13 +9,13 @@
 <form class='form-contador' action="" method='POST'>
     {% csrf_token %}
         <label for="">¿Puntos de muestreo a agregar?</label>
-        <input type="number" name='sp-number' value={{len_pm}} class='input-sp'>   
+        <input type="number" name='sp-number' value='{{len_pm}}' class='input-sp'>   
         <button type="submit" class='btn-selector'>Agregar</button>
 </form>
 
 <form action="" method='POST'>
     {% csrf_token %}
-    <table>
+    <table  class='client-select'>
         <tr>
             <td><label for="lang">Cliente</label></td>
             <td>
@@ -31,13 +31,13 @@
     <table>
         {% for n in pm %}
         <tr>
-            <td><label for="">Nombre</label></td>
-            <td><input type="text" name="sample-point{{ forloop.counter }}" placeholder="Punto de muestreo"></td>
+            <td class='item-add'><label for="">Nombre</label></td>
+            <td class='item-input'><input type="text" name="sample-point{{ forloop.counter }}" placeholder="Punto de muestreo" required></td>
         </tr>
         {% endfor %}
         
     </table>
-    <button class='button-add1' type="submit">Guardar</button>
+    <button class='button-save' type="submit">Guardar</button>
 </form>
 
 

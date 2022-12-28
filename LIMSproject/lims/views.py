@@ -10,25 +10,8 @@ from . import models
 @login_required
 def index(request):
     """Index view."""
-    clientes = models.Cliente.objects.all()
-    print(clientes)
-    if request.method == 'POST':
-        print('cliente' not in request.POST.keys())
-        client = request.POST['cliente']
-        puntos = []
-        for valor in request.POST.values():
-           puntos.append(valor)
-        puntos = puntos[2::]
-        print(client)
-        # for punto in puntos:
-        #     if punto == "":
-        #         continue
-        #     else:
-        #         models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= client) 
-    return render(request, 'lims/pruebas.html', {
-        'pm':[0,1,2],
-        'clientes': clientes,
-    })
+   
+    return render(request, 'base/base.html')
 
 @login_required
 def client(request):
@@ -42,10 +25,11 @@ def client(request):
         # 'error': error,
     })
 
+
 @login_required
 def add_client(request):
     """Add client view."""
-    ID = len(models.Cliente.objects.all())
+    # ID = len(models.Cliente.objects.all())
     if request.method == 'POST':
         titular = request.POST['titular']
         rut = request.POST['rut']
@@ -56,11 +40,40 @@ def add_client(request):
         return redirect('lims:client')
     return render(request, 'lims/add_client.html')
 
+
+@login_required
+def edit_client(request,id_cliente):
+    """Edit client model."""
+
+    cliente = models.Cliente.objects.get(id=id_cliente)
+    if request.method == 'GET':
+        # titular = request.GET[cliente.titular]
+        # rut = request.GET[cliente.rut]
+        # direccion = request.GET[cliente.direccion]
+        # actividad = request.GET[cliente.actividad]
+        print(request.GET)
+    
+
+
+@login_required
+def sample_point(request):
+    """Sample point view."""
+    clients = models.Cliente.objects.all()
+    sp = models.PuntoDeMuestreo.objects.all()
+    # if clients == 0:
+    #     error = 'No hay clientes disponibles.'
+    return render(request, 'LIMS/sample_point.html', {
+        'sp': sp,
+        'clients': clients,
+        # 'error': error,
+    })
+
 @login_required
 def add_sample_point(request):
     """Add sample point view."""
+
     clientes = models.Cliente.objects.all()
-    
+    sp = models.PuntoDeMuestreo.objects.all()
     if request.method == 'POST':
         if 'cliente' not in request.POST.keys():
             if request.POST['sp-number'] != None:
@@ -84,7 +97,13 @@ def add_sample_point(request):
                     continue
                 else:
                     models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= client) 
+            return render(request, 'lims/sample_point.html', {
+                'sp': sp,
+                'clients': clientes,
+                # 'error': error,
+                })
     return render(request, 'lims/add_sample_point.html', {
         'pm':[0],
+        'len_pm': 1,
         'clientes': clientes,
     })

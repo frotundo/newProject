@@ -19,14 +19,23 @@
             <div class='nav-right'>
                 <ul>
                     <!--<li><a href=""></a></li>-->
-                    <li>{{ user.first_name }} {{ user.last_name }}</li>
-                    <li><a href="{% url 'users:logout' %}">Logout</a></li>
+                    <li class="nav-item">{{ user.first_name }} {{ user.last_name }}</li>
+                    <li class="nav-item"><a href="{% url 'users:logout' %}">Logout</a></li>
                 </ul>
             </div>
         </nav>
     </header>
     <main>
         {% block content %}{% endblock  %}
+        <div class='left-bar-contain'>
+            <ul class='ul-left-bar-contain'>
+                <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:client' %}">CLIENTES</a></li>
+                <li class='left-bar-item'><a class='link-bar' href="#">PROYECTOS</a></li>
+                <li class='left-bar-item'><a class='link-bar' href="#">SERVICIOS</a></li>
+                <li class='left-bar-item'><a class='link-bar' href="#">NORMAS DE REF</a></li>
+
+            </ul>
+        </div>
     </main>
     
 
