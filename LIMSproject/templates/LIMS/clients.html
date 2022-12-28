@@ -18,12 +18,18 @@
         <td class='item-list title-item-list'>Dirección</td>
         <td class='item-list title-item-list'>Actividad</td>
     </tr>
+    {% if clients %}
+    {% for client in clients %}
     <tr>
-        <td td class='item-list'>{{ cliente.titular }}</td>
-        <td class='item-list'>{{ cliente.rut }}</td>
-        <td class='item-list'>{{ cliente.direccion }}</td>
-        <td class='item-list'>{{ cliente.actividad }}</td>
+        <td><a href="{% url 'lims:client' id_client %}" class='item-list'></a>{{ client.titular }}</td>
+        <td class='item-list'>{{ client.rut }}</td>
+        <td class='item-list'>{{ client.direccion }}</td>
+        <td class='item-list'>{{ client.actividad }}</td>
     </tr>
+    {% endfor %}
+    {% else %}
+    No hay registro de clientes.
+    {% endif %}
 </table>
 
 <div class='right-bar-contain'>
