@@ -48,12 +48,14 @@ def client(request, id_cliente):
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id = id_cliente)
     legal_representatives = models.RepresentanteLegalCliente.objects.filter(cliente_id = id_cliente)
     rcas = models.RCACliente.objects.filter(cliente_id = id_cliente)
+    projects = models.Proyecto.objects.filter(cliente_id = id_cliente)
     return render(request, 'LIMS/client.html', {
         'cliente':cliente,
         'contacts': contacts,
         'sample_points':sample_points,
         'legal_representatives': legal_representatives,
         'rcas': rcas,
+        'projects': projects,
     })
 
 
@@ -170,6 +172,36 @@ def client_add_rca(request, id_cliente):
         'pm':[0],
         'len_pm': 1,
     })
+
+
+@login_required
+def client_add_project(request, id_client):
+    """Add Standards of reference view."""
+    pass
+    # if request.method == 'POST':
+    #     if 'sp-number' in request.POST.keys():
+    #         if request.POST['sp-number'] != None:
+    #             pm = [x for x in range(int(request.POST['sp-number']))]
+    #             len_pm = len(pm)
+    #             if len_pm != 1:
+    #                 return render(request, 'lims/add_normas_ref.html', {
+    #                 'pm':pm,
+    #                 'len_pm': len_pm,
+    #                 })
+    #     else:
+    #         todo = []
+    #         for valor in request.POST.values():
+    #             todo.append(valor)
+    #         normas = todo[1::2]
+    #         usuarios = todo[2::2]
+    #         for norma, usuario in zip(normas, usuarios):
+    #             models.NormaDeReferencia.objects.create(norma=norma, creator_user=usuario) 
+    #         return redirect('lims:normas_ref')
+
+    # return render(request, 'LIMS/add_normas_ref.html', {
+    #     'pm':[0],
+    #     'len_pm': 1,
+    # })
 
 
 @login_required

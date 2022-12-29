@@ -1,7 +1,7 @@
 """LIMS models."""
 
 from django.db import models
-
+from django.contrib.auth.models import User
 
 
 class Cliente(models.Model):
@@ -65,25 +65,6 @@ class RCACliente(models.Model):
         return self.rca_asociada
 
 
-
-class Proyecto(models.Model):
-    """Project model."""
-    
-    nombre_de_Proyecto = models.CharField(max_length=254)
-    codigo_de_proyecto = models.CharField(max_length=10)
-    tipo_de_Muestreo = models
-    norma_de_referencia = models
-    cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
-    punto_de_muestreo = models.ForeignKey(PuntoDeMuestreo, null=True, blank=True, on_delete=models.PROTECT)
-    norma_de_referencia = models.ForeignKey(NormaDeReferencia, null=True, blank=True, on_delete=models.PROTECT)
-    rCA = models.ForeignKey(RCACliente, null=True, blank=True, on_delete=models.PROTECT)
-    created = models.DateTimeField(auto_now_add=True)
-    creator_user = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nombre_de_Proyecto
-
-
 class Envase(models.Model):
     """ Envase model."""
 
@@ -96,6 +77,37 @@ class Envase(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class Metodo(models.Model):
+    """Method model."""
+    nombre = models.CharField(max_length=254)
+    created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+
+
+class Parametro(models.Model):
+    '''Parameter model.'''
+
+    ensayo = models.CharField(max_length=254, unique=True)
+    metodo = models.ManyToManyField(Metodo)
+    responsable = models.ForeignKey(User, on_delete=models.PROTECT)
+    LDM = models.FloatField()
+    LCM = models.FloatField()
+    created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.ensayo
+
+
+class Analysis(models.Model):
+    '''Analysis model.'''
+    pass
+    # ensayo = 
 
 
 class Servicio(models.Model):
@@ -115,13 +127,6 @@ class Servicio(models.Model):
         return self.codigo_muestra
 
 
-
-class Parametro(models.Model):
-
-    created = models.DateTimeField(auto_now_add=True)
-    creator_user = models.CharField(max_length=100)
-    pass
-
 class RepresentanteLegalCliente(models.Model):
     """Legal representative model."""
 
@@ -135,14 +140,34 @@ class RepresentanteLegalCliente(models.Model):
         return self.nombre
 
 
-class Metodo(models.Model):
-    """Method model."""
+class TipoDeMuestra(models.Model):
+    """Sample type model."""
     nombre = models.CharField(max_length=254)
+    created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.nombre
+
+
+class Proyecto(models.Model):
+    """Project model."""
+    
+    nombre = models.CharField(max_length=254)
+    codigo = models.CharField(max_length=10)
+    cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
+    tipo_de_muestra = models.ForeignKey(TipoDeMuestra, null=True, blank=True, on_delete=models.PROTECT)
+    punto_de_muestreo = models.ForeignKey(PuntoDeMuestreo, null=True, blank=True, on_delete=models.PROTECT)
+    responsable_muestreo = models.CharField(max_length=254)
+    norma_de_referencia = models.ForeignKey(NormaDeReferencia, null=True, blank=True, on_delete=models.PROTECT)
+    rCA = models.ForeignKey(RCACliente, null=True, blank=True, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.nombre
+        return self.nombre_de_Proyecto
+
+
 
 
 

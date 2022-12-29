@@ -123,5 +123,31 @@
     
 </div>
 
+<div>
+    <div class='subtitle_contain'>
+        <h2 class="subtitle">Proyectos</h2>
+        <a class='link-add' href="{% url 'lims:client_add_project' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
+    </div>
+        {% if projects %}
+            <table>
+                <tr>
+                    <td class='item-list-sp title-item-list'>Codigo</td>
+                    <td class='item-list-sp title-item-list'>Nombre</td>
+                </tr>
+            
+                {% for project in projects %}
+                    <tr>
+                        <td class='item-list-sp'>{{ project.codigo }}</td>
+                        <td class='item-list-sp'>{{ project.nombre }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        
+        {% else  %}
+            No hay registro de proyectos.
+        {% endif %}
+    
+</div>
+
 
 {% endblock content %}

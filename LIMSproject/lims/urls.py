@@ -14,6 +14,7 @@ urlpatterns = [
     path('clients/<int:id_cliente>/add_contact/', views.client_add_contact, name="client_add_contact"),
     path('clients/<int:id_cliente>/add_sample_point/', views.client_add_sample_point, name="client_add_sample_point"),
     path('clients/<int:id_cliente>/add_rca/', views.client_add_rca, name="client_add_rca"),
+    path('clients/<int:id_cliente>/add_project/', views.client_add_project, name="client_add_project"),
     path('normas_ref/add_norma/', views.add_normas_ref, name="add_normas_ref"),
     path('normas_ref/', views.normas_ref, name="normas_ref"),
     path('methods/', views.methods, name="methods"),
