@@ -12,17 +12,21 @@
 
 
 <h3>RUT</h3>
-<p>{{ cliente.rut }}</p>
+<p class='p-client'>{{ cliente.rut }}</p>
+<p></p>
 
 <h3>Dirección</h3>
-<p>{{ cliente.direccion }}</p>
+<p class='p-client'>{{ cliente.direccion }}</p>
+<p></p>
+
 <h3>Actividad</h3>
-<p>{{ cliente.actividad }}</p>
+<p class='p-client'>{{ cliente.actividad }}</p>
+<p></p>
 
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Representantes Legales</h2>
-        <a class='btn-add' href="{% url 'lims:client_add_legal_representative' cliente.id %}">Agregar</a> 
+        <a class='link-add' href="{% url 'lims:client_add_legal_representative' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
     
     {% if legal_representatives %}
@@ -48,7 +52,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Contactos</h2>
-        <a class='btn-add' href="{% url 'lims:client_add_contact' cliente.id %}">Agregar</a> 
+        <a class='link-add' href="{% url 'lims:client_add_contact' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
     
     {% if contacts %}
@@ -74,7 +78,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Puntos de Muestreo</h2>
-        <a class='btn-add' href="{% url 'lims:client_add_sample_point' cliente.id %}">Agregar</a> 
+        <a class='link-add' href="{% url 'lims:client_add_sample_point' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
         {% if sample_points %}
             <table>
@@ -98,7 +102,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">RCA</h2>
-        <a class='btn-add' href="{% url 'lims:client_add_rca' cliente.id %}">Agregar</a> 
+        <a class='link-add' href="{% url 'lims:client_add_rca' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
         {% if rcas %}
             <table>

@@ -10,6 +10,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/e99219a564.js" crossorigin="anonymous"></script>
     <title>{% block title %}Algoritmos{% endblock  %}</title>
 </head>
 <body>
@@ -20,7 +21,7 @@
                 <ul>
                     <!--<li><a href=""></a></li>-->
                     <li class="nav-item">{{ user.first_name }} {{ user.last_name }}</li>
-                    <li class="nav-item"><a href="{% url 'users:logout' %}">Logout</a></li>
+                    <li class="nav-item"><a href="{% url 'users:logout' %}">Salir</a></li>
                 </ul>
             </div>
         </nav>
@@ -32,6 +33,8 @@
                 <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:clients' %}">CLIENTES</a></li>
                 <li class='left-bar-item'><a class='link-bar' href="#">PROYECTOS</a></li>
                 <li class='left-bar-item'><a class='link-bar' href="#">SERVICIOS</a></li>
+                <li class='left-bar-item'><a class='link-bar' href="#">PARAMETROS</a></li>
+                <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:methods' %}">METODOS</a></li>
                 <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:normas_ref' %}">NORMAS DE REF</a></li>
 
             </ul>

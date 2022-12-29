@@ -13,6 +13,7 @@ def index(request):
    
     return render(request, 'base/base.html')
 
+
 @login_required
 def clients(request):
     """Clients view."""
@@ -32,7 +33,8 @@ def add_client(request):
         rut = request.POST['rut']
         direccion = request.POST['direccion']
         actividad = request.POST['actividad']
-        models.Cliente.objects.create(titular=titular, rut=rut, direccion=direccion, actividad=actividad)
+        usuario = request.POST['creador']
+        models.Cliente.objects.create(titular=titular, rut=rut, direccion=direccion, actividad=actividad, creator_user=usuario)
 
         return redirect('lims:clients')
     return render(request, 'LIMS/add_client.html')
@@ -54,6 +56,7 @@ def client(request, id_cliente):
         'rcas': rcas,
     })
 
+
 def client_add_legal_representative(request, id_cliente):
     if request.method == 'POST':
         if 'contact-number' in request.POST.keys():
@@ -69,15 +72,17 @@ def client_add_legal_representative(request, id_cliente):
             todo = []
             for valor in request.POST.values():
                 todo.append(valor)
-            contactos = todo[1::2]
-            ruts = todo[2::2]
-            for contacto, rut in zip(contactos, ruts):
-                models.RepresentanteLegalCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente) 
+            contactos = todo[1::3]
+            ruts = todo[2::3]
+            usuarios = todo[3::3]
+            for contacto, rut, usuario in zip(contactos, ruts, usuarios):
+                models.RepresentanteLegalCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente, creator_user= usuario) 
             return redirect('lims:client', id_cliente)
     return render(request, 'lims/client_add_legal_representative.html', {
         'pm':[0],
         'len_pm': 1,
     })
+
 
 @login_required
 def client_add_contact(request, id_cliente):
@@ -95,10 +100,11 @@ def client_add_contact(request, id_cliente):
             todo = []
             for valor in request.POST.values():
                 todo.append(valor)
-            contactos = todo[1::2]
-            ruts = todo[2::2]
-            for contacto, rut in zip(contactos, ruts):
-                models.ContactoCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente) 
+            contactos = todo[1::3]
+            ruts = todo[2::3]
+            usuarios = todo[3::3]
+            for contacto, rut, usuario in zip(contactos, ruts, usuarios):
+                models.ContactoCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente, creator_user= usuario) 
             return redirect('lims:client', id_cliente)
     return render(request, 'lims/client_add_contact.html', {
         'pm':[0],
@@ -121,12 +127,13 @@ def client_add_sample_point(request, id_cliente):
                     'len_pm': len_pm,
                     })
         else:
-            puntos = []
+            todo = []
             for valor in request.POST.values():
-                puntos.append(valor)
-            puntos = puntos[1::]
-            for punto in puntos:
-                models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= id_cliente) 
+                todo.append(valor)
+            puntos = todo[1::2]
+            usuarios = todo[2::2]
+            for punto, usuario in zip(puntos, usuarios):
+                models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= id_cliente, creator_user= usuario) 
             return redirect('lims:client', id_cliente)
 
     return render(request, 'LIMS/client_add_sample_point.html', {
@@ -150,38 +157,18 @@ def client_add_rca(request, id_cliente):
                     'len_pm': len_pm,
                     })
         else:
-            puntos = []
+            todo = []
             for valor in request.POST.values():
-                puntos.append(valor)
-            puntos = puntos[1::]
-            for punto in puntos:
-                models.RCACliente.objects.create(rca_asociada= punto, cliente_id= id_cliente) 
+                todo.append(valor)
+            puntos = todo[1::2]
+            usuarios = todo[2::2]
+            for punto, usuario in zip(puntos, usuarios):
+                models.RCACliente.objects.create(rca_asociada= punto, cliente_id= id_cliente, creator_user= usuario) 
             return redirect('lims:client', id_cliente)
 
     return render(request, 'LIMS/client_add_rca.html', {
         'pm':[0],
         'len_pm': 1,
-    })
-
-
-@login_required
-def sample_points(request):
-    """Sample point view."""
-    clients = models.Cliente.objects.all()
-    sp = models.PuntoDeMuestreo.objects.all()
-    return render(request, 'LIMS/sample_points.html', {
-        'sp': sp,
-        'clients': clients,
-    })
-
-@login_required
-def contact(request):
-    """Contact view."""
-    clients = models.Cliente.objects.all()
-    contacts = models.ContactoCliente.objects.all()
-    return render(request, 'LIMS/contact.html', {
-        'contacts': contacts,
-        'clients': clients,
     })
 
 
@@ -193,6 +180,7 @@ def normas_ref(request):
     return render(request, 'LIMS/normas_ref.html',{
         'normas': normas,
     })
+
 
 @login_required
 def add_normas_ref(request):
@@ -209,15 +197,52 @@ def add_normas_ref(request):
                     'len_pm': len_pm,
                     })
         else:
-            normas = []
+            todo = []
             for valor in request.POST.values():
-                normas.append(valor)
-            normas = normas[1::]
-            for norma in normas:
-                models.NormaDeReferencia.objects.create(norma=norma) 
+                todo.append(valor)
+            normas = todo[1::2]
+            usuarios = todo[2::2]
+            for norma, usuario in zip(normas, usuarios):
+                models.NormaDeReferencia.objects.create(norma=norma, creator_user=usuario) 
             return redirect('lims:normas_ref')
 
     return render(request, 'LIMS/add_normas_ref.html', {
+        'pm':[0],
+        'len_pm': 1,
+    })
+
+@login_required
+def methods(request):
+    """Normas de referencias view."""
+
+    metodos = models.Metodo.objects.all()
+    return render(request, 'LIMS/methods.html',{
+        'metodos': metodos,
+    })
+
+
+@login_required
+def add_method(request):
+    if request.method == 'POST':
+        if 'sp-number' in request.POST.keys():
+            if request.POST['sp-number'] != None:
+                pm = [x for x in range(int(request.POST['sp-number']))]
+                len_pm = len(pm)
+                if len_pm != 1:
+                    return render(request, 'lims/add_method.html', {
+                    'pm':pm,
+                    'len_pm': len_pm,
+                    })
+        else:
+            todo = []
+            for valor in request.POST.values():
+                todo.append(valor)
+            metodos = todo[1::2]
+            usuarios = todo[2::2]
+            for nombre, usuario in zip(metodos, usuarios):
+                models.Metodo.objects.create(nombre= nombre, creator_user=usuario) 
+            return redirect('lims:methods')
+    return render(request, 'lims/add_method.html', {
         'pm':[0],
         'len_pm': 1,
     })

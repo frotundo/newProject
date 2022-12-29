@@ -21,6 +21,10 @@
                 <td class='item-add'><label for="">Nombre</label></td>
                 <td class='item-input'><input type="text" name="Punto{{ forloop.counter }}" placeholder="Punto de muestreo" required></td>
             </tr>
+            <tr style='display:none'>
+                <td class='item-add'><label for="">Creador</label></td>
+                <td class='item-input'><input type='text' name="creador{{ forloop.counter }}" value='{{ user.username }}' required></td>
+            </tr>
         </table>
     {% endfor %}
     <button class='button-save' type="submit">Guardar</button>

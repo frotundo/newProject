@@ -23,6 +23,7 @@ main {
 
 .subtitle {
     font-size: 2rem;
+    margin-bottom: 10px;
 }
 
 .title {
@@ -31,6 +32,11 @@ main {
     font-weight: bold;
     margin-bottom: 20px;
 }
+
+.p-client {
+    margin-bottom: 10px;
+}
+
 form {
     display: flex;
     flex-direction: column;
@@ -53,19 +59,24 @@ table {
     width: 100%;
 }
 
-.item-list {
-    font-size: 1.4rem;
-    max-width: 180px;
+.item-list, .item-list-2, .item-list-sp {
+    font-size: 1.2rem;
     padding: 5px;
-    /* max-width: 200px;
-    max-height: 50px; */
     vertical-align: center;
-    height: 40px;
+    height: 20px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
 
+
+.item-list{
+    max-width: 180px;
+}
+
+.item-list-2, .item-list-sp  {
+    min-width: 300px;
+}
 
 .form-contador{
     display: flex;
@@ -86,18 +97,6 @@ label {
 
 tr {
     width: 100%;
-}
-.item-list-2, .item-list-sp  {
-    font-size: 1.4rem;
-    min-width: 300px;
-    padding: 5px;
-    /* max-width: 200px;
-    max-height: 50px; */
-    vertical-align: center;
-    height: 40px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
 }
 
 input {
@@ -139,10 +138,11 @@ input {
 }
 
 .button-save, .btn-selector, .btn-add {
-    padding: 5px;
+    padding: 4px;
     color: white;
     background: #0c7cbf;
     cursor: pointer;
+    font-weight: bold;
 }
 
 .button-save:hover, .btn-selector:hover, .btn-add:hover {
@@ -153,4 +153,16 @@ input {
 
 .subtitle_contain {
     margin-top: 15px;
+}
+
+.fa-circle-plus {
+    color: #0c7cbf;
+    font-size: 2rem;
+}
+
+.fa-circle-plus:hover {
+    color: #acc835;
+}
+.link-add {
+    margin-left: 10px;
 }

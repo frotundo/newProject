@@ -11,8 +11,8 @@ class Cliente(models.Model):
     direccion = models.CharField(max_length=200)
     rut = models.CharField(max_length=10, unique=True)
     actividad = models.CharField(max_length=250)
-    #email = models.EmailField(unique=True)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.titular
@@ -24,6 +24,7 @@ class ContactoCliente(models.Model):
     rut = models.CharField(max_length=200, unique=True)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
@@ -35,6 +36,7 @@ class PuntoDeMuestreo(models.Model):
     nombre = models.CharField(max_length=200, unique=True)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
@@ -45,6 +47,7 @@ class NormaDeReferencia(models.Model):
     
     norma = models.CharField(max_length=254, unique=True)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.norma
@@ -56,6 +59,7 @@ class RCACliente(models.Model):
     rca_asociada = models.CharField(max_length=200)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.rca_asociada
@@ -74,6 +78,7 @@ class Proyecto(models.Model):
     norma_de_referencia = models.ForeignKey(NormaDeReferencia, null=True, blank=True, on_delete=models.PROTECT)
     rCA = models.ForeignKey(RCACliente, null=True, blank=True, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre_de_Proyecto
@@ -87,6 +92,7 @@ class Envase(models.Model):
     material = models.CharField(max_length=100)
     Preservante = models.CharField(max_length=254)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
@@ -103,6 +109,8 @@ class Servicio(models.Model):
     envase = models.ManyToManyField(Envase) #Revisar
     #punto_de_muestreo =  #Revisar
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
+
     def __str__(self):
         return self.codigo_muestra
 
@@ -111,6 +119,7 @@ class Servicio(models.Model):
 class Parametro(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
     pass
 
 class RepresentanteLegalCliente(models.Model):
@@ -120,19 +129,20 @@ class RepresentanteLegalCliente(models.Model):
     rut = models.CharField(max_length=200, unique=True)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
-
 
 
 class Metodo(models.Model):
     """Method model."""
     nombre = models.CharField(max_length=254)
     created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
-
-
+    def __str__(self):
+        return self.nombre
 
 
 
