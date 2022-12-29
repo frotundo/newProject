@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Envase</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+        <table>
+            <tr>
+                <td class='item-add'><Label>Nombre</Label></td>
+                <td class='item-input'><input type="text" name="nombre" id="" placeholder="Nombre" required></td>
+                
+            </tr>
+            
+            <tr>
+                <td class='item-add'><Label>Volumen</Label></td>
+                <td class='item-input'><input type="text" name="volumen" id="" placeholder="Volumen" required></td>
+            </tr>
+    
+            <tr>
+                <td class='item-add'><Label>Material</Label></td>
+                <td class='item-input'><input type="text" name="material" id="" placeholder="Material" required></td>
+            </tr>
+            
+            <tr>
+                <td class='item-add'><Label>Preservante</Label></td>
+                <td class='item-input'><input type="text" name="preservante" id="" placeholder="Preservante" required></td>
+            </tr>
+            <tr style='display:none'>
+                <td class='item-add'><label for="">Creador</label></td>
+                <td class='item-input'><input type='text' name="creador" value='{{ user.username }}' required></td>
+            </tr>
+        </table>
+        
+
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

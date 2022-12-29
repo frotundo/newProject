@@ -90,7 +90,7 @@ class Envase(models.Model):
     nombre = models.CharField(max_length=100)
     volumen = models.CharField(max_length=10)
     material = models.CharField(max_length=100)
-    Preservante = models.CharField(max_length=254)
+    preservante = models.CharField(max_length=254)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 

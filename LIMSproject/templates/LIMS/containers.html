@@ -1,0 +1,37 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">Envases</h1>
+    <a class='link-add' href="{% url 'lims:add_containers' %}"><i class="fa-solid fa-circle-plus"></i></a> 
+</div>
+
+{% if envases %}
+    <table>
+        <tr>
+            <td class='item-list title-item-list'>Nombre</td>
+            <td class='item-list title-item-list'>Volumen</td>
+            <td class='item-list title-item-list'>Material</td>
+            <td class='item-list title-item-list'>Preservante</td>
+        </tr>
+    
+        {% for envase in envases %}
+        <tr>
+            <td class='item-list'>{{ envase.nombre }}</td>
+            <td class='item-list'>{{ envase.volumen }}</td>
+            <td class='item-list'>{{ envase.material }}</td>
+            <td class='item-list'>{{ envase.preservante }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    No hay registro de envases.
+{% endif %}
+
+
+{% endblock content %}

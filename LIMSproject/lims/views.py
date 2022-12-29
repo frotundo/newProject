@@ -246,3 +246,27 @@ def add_method(request):
         'pm':[0],
         'len_pm': 1,
     })
+
+@login_required
+def containers(request):
+    '''Containers view.'''
+
+    envases = models.Envase.objects.all()
+    return render(request, 'LIMS/containers.html',{
+        'envases': envases,
+    })
+
+@login_required
+def add_container(request):
+    """Add container view."""
+
+    if request.method == 'POST':
+        nombre = request.POST['nombre']
+        volumen = request.POST['volumen']
+        material = request.POST['material']
+        preservante = request.POST['preservante']
+        usuario = request.POST['creador']
+        models.Envase.objects.create(nombre=nombre, volumen=volumen, material=material, preservante=preservante, creator_user=usuario)
+
+        return redirect('lims:containers')
+    return render(request, 'LIMS/add_containers.html')

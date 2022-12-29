@@ -17,5 +17,7 @@ urlpatterns = [
     path('normas_ref/add_norma/', views.add_normas_ref, name="add_normas_ref"),
     path('normas_ref/', views.normas_ref, name="normas_ref"),
     path('methods/', views.methods, name="methods"),
-    path('methods/add_method', views.add_method, name="add_method"),
+    path('methods/add_method/', views.add_method, name="add_method"),
+    path('containers/', views.containers, name="containers"),
+    path('containers/add_container/', views.add_container, name="add_containers"),
 ]
