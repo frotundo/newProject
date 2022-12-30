@@ -1,14 +1,19 @@
-# from django import forms
+from django import forms
 
-# from . import models
+from . import models
 
-# class MethodForm(forms.ModelForm):
+# class AddProjectForm(forms.ModelForm):
 
 #     class Meta:
 
-#         model = models.Metodo
+#         model = models.Proyecto
 
-#         fields = '__all__'
+#         fields = {
+#             'nombre',
+#             'codigo',
+#             'tipo_de_muestra'
+            
+#         }
 
 #         label = {
 #             'nombre':'Nombre',
@@ -19,3 +24,12 @@
 #             'nombre': forms.TextInput(),
 #             'creator_user': forms.TextInput(),
 #         }
+
+class ProjectForm(forms.ModelForm):
+
+    class Meta:
+
+        model = models.Proyecto
+
+        fields = '__all__'
+

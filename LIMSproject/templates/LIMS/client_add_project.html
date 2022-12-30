@@ -1,0 +1,101 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Proyecto</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+        <table>
+            <tr style='display:none'>
+                <td class='item-add'><label for="">Cliente</label></td>
+                <td class='item-input'><input type='text' name="cliente" value={{cliente.id}} required></td>
+            </tr>
+            <tr>
+                <td class='item-add'><Label>Nombre</Label></td>
+                <td class='item-input'><input type="text" name="nombre" id="" placeholder="nombre" ></td>
+                
+            </tr>
+            
+            <tr>
+                <td class='item-add'><Label>Código</Label></td>
+                <td class='item-input'><input type="text" name="codigo" id="" placeholder="Código" ></td>
+            </tr>
+    
+            <tr>
+                <td class='item-add'><Label>Responsable de muestreo y/o medición</Label></td>
+                <td class='item-input'><input type="text" name="responsable_muestreo" id="" placeholder="Nombre del responsable" ></td>
+            </tr>
+            
+            <tr style='display:none'>
+                <td class='item-add'><label for="">Creador</label></td>
+                <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+            </tr>
+        </table>
+        
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Puntos de muestreo</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="punto_de_muestreo" id="lang" multiple>
+                        <option value=""></option>
+                        {% for sp in sample_points %}
+                        <option value="{{ sp.id }}">{{ sp.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Tipo de Muestra</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="tipo_de_muestra" id="lang" multiple>
+                        <option value=""></option>
+                        {% for matriz in matrices %}
+                        <option value="{{ matriz.id }}">{{ matriz.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Norma de Referencia</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="norma_de_referencia" id="lang" multiple>
+                        <option value=""></option>
+                        {% for norma in normas %}
+                        <option value="{{ norma.id }}">{{ norma.norma }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+
+        
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">RCA</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="rCA" id="lang" multiple>
+                        <option value=""></option>
+                        {% for rca in rcas %}
+                        <option value="{{ rca.id }}">{{ rca.rca_asociada }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

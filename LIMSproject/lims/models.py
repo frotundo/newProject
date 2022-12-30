@@ -156,16 +156,16 @@ class Proyecto(models.Model):
     nombre = models.CharField(max_length=254)
     codigo = models.CharField(max_length=10)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.CASCADE)
-    tipo_de_muestra = models.ForeignKey(TipoDeMuestra, null=True, blank=True, on_delete=models.PROTECT)
-    punto_de_muestreo = models.ForeignKey(PuntoDeMuestreo, null=True, blank=True, on_delete=models.PROTECT)
+    tipo_de_muestra = models.ManyToManyField(TipoDeMuestra)
+    punto_de_muestreo = models.ManyToManyField(PuntoDeMuestreo)
     responsable_muestreo = models.CharField(max_length=254)
-    norma_de_referencia = models.ForeignKey(NormaDeReferencia, null=True, blank=True, on_delete=models.PROTECT)
-    rCA = models.ForeignKey(RCACliente, null=True, blank=True, on_delete=models.PROTECT)
+    norma_de_referencia = models.ManyToManyField(NormaDeReferencia)
+    rCA = models.ManyToManyField(RCACliente)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.nombre_de_Proyecto
+        return self.nombre
 
 
 

@@ -3,15 +3,26 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-from . import models
+from . import models, forms
 
 # Create your views here.
 
 @login_required
 def index(request):
     """Index view."""
-   
-    return render(request, 'base/base.html')
+    if request.method == 'POST':
+        form = forms.ProjectForm(request.POST)
+        if form.is_valid():
+            print(request.POST)
+            # # Get the selected choices
+            # selected_choices = form.cleaned_data['multiple_select']
+            # # Do something with the selected choices, such as inserting them into the database
+            # # ...
+            # return redirect('success')
+    else:
+        form = forms.ProjectForm()
+    return render(request, 'index.html', {'form': form})
+    # return render(request, 'base/base.html')
 
 
 @login_required
@@ -58,7 +69,7 @@ def client(request, id_cliente):
         'projects': projects,
     })
 
-
+@login_required
 def client_add_legal_representative(request, id_cliente):
     if request.method == 'POST':
         if 'contact-number' in request.POST.keys():
@@ -129,11 +140,14 @@ def client_add_sample_point(request, id_cliente):
                     'len_pm': len_pm,
                     })
         else:
+            print(request.POST)
             todo = []
             for valor in request.POST.values():
                 todo.append(valor)
             puntos = todo[1::2]
+            print(puntos)
             usuarios = todo[2::2]
+            print(usuarios)
             for punto, usuario in zip(puntos, usuarios):
                 models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= id_cliente, creator_user= usuario) 
             return redirect('lims:client', id_cliente)
@@ -146,7 +160,7 @@ def client_add_sample_point(request, id_cliente):
 
 @login_required
 def client_add_rca(request, id_cliente):
-    '''Client add sample point view.'''
+    '''Client add RCA view.'''
 
     if request.method == 'POST':
         if 'sp-number' in request.POST.keys():
@@ -175,33 +189,27 @@ def client_add_rca(request, id_cliente):
 
 
 @login_required
-def client_add_project(request, id_client):
+def client_add_project(request, id_cliente):
     """Add Standards of reference view."""
-    pass
-    # if request.method == 'POST':
-    #     if 'sp-number' in request.POST.keys():
-    #         if request.POST['sp-number'] != None:
-    #             pm = [x for x in range(int(request.POST['sp-number']))]
-    #             len_pm = len(pm)
-    #             if len_pm != 1:
-    #                 return render(request, 'lims/add_normas_ref.html', {
-    #                 'pm':pm,
-    #                 'len_pm': len_pm,
-    #                 })
-    #     else:
-    #         todo = []
-    #         for valor in request.POST.values():
-    #             todo.append(valor)
-    #         normas = todo[1::2]
-    #         usuarios = todo[2::2]
-    #         for norma, usuario in zip(normas, usuarios):
-    #             models.NormaDeReferencia.objects.create(norma=norma, creator_user=usuario) 
-    #         return redirect('lims:normas_ref')
-
-    # return render(request, 'LIMS/add_normas_ref.html', {
-    #     'pm':[0],
-    #     'len_pm': 1,
-    # })
+    cliente = models.Cliente.objects.get(id=id_cliente)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id = id_cliente)
+    rcas = models.RCACliente.objects.filter(cliente_id = id_cliente)
+    normas = models.NormaDeReferencia.objects.all()
+    matrices = models.TipoDeMuestra.objects.all()
+    
+    if request.method == 'POST':
+       form = forms.ProjectForm(request.POST)
+       if form.is_valid():
+        form.save()
+        return redirect('lims:client', id_cliente)
+    
+    return render(request, 'LIMS/client_add_project.html', {
+        'sample_points' : sample_points,
+        'rcas': rcas,
+        'normas': normas,
+        'matrices': matrices,
+        'cliente': cliente,
+    })
 
 
 @login_required
