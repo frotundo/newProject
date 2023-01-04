@@ -10,19 +10,7 @@ from . import models, forms
 @login_required
 def index(request):
     """Index view."""
-    if request.method == 'POST':
-        form = forms.ProjectForm(request.POST)
-        if form.is_valid():
-            print(request.POST)
-            # # Get the selected choices
-            # selected_choices = form.cleaned_data['multiple_select']
-            # # Do something with the selected choices, such as inserting them into the database
-            # # ...
-            # return redirect('success')
-    else:
-        form = forms.ProjectForm()
-    return render(request, 'index.html', {'form': form})
-    # return render(request, 'base/base.html')
+    return render(request, 'base/base.html')
 
 
 @login_required
@@ -310,3 +298,99 @@ def add_container(request):
 
         return redirect('lims:containers')
     return render(request, 'LIMS/add_containers.html')
+
+
+@login_required
+def parameters(request):
+    '''Parameters view.'''
+    
+    parameters = models.Parametro.objects.all()
+    return render(request, 'lims/parameters.html', {
+        'parameters': parameters,
+    })
+
+
+@login_required
+def add_parameter(request):
+    metodos = models.Metodo.objects.all()
+    tipos_de_muestras = models.TipoDeMuestra.objects.all()
+    if request.method == 'POST':
+        form = forms.ParameterForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('lims:parameters')
+    return render(request, 'lims/add_parameter.html',{
+        'metodos': metodos,
+        'tipos_de_muestras': tipos_de_muestras,
+    })
+    
+
+
+@login_required
+def samples_type(request):
+
+    samples_type = models.TipoDeMuestra.objects.all()
+    return render(request, 'lims/samples_type.html', {
+        'samples_type':samples_type,
+    })
+
+@login_required
+def add_sample_type(request):
+    """Add Standards of reference view."""
+
+    if request.method == 'POST':
+        if 'sp-number' in request.POST.keys():
+            if request.POST['sp-number'] != None:
+                pm = [x for x in range(int(request.POST['sp-number']))]
+                len_pm = len(pm)
+                if len_pm != 1:
+                    return render(request, 'lims/add_sample_type.html', {
+                    'pm':pm,
+                    'len_pm': len_pm,
+                    })
+        else:
+            todo = []
+            for valor in request.POST.values():
+                todo.append(valor)
+            nombres = todo[1::2]
+            usuarios = todo[2::2]
+            for nombre, usuario in zip(nombres, usuarios):
+                models.TipoDeMuestra.objects.create(nombre=nombre, creator_user=usuario) 
+            return redirect('lims:samples_type')
+
+    return render(request, 'LIMS/add_sample_type.html', {
+        'pm':[0],
+        'len_pm': 1,
+    })
+
+@login_required
+def etfa(request):
+    services = models.ETFA.objects.all()
+    parameters = models.Parametro.objects.all()
+    return render(request, 'lims/etfa.html',{
+        'services':services,
+        'parameters': parameters,
+    })
+
+
+@login_required
+def add_etfa(request):
+    parameters = models.Parametro.objects.all()
+    if request.method == 'POST':
+        form = forms.ETFAForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('lims:etfa')
+    return  render(request, 'lims/add_etfa.html', {
+        'parameters': parameters,
+    })
+
+@login_required
+def service(request, project_id):
+    project = models.Proyecto.objects.get(pk = project_id)
+    sp = project.norma_de_referencia.all()
+    print(sp)
+    return render(request, 'index.html', {
+        'project': project, 
+        'sp': sp,
+    })

@@ -55,6 +55,15 @@ table {
 .item-input {
     width: 70%;
 }
+
+.item-input-2 {
+    width: 30%;
+}
+
+.limit {
+    width: 100%;
+    padding-bottom: 10px ;
+}
 .item-input input {
     width: 100%;
 }
@@ -101,7 +110,6 @@ tr {
 
 input {
     font-size: 1.6rem;
-    width: 50%;
 }
 
 .title-item-list {

@@ -21,4 +21,11 @@ urlpatterns = [
     path('methods/add_method/', views.add_method, name="add_method"),
     path('containers/', views.containers, name="containers"),
     path('containers/add_container/', views.add_container, name="add_containers"),
+    path('parameters/', views.parameters, name="parameters"),
+    path('parameters/add_parameter/', views.add_parameter, name="add_parameter"),
+    path('samples_type/', views.samples_type, name="samples_type"),
+    path('samples_type/add_sample_type/', views.add_sample_type, name="add_sample_type"),
+    path('etfa/', views.etfa, name="etfa"),
+    path('etfa/add_etfa', views.add_etfa, name="add_etfa"),
+    path('service/<str:project_id>', views.service, name="service"),
 ]

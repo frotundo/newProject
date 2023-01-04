@@ -137,7 +137,7 @@
             
                 {% for project in projects %}
                     <tr>
-                        <td class='item-list-sp'>{{ project.codigo }}</td>
+                        <td class='item-list-sp'><a href="{% url 'lims:service' project.codigo %}" class='item-list-sp'>{{ project.codigo }}</a></td>
                         <td class='item-list-sp'>{{ project.nombre }}</td>
                     </tr>
                 {% endfor %}

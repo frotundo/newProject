@@ -1,0 +1,31 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">Proyectos</h1>
+    <a class='link-add' href="{% url 'lims:add_method' %}"><i class="fa-solid fa-circle-plus"></i></a> 
+</div>
+
+{% if metodos %}
+    <table>
+        <tr>
+            <td class='item-list title-item-list'>Nombre</td>
+        </tr>
+    
+        {% for metodo in metodos %}
+        <tr>
+            <td class='item-list'>{{ metodo.nombre }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    No hay registro de metodos.
+{% endif %}
+
+
+{% endblock content %}

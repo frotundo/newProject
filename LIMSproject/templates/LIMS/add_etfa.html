@@ -1,0 +1,72 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Servicio ETFA</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+        <table>
+            <tr>
+                <td class='item-add'><Label>Código de autorización</Label></td>
+                <td class='item-input'><input type="text" name="codigo" id="" placeholder="Código" ></td>
+            </tr>
+            
+            <tr style='display:none'>
+                <td class='item-add'><label for="">Creador</label></td>
+                <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+            </tr>
+        </table>
+        
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Parametro</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="parametro" id="lang" size='1'>
+                        <option value=""></option>
+                        {% for p in parameters %}
+                        <option value="{{ p.id }}">{{ p.ensayo }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+
+        {% comment %} <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Método</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="metodo" id="lang" size='1'>
+                        <option value=""></option>
+                        {% for m in methods %}
+                        <option value="{{ m.id }}">{{ m.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Tipo de muestra</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="norma_de_referencia" id="lang" size='1'>
+                        <option value=""></option>
+                        {% for matriz in matrices %}
+                        <option value="{{ matriz.id }}">{{ matriz.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </table> {% endcomment %}
+
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

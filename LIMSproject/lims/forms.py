@@ -2,29 +2,6 @@ from django import forms
 
 from . import models
 
-# class AddProjectForm(forms.ModelForm):
-
-#     class Meta:
-
-#         model = models.Proyecto
-
-#         fields = {
-#             'nombre',
-#             'codigo',
-#             'tipo_de_muestra'
-            
-#         }
-
-#         label = {
-#             'nombre':'Nombre',
-#             'creator_user': 'Creado por'
-#         }
-
-#         widgets = {
-#             'nombre': forms.TextInput(),
-#             'creator_user': forms.TextInput(),
-#         }
-
 class ProjectForm(forms.ModelForm):
 
     class Meta:
@@ -33,3 +10,26 @@ class ProjectForm(forms.ModelForm):
 
         fields = '__all__'
 
+class ServiceForm(forms.ModelForm):
+
+    class Meta:
+
+        model = models.Servicio
+
+        fields = '__all__'
+
+class ParameterForm(forms.ModelForm):
+
+    class Meta:
+
+        model = models.Parametro
+
+        fields = '__all__'
+
+class ETFAForm(forms.ModelForm):
+
+    class Meta:
+
+        model = models.ETFA
+
+        fields = '__all__'

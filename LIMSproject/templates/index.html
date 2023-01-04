@@ -1,6 +1,12 @@
-<form action="" method='post'>
+{% comment %} <form action="" method='post'>
 
     {% csrf_token %}
     {{form.as_table}}
     <button type="submit">Save</button>
-</form>
+</form> {% endcomment %}
+
+<h1>{{project.codigo}}</h1>
+
+{% for s in sp %}
+    <p>{{ s }}</p>
+{% endfor %}

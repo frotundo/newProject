@@ -1,0 +1,37 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">Servicios ETFA</h1>
+    <a class='link-add' href="{% url 'lims:add_etfa' %}"><i class="fa-solid fa-circle-plus"></i></a> 
+</div>
+
+{% if services %}
+    <table>
+        <tr>
+            <td class='item-list title-item-list'>Código de autorización</td>
+        </tr>
+    
+        {% for service in services %}
+        <tr>
+            <td class='item-list'>{{ service.codigo }}</td>
+            <td class='item-list'>
+                {% for parameter in parameters %}
+                    {% if parameter.id == service.parametro_id %}
+                        {{ parameter.ensayo }}
+                    {% endif %}
+                {% endfor %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    No hay registro de servicios ETFA.
+{% endif %}
+
+
+{% endblock content %}
