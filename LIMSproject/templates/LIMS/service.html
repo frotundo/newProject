@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">{{ service.codigo_muestra }}</h1>
+</div>
+
+
+<p class="p-service"><strong>Servicio ETFA: </strong> {% if servicio.etfa == true  %} SI {% else %} NO {% endif %}</p>
+<p class="p-service"> <strong>Punto de muestreo:</strong>  {{ service.punto_de_muestreo }}</p>
+<p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
+<p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo }}</p>
+<p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepción }}</p>
+
+<h3>Envases</h3>
+<p class='p-service'>{{ service.envases }}</p>
+
+<p><strong>Norma de referencia</strong></p>
+<p class='p-service'>{{ norma.norma }}</p>
+
+<p></p><h3>RCA</h3>
+<p class='p-service'>{{ rca.rca_asociada }}</p>
+
+
+<div>
+    <div class='subtitle_contain'>
+        <h2 class="subtitle">Parametros</h2>
+        <a class='link-add' href="#"><i class="fa-solid fa-circle-plus"></i></a> 
+    </div>
+    
+    {% if parameters %}
+        <table id='#table-service'>
+            <tr>
+                <td class='item-list-2 title-item-list'>Ensayo</td>
+                <td class='item-list-2 title-item-list'>Responsable</td>
+                <td class='item-list-2 title-item-list'>Fecha de inicio</td>  
+                <td class='item-list-2 title-item-list'>Fecha de termino</td>      
+                <td class='item-list-2 title-item-list'>Resultado Inical</td>  
+                <td class='item-list-2 title-item-list'>Resultado final</td>
+                
+            </tr>
+        
+            {% for p in parameters %}
+                <tr class='btn-service'>
+                    <td class='item-list-2'><a href="">{% for i in parametros %}
+                        {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
+                    {% endfor %}</a></td>
+                    <td class='item-list-2'> {% if p.responsable_de_analisis == None %}{% else %}{{ p.responsable_de_analisis }}{% endif %}</td>
+                    <td class='item-list-2'>{% if p.responsable_de_analisis == None %}{% else %}{{ p.fecha_de_inicio }}{% endif %}</td>
+                    <td class='item-list-2'>{% if p.responsable_de_analisis == None %}{% else %}{{ p.fecha_de_terminado }}{% endif %}</td>
+                    <td class='item-list-2'>{% if p.resultado == None %}{% else %}{{ p.resultado }}{% endif %}</td>
+                    <td class='item-list-2'>{% if p.resultado_final == None %}{% else %}{{ p.resultado_final }}{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else  %}
+        No hay registro de parametyros.
+    {% endif %}
+</div>
+
+
+{% endblock content %}
+
+{% block extrajs %}
+    <script src="{% static 'js/lims.js' %}"></script>
+{% endblock  %}

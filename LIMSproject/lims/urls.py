@@ -29,4 +29,5 @@ urlpatterns = [
     path('etfa/add_etfa', views.add_etfa, name="add_etfa"),
     path('project/<str:project_id>/', views.project, name="project"),
     path('project/<str:project_id>/add_service', views.add_service, name="add_service"),
+    path('service/<str:service_id>/', views.service, name="service"),
 ]

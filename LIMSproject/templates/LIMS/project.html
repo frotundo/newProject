@@ -32,7 +32,7 @@
         
             {% for service in services %}
                 <tr class='btn-service'>
-                    <td class='item-list-2'><a href="">{{ service.codigo_muestra }}</a></td>
+                    <td class='item-list-2'><a href="{% url 'lims:service' service.codigo_muestra %}">{{ service.codigo_muestra }}</a></td>
                     <td class='item-list-2'>{{ service.punto_de_muestreo }}</td>
                     <td class='item-list-2'>{{ service.fecha_de_muestreo }}</td>
                     <td class='item-list-2'>{{ service.fecha_de_recepción }}</td>

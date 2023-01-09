@@ -515,11 +515,19 @@ def add_service(request, project_id):
 
 
 @login_required
-def add_service_parameter(request, project_id, parameters, servicio_id):
-    print(project_id)
-    print(parameters)
-    print(servicio_id)
-    return render(request, 'base/base.html')
+def service(request, service_id):
+    service = models.Servicio.objects.get(pk=service_id)
+    parametros = models.ParametroEspecifico.objects.all()    
+    parameters = models.ParametroDeMuestra.objects.filter(servicio_id=service_id)
+    rca = models.RCACliente.objects.get(pk=service.rCA)
+    norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
+    return render(request, 'lims/service.html', {
+        'service': service,
+        'parametros': parametros,
+        'parameters': parameters,
+        'rca': rca,
+        'norma': norma,
+    })
 
 
 
