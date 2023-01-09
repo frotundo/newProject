@@ -42,9 +42,14 @@ form {
     flex-direction: column;
 }
 table {
-    width: 80%;
+    width: 100%;
 }
 
+
+.btn-service:hover,  .btn-service-active{
+    background: #ececec;
+    border-radius:  5px;
+}
 .table-client {
     margin-bottom: 10px;
 }
@@ -84,7 +89,7 @@ table {
 }
 
 .item-list-2, .item-list-sp  {
-    min-width: 300px;
+    min-width: 150px;
 }
 
 .form-contador{

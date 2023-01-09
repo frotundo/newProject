@@ -1,0 +1,52 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">{{ project.nombre }}</h1>
+</div>
+
+
+<h3>Codigo</h3>
+<p class='p-client'>{{ project.codigo }}</p>
+<p></p>
+
+<div>
+    <div class='subtitle_contain'>
+        <h2 class="subtitle">Servicios</h2>
+        <a class='link-add' href="{% url 'lims:add_service' project.codigo %}"><i class="fa-solid fa-circle-plus"></i></a> 
+    </div>
+    
+    {% if services %}
+        <table id='#table-service'>
+            <tr>
+                <td class='item-list-2 title-item-list'>Codigo de muestra</td>
+                <td class='item-list-2 title-item-list'>Punto de muestreo</td>
+                <td class='item-list-2 title-item-list'>Fecha de muestreo</td>
+                <td class='item-list-2 title-item-list'>Fecha de recepción</td>       
+            </tr>
+        
+            {% for service in services %}
+                <tr class='btn-service'>
+                    <td class='item-list-2'><a href="">{{ service.codigo_muestra }}</a></td>
+                    <td class='item-list-2'>{{ service.punto_de_muestreo }}</td>
+                    <td class='item-list-2'>{{ service.fecha_de_muestreo }}</td>
+                    <td class='item-list-2'>{{ service.fecha_de_recepción }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else  %}
+        No hay registro de servicios.
+    {% endif %}
+</div>
+
+
+{% endblock content %}
+
+{% block extrajs %}
+    <script src="{% static 'js/lims.js' %}"></script>
+{% endblock  %}

@@ -1,20 +1,9 @@
 
-from django.shortcuts import render, redirect
-from .forms import EditForm
-from .models import MyModel
+lista = [1, 2, 3, 4]
+s = [2, 1, 3]
 
-def edit_view(request, pk):
-    object = MyModel.objects.get(pk=pk)
-
-    if request.method == 'POST':
-        form = EditForm(request.POST, instance=object)
-        if form.is_valid():
-            form.save()
-            return redirect('success_url')
-    else:
-        form = EditForm(instance=object)
-
-    return render(request, 'edit.html', {'form': form})
-
-
+for i in lista:
+  for n in s:
+    if n==i:
+      print(n)
 

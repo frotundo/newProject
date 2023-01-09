@@ -22,7 +22,7 @@ class ParameterForm(forms.ModelForm):
 
     class Meta:
 
-        model = models.Parametro
+        model = models.ParametroEspecifico
 
         fields = '__all__'
 
@@ -31,5 +31,13 @@ class ETFAForm(forms.ModelForm):
     class Meta:
 
         model = models.ETFA
+
+        fields = '__all__'
+
+class ServiceForm(forms.ModelForm):
+    
+    class Meta:
+
+        model = models.Servicio
 
         fields = '__all__'

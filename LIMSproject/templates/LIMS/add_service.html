@@ -1,0 +1,151 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Servicio</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+    <table  class='client-select'>
+        <tr>
+            <td class='item-add'><label for="lang">¿Servicio ETFA?</label></td>
+            <td class='item-input'>
+                <select class='select1' name="etfa" id="lang"  size='1'>
+                    <option value=""></option>
+                    <option value="True">SI</option>
+                    <option value="False">NO</option>
+                </select>
+            </td>
+        </tr>
+        <p></p>
+        <p></p>
+    </table>
+    <table>
+        <tr style='display:none;'>
+            <td class='item-add'><Label>Proyecto</Label></td>
+            <td class='item-input'><input type="text" name="proyecto" id="" placeholder="" value='{{ project.codigo }}'></td>
+        </tr>
+        
+        <tr>
+            <td class='item-add'><Label>Codigo de muestra</Label></td>
+            <td class='item-input'><input type="text" name="codigo_muestra" id="" placeholder="codigo" required></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Fecha de muestreo</Label></td>
+            <td class='item-input'><input type='date' name="fecha_de_recepcion" id="" placeholder="" required></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Fecha de recepción</Label></td>
+            <td class='item-input'><input type='date' name="fecha_de_muestreo" id="" placeholder="" required></td>
+        </tr>
+
+        <tr style='display:none'>
+            <td class='item-add'><label for="">Creador</label></td>
+            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Muestreado por</Label></td>
+            <td class='item-input'><input type="text" name="muestreado_por_algoritmo" id="" placeholder="Nombre del muestreador"></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Envases</Label></td>
+            <td class='item-input'><input type="text" name="envases" id="" placeholder="lista de envases"></td>
+        </tr>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Punto de muestreo</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="punto_de_muestreo" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for sp in sample_points %}
+                        <option value="{{ sp.id }}">{{ sp.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Tipo de muestra</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="tipo_de_muestra" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for tipo in tipos_de_muestras %}
+                        <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Parametros</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="parameters" id="lang"  multiple>
+                        <option value=""></option>
+                        {% for p in parameters %}
+                        <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Norma de Referencia</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="norma_de_referencia" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for n in normas %}
+                        <option value="{{ n.id }}">{{ n.norma }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">RCA</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="rCA" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for rca in rcas %}
+                        <option value="{{ rca.id }}">{{ rca.rca_asociada }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+    </table>
+        
+
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

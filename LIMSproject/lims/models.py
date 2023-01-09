@@ -98,16 +98,17 @@ class TipoDeMuestra(models.Model):
     def __str__(self):
         return self.nombre
 
+        
+class ParametroEspecifico(models.Model):
+    '''Specific parameter model.'''
 
-class Parametro(models.Model):
-    '''Parameter model.'''
-
-    ensayo = models.CharField(max_length=254, unique=True)
-    metodo = models.ForeignKey(Metodo, on_delete=models.CASCADE)
-    tipo_de_muestra = models.ForeignKey(TipoDeMuestra, on_delete=models.CASCADE)
+    ensayo = models.CharField(max_length=254)
+    codigo = models.CharField(max_length=254, unique=True)
+    metodo = models.CharField(max_length=254)
     LDM = models.FloatField()
     LCM = models.FloatField()
     unidad = models.CharField(max_length=20)
+    tipo_de_muestra = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -134,11 +135,6 @@ class Proyecto(models.Model):
     codigo = models.CharField(max_length=10, primary_key=True)
     nombre = models.CharField(max_length=254)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.PROTECT)
-    # tipo_de_muestra = models.ManyToManyField(TipoDeMuestra)
-    # punto_de_muestreo = models.ManyToManyField(PuntoDeMuestreo)
-    # # responsable_muestreo = models.CharField(max_length=254)
-    # norma_de_referencia = models.ManyToManyField(NormaDeReferencia)
-    # rCA = models.ManyToManyField(RCACliente)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -151,22 +147,15 @@ class Servicio(models.Model):
 
     codigo_muestra = models.CharField(max_length=50, primary_key=True, unique=True)
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
-    punto_de_muestreo = models.ForeignKey(PuntoDeMuestreo, on_delete=models.CASCADE)
-    tipo_de_muestra = models.ForeignKey(TipoDeMuestra, on_delete=models.CASCADE)
-    fecha_de_muestreo = models.DateField()
-    envases = models.ForeignKey(Envase, on_delete=models.CASCADE)
-    fecha_de_recepción = models.DateField()
-    
-    norma_de_referencia = models.F(NormaDeReferencia)
-    rCA = models.ManyToManyField(RCACliente)
-
-    
-    parametros = models.ManyToManyField(Parametro)
-    metodos = models.ManyToManyField(Metodo)
-    punto_de_muestreo = models.ForeignKey(PuntoDeMuestreo, on_delete=models.PROTECT)
-    tipo_de_muestra = models.ForeignKey(TipoDeMuestra, on_delete=models.PROTECT)
+    punto_de_muestreo = models.CharField(max_length=200)
+    tipo_de_muestra = models.CharField(max_length=200)
+    fecha_de_muestreo = models.DateField(null=True, blank=True,)
+    envases = models.TextField(null=True, blank=True,)
+    fecha_de_recepción = models.DateField(null=True, blank=True,)
+    norma_de_referencia = models.CharField(max_length=254)
+    rCA = models.CharField(max_length=254)
     etfa = models.BooleanField() 
-    muestreado_por_algoritmo = models.CharField(max_length=5)
+    muestreado_por_algoritmo = models.CharField(max_length=254)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -175,16 +164,16 @@ class Servicio(models.Model):
 
 
 class ParametroDeMuestra(models.Model):
-
-    parametro = models.OneToOneField(Parametro, on_delete=models.CASCADE)
-    responsable_de_analisis = models.ForeignKey(User, on_delete=models.PROTECT)
-    fecha_de_inicio = models.DateTimeField()
-    fecha_de_terminado = models.DateTimeField()
-    resultado = models.FloatField()
-    factor_de_dilucion = models.IntegerField()
-    resultado_final = models.FloatField()
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
+    responsable_de_analisis = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
+    fecha_de_inicio = models.DateTimeField(null=True, blank=True,)
+    fecha_de_terminado = models.DateTimeField(null=True, blank=True,)
+    resultado = models.FloatField(null=True, blank=True,)
+    factor_de_dilucion = models.IntegerField(null=True, blank=True,)
+    resultado_final = models.FloatField(null=True, blank=True,)
     created = models.DateTimeField(auto_now_add=True)
-    creator_user = models.CharField(max_length=100)
+    creator_user = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return self.codigo_muestra
@@ -193,7 +182,9 @@ class ParametroDeMuestra(models.Model):
 class ETFA(models.Model):
 
     codigo = models.CharField(max_length=20, primary_key=True)
-    parametro = models.ForeignKey(Parametro, on_delete=models.CASCADE)
-
+    parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
+    
     def __str__(self):
         return self.codigo

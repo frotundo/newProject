@@ -1,6 +1,7 @@
 """LIMS views."""
 
-from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
 from . import models, forms
@@ -17,7 +18,7 @@ def index(request):
 def clients(request):
     """Clients view."""
     
-    clients = models.Cliente.objects.all()
+    clients = models.Cliente.objects.all().order_by('titular')
     return render(request, 'LIMS/clients.html', {
         'clients': clients,
     })
@@ -33,7 +34,13 @@ def add_client(request):
         direccion = request.POST['direccion']
         actividad = request.POST['actividad']
         usuario = request.POST['creador']
-        models.Cliente.objects.create(titular=titular, rut=rut, direccion=direccion, actividad=actividad, creator_user=usuario)
+        models.Cliente.objects.create(
+            titular=titular, 
+            rut=rut, 
+            direccion=direccion, 
+            actividad=actividad, 
+            creator_user=usuario
+            )
 
         return redirect('lims:clients')
     return render(request, 'LIMS/add_client.html')
@@ -44,10 +51,10 @@ def client(request, id_cliente):
     """Client model."""
     cliente = models.Cliente.objects.get(id=id_cliente)
     contacts = models.ContactoCliente.objects.filter(cliente_id = id_cliente)
-    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id = id_cliente)
-    legal_representatives = models.RepresentanteLegalCliente.objects.filter(cliente_id = id_cliente)
-    rcas = models.RCACliente.objects.filter(cliente_id = id_cliente)
-    projects = models.Proyecto.objects.filter(cliente_id = id_cliente)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id = id_cliente).order_by('nombre')
+    legal_representatives = models.RepresentanteLegalCliente.objects.filter(cliente_id = id_cliente).order_by('nombre')
+    rcas = models.RCACliente.objects.filter(cliente_id = id_cliente).order_by('rca_asociada')
+    projects = models.Proyecto.objects.filter(cliente_id = id_cliente).order_by('codigo')
     return render(request, 'LIMS/client.html', {
         'cliente':cliente,
         'contacts': contacts,
@@ -77,7 +84,12 @@ def client_add_legal_representative(request, id_cliente):
             ruts = todo[2::3]
             usuarios = todo[3::3]
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
-                models.RepresentanteLegalCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente, creator_user= usuario) 
+                models.RepresentanteLegalCliente.objects.create(
+                    nombre= contacto, 
+                    rut=rut, 
+                    cliente_id= id_cliente, 
+                    creator_user= usuario
+                    ) 
             return redirect('lims:client', id_cliente)
     return render(request, 'lims/client_add_legal_representative.html', {
         'pm':[0],
@@ -105,7 +117,12 @@ def client_add_contact(request, id_cliente):
             ruts = todo[2::3]
             usuarios = todo[3::3]
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
-                models.ContactoCliente.objects.create(nombre= contacto, rut=rut, cliente_id= id_cliente, creator_user= usuario) 
+                models.ContactoCliente.objects.create(
+                    nombre= contacto, 
+                    rut=rut, 
+                    cliente_id= id_cliente, 
+                    creator_user= usuario
+                    ) 
             return redirect('lims:client', id_cliente)
     return render(request, 'lims/client_add_contact.html', {
         'pm':[0],
@@ -137,7 +154,11 @@ def client_add_sample_point(request, id_cliente):
             usuarios = todo[2::2]
             print(usuarios)
             for punto, usuario in zip(puntos, usuarios):
-                models.PuntoDeMuestreo.objects.create(nombre= punto, cliente_id= id_cliente, creator_user= usuario) 
+                models.PuntoDeMuestreo.objects.create(
+                    nombre= punto, 
+                    cliente_id= id_cliente, 
+                    creator_user= usuario
+                    ) 
             return redirect('lims:client', id_cliente)
 
     return render(request, 'LIMS/client_add_sample_point.html', {
@@ -167,7 +188,11 @@ def client_add_rca(request, id_cliente):
             puntos = todo[1::2]
             usuarios = todo[2::2]
             for punto, usuario in zip(puntos, usuarios):
-                models.RCACliente.objects.create(rca_asociada= punto, cliente_id= id_cliente, creator_user= usuario) 
+                models.RCACliente.objects.create(
+                    rca_asociada= punto, 
+                    cliente_id= id_cliente, 
+                    creator_user= usuario
+                    ) 
             return redirect('lims:client', id_cliente)
 
     return render(request, 'LIMS/client_add_rca.html', {
@@ -204,7 +229,7 @@ def client_add_project(request, id_cliente):
 def normas_ref(request):
     """Normas de referencias view."""
 
-    normas = models.NormaDeReferencia.objects.all()
+    normas = models.NormaDeReferencia.objects.all().order_by('norma')
     return render(request, 'LIMS/normas_ref.html',{
         'normas': normas,
     })
@@ -243,7 +268,7 @@ def add_normas_ref(request):
 def methods(request):
     """Normas de referencias view."""
 
-    metodos = models.Metodo.objects.all()
+    metodos = models.Metodo.objects.all().order_by('nombre')
     return render(request, 'LIMS/methods.html',{
         'metodos': metodos,
     })
@@ -268,7 +293,10 @@ def add_method(request):
             metodos = todo[1::2]
             usuarios = todo[2::2]
             for nombre, usuario in zip(metodos, usuarios):
-                models.Metodo.objects.create(nombre= nombre, creator_user=usuario) 
+                models.Metodo.objects.create(
+                    nombre= nombre, 
+                    creator_user=usuario
+                    ) 
             return redirect('lims:methods')
     return render(request, 'lims/add_method.html', {
         'pm':[0],
@@ -279,7 +307,7 @@ def add_method(request):
 def containers(request):
     '''Containers view.'''
 
-    envases = models.Envase.objects.all()
+    envases = models.Envase.objects.all().order_by('nombre')
     return render(request, 'LIMS/containers.html',{
         'envases': envases,
     })
@@ -303,15 +331,18 @@ def add_container(request):
 @login_required
 def parameters(request):
     '''Parameters view.'''
-    
-    parameters = models.Parametro.objects.all()
+
+    parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
+    metodos = models.Metodo.objects.all()
     return render(request, 'lims/parameters.html', {
         'parameters': parameters,
+        'metodos': metodos,
     })
 
 
 @login_required
 def add_parameter(request):
+
     metodos = models.Metodo.objects.all()
     tipos_de_muestras = models.TipoDeMuestra.objects.all()
     if request.method == 'POST':
@@ -329,7 +360,7 @@ def add_parameter(request):
 @login_required
 def samples_type(request):
 
-    samples_type = models.TipoDeMuestra.objects.all()
+    samples_type = models.TipoDeMuestra.objects.all().order_by('nombre')
     return render(request, 'lims/samples_type.html', {
         'samples_type':samples_type,
     })
@@ -355,7 +386,10 @@ def add_sample_type(request):
             nombres = todo[1::2]
             usuarios = todo[2::2]
             for nombre, usuario in zip(nombres, usuarios):
-                models.TipoDeMuestra.objects.create(nombre=nombre, creator_user=usuario) 
+                models.TipoDeMuestra.objects.create(
+                    nombre=nombre, 
+                    creator_user=usuario
+                    ) 
             return redirect('lims:samples_type')
 
     return render(request, 'LIMS/add_sample_type.html', {
@@ -365,8 +399,8 @@ def add_sample_type(request):
 
 @login_required
 def etfa(request):
-    services = models.ETFA.objects.all()
-    parameters = models.Parametro.objects.all()
+    services = models.ETFA.objects.all().order_by('codigo')
+    parameters = models.ParametroEspecifico.objects.all()
     return render(request, 'lims/etfa.html',{
         'services':services,
         'parameters': parameters,
@@ -375,7 +409,7 @@ def etfa(request):
 
 @login_required
 def add_etfa(request):
-    parameters = models.Parametro.objects.all()
+    parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
     if request.method == 'POST':
         form = forms.ETFAForm(request.POST)
         if form.is_valid():
@@ -385,12 +419,108 @@ def add_etfa(request):
         'parameters': parameters,
     })
 
+
+
 @login_required
-def service(request, project_id):
+def project(request, project_id):
     project = models.Proyecto.objects.get(pk = project_id)
-    sp = project.norma_de_referencia.all()
-    print(sp)
-    return render(request, 'index.html', {
+    cliente = models.Cliente.objects.get(pk=project.cliente_id)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id)
+    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id)
+    print(sample_points)
+    services = models.Servicio.objects.filter(proyecto_id=project_id)
+    parameters_service = models.ParametroDeMuestra.objects.all()
+    return render(request, 'lims/project.html', {
         'project': project, 
-        'sp': sp,
+        'cliente': cliente,
+        'sample_points': sample_points,
+        'rcas': rcas,
+        'services': services,
+        'parameters': parameters_service,
     })
+
+
+@login_required
+def add_service(request, project_id):
+    project = models.Proyecto.objects.get(pk = project_id)
+    cliente = models.Cliente.objects.get(pk=project.cliente_id)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
+    tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
+    parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
+    normas = models.NormaDeReferencia.objects.all().order_by('norma')
+    
+    if request.method == 'POST':
+        codigo_muestra = request.POST['codigo_muestra']
+        proyecto = request.POST['proyecto']
+        punto_de_muestreo = request.POST['punto_de_muestreo']
+        tipo_de_muestra = request.POST['tipo_de_muestra']
+        fecha_de_muestreo = request.POST['fecha_de_muestreo']
+        envases = request.POST['envases']
+        fecha_de_recepcion = request.POST['fecha_de_recepcion']
+        norma_de_referencia = request.POST['norma_de_referencia']
+        rCA = request.POST['rCA']
+        etfa = request.POST['etfa']
+        muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
+        creator_user = request.POST['creator_user']
+        parameters = request.POST.getlist('parameters')
+        
+        for sp in sample_points:
+            if int(punto_de_muestreo) == int(sp.id):
+                models.Servicio(
+                    codigo_muestra = codigo_muestra, 
+                    proyecto_id = proyecto, 
+                    punto_de_muestreo = sp.nombre,
+                    tipo_de_muestra = tipo_de_muestra,
+                    fecha_de_muestreo = fecha_de_muestreo,
+                    envases = envases,
+                    fecha_de_recepción = fecha_de_recepcion,
+                    norma_de_referencia = norma_de_referencia,
+                    rCA = rCA,
+                    etfa = etfa,
+                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+                    creator_user = creator_user
+                    ).save()
+
+            else:
+                models.Servicio(
+                    codigo_muestra = codigo_muestra, 
+                    proyecto_id = proyecto, 
+                    punto_de_muestreo = punto_de_muestreo.nombre,
+                    tipo_de_muestra = tipo_de_muestra,
+                    fecha_de_muestreo = fecha_de_muestreo,
+                    envases = envases,
+                    fecha_de_recepción = fecha_de_recepcion,
+                    norma_de_referencia = norma_de_referencia,
+                    rCA = rCA,
+                    etfa = etfa,
+                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+                    creator_user = creator_user
+                    ).save()
+                    
+
+        for pid in parameters:
+            models.ParametroDeMuestra(servicio_id = codigo_muestra, parametro_id= pid).save()
+
+        return redirect('lims:project', project_id)
+    return render(request, 'lims/add_service.html', {
+        'project': project, 
+        'cliente': cliente,
+        'sample_points': sample_points,
+        'rcas': rcas,
+        'tipos_de_muestras': tipo_de_muestra,
+        'parameters': parametros,
+        'normas': normas,
+    })
+
+
+@login_required
+def add_service_parameter(request, project_id, parameters, servicio_id):
+    print(project_id)
+    print(parameters)
+    print(servicio_id)
+    return render(request, 'base/base.html')
+
+
+
+

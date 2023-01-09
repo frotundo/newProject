@@ -6,13 +6,6 @@
 {% block content %}
 <h1 class="title">Agregar Parametros</h1>
 
-{% comment %} <form class='form-contador' action="" method='POST'>
-    {% csrf_token %}
-        <label for="">¿Metodos a agregar?</label>
-        <input type="number" name='sp-number' value='{{len_pm}}' class='input-sp'>   
-        <button type="submit" class='btn-selector'>Agregar</button>
-</form> {% endcomment %}
-
 <form action="" method='POST'>
     {% csrf_token %}   
 
@@ -20,6 +13,10 @@
             <tr>
                 <td class='item-add'><label for="">Ensayo</label></td>
                 <td class='item-input'><input type="text" name="ensayo" placeholder="Nombre de ensayo" required></td>
+            </tr>
+            <tr>
+                <td class='item-add'><label for="">Código</label></td>
+                <td class='item-input'><input type="text" name="codigo" placeholder="Código de ensayo" required></td>
             </tr>
         </table>
         <table  class='client-select'>
@@ -29,7 +26,7 @@
                     <select class='select1' name="metodo" id="lang" size='1'>
                         <option value=""></option>
                         {% for metodo in metodos %}
-                        <option value="{{ metodo.id }}">{{ metodo.nombre }}</option>
+                        <option value="{{ metodo.nombre }}">{{ metodo.nombre }}</option>
                     {% endfor %}
                     </select>
                 </td>
@@ -53,7 +50,7 @@
                     <select class='select1' name="tipo_de_muestra" id="lang"  size='1'>
                         <option value=""></option>
                         {% for tipo_de_muestra in tipos_de_muestras %}
-                        <option value="{{ tipo_de_muestra.id }}">{{ tipo_de_muestra.nombre }}</option>
+                        <option value="{{ tipo_de_muestra.nombre }}">{{ tipo_de_muestra.nombre }}</option>
                     {% endfor %}
                     </select>
                 </td>

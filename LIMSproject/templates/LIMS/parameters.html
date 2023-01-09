@@ -14,12 +14,22 @@
 {% if parameters %}
     <table>
         <tr>
-            <td class='item-list title-item-list'>Nombre</td>
+            <td class='item-list title-item-list'>Ensayo</td>
+            <td class='item-list title-item-list'>Código</td>
+            <td class='item-list title-item-list'>Metodo</td>
+            <td class='item-list title-item-list'>LDM</td>
+            <td class='item-list title-item-list'>LCM</td>
+            <td class='item-list title-item-list'>Unidad</td>
         </tr>
     
         {% for parameter in parameters %}
         <tr>
             <td class='item-list'>{{ parameter.ensayo }}</td>
+            <td class='item-list'>{{ parameter.codigo }}</td>
+            <td class='item-list'>{{ parameter.metodo }}</td>
+            <td class='item-list'>{{ parameter.LDM }}</td>
+            <td class='item-list'>{{ parameter.LCM }}</td>
+            <td class='item-list'>{{ parameter.unidad }}</td>
         </tr>
         {% endfor %}
     </table>

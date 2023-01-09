@@ -4,11 +4,11 @@
     <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
 {% endblock %}
 {% block content %}
-<h1 class="title">Agregar RCA</h1>
+<h1 class="title">Agregar Parametros</h1>
 
 <form class='form-contador' action="" method='POST'>
     {% csrf_token %}
-        <label for="">¿Puntos de muestreo a agregar?</label>
+        <label for="">¿Parametro a agregar a agregar?</label>
         <input type="number" name='sp-number' value='{{len_pm}}' class='input-sp'>   
         <button type="submit" class='btn-selector'>Agregar</button>
 </form>
@@ -18,8 +18,8 @@
     {% for n in pm %}
         <table class='table-client'>
             <tr>
-                <td class='item-add'><label for="">RCA</label></td>
-                <td class='item-input'><input type="text" name="Punto{{ forloop.counter }}" placeholder="Punto de muestreo" required></td>
+                <td class='item-add'><label for="">Ensayo</label></td>
+                <td class='item-input'><input type="text" name="Punto{{ forloop.counter }}" placeholder="Ensayo" required></td>
             </tr>
             <tr style='display:none'>
                 <td class='item-add'><label for="">Creador</label></td>
