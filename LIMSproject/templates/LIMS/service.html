@@ -11,7 +11,7 @@
 </div>
 
 
-<p class="p-service"><strong>Servicio ETFA: </strong> {% if servicio.etfa == true  %} SI {% else %} NO {% endif %}</p>
+<p class="p-service"><strong>Servicio ETFA: </strong> {% if service.etfa == True  %} SI {% else %} NO {% endif %}</p>
 <p class="p-service"> <strong>Punto de muestreo:</strong>  {{ service.punto_de_muestreo }}</p>
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
 <p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo }}</p>
@@ -47,7 +47,7 @@
         
             {% for p in parameters %}
                 <tr class='btn-service'>
-                    <td class='item-list-2'><a href="">{% for i in parametros %}
+                    <td class='item-list-2'><a href="{% url 'lims:edit_sample_parameter' p.id%}">{% for i in parametros %}
                         {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
                     {% endfor %}</a></td>
                     <td class='item-list-2'> {% if p.responsable_de_analisis == None %}{% else %}{{ p.responsable_de_analisis }}{% endif %}</td>

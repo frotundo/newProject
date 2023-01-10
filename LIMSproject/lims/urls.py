@@ -30,4 +30,8 @@ urlpatterns = [
     path('project/<str:project_id>/', views.project, name="project"),
     path('project/<str:project_id>/add_service', views.add_service, name="add_service"),
     path('service/<str:service_id>/', views.service, name="service"),
+    path('service/<str:service_id>/', views.service, name="service"),
+    path('parameter/<str:parameter_id>/', views.edit_sample_parameter, name="edit_sample_parameter"),
+    path('service_parameters/', views.service_parameters, name="service_parameters"),
+
 ]

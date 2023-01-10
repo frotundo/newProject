@@ -3,6 +3,7 @@
 from django.urls import reverse
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 from . import models, forms
 
@@ -427,8 +428,7 @@ def project(request, project_id):
     cliente = models.Cliente.objects.get(pk=project.cliente_id)
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id)
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id)
-    print(sample_points)
-    services = models.Servicio.objects.filter(proyecto_id=project_id)
+    services = models.Servicio.objects.filter(proyecto_id=project_id).order_by('-created')
     parameters_service = models.ParametroDeMuestra.objects.all()
     return render(request, 'lims/project.html', {
         'project': project, 
@@ -517,7 +517,7 @@ def add_service(request, project_id):
 @login_required
 def service(request, service_id):
     service = models.Servicio.objects.get(pk=service_id)
-    parametros = models.ParametroEspecifico.objects.all()    
+    parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
     parameters = models.ParametroDeMuestra.objects.filter(servicio_id=service_id)
     rca = models.RCACliente.objects.get(pk=service.rCA)
     norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
@@ -529,6 +529,72 @@ def service(request, service_id):
         'norma': norma,
     })
 
+ 
+@login_required 
+def edit_sample_parameter(request,parameter_id):
+    """Edit sample parameter model."""
+    
+    parametro = models.ParametroDeMuestra.objects.get(id=parameter_id)   
+    if request.method == 'POST':
+        responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
+        parametro.responsable_de_analisis= responsable
+        parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
+        parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
+        parametro.resultado = request.POST['resultado']
+        parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
+        parametro.resultado_final = request.POST['resultado_final']
+        parametro.creator_user = request.POST['creator_user']
+        parametro.save()
+        
+        servicio_id = parametro.servicio_id
+        return redirect('lims:service', servicio_id)
+    
+    return render(request, 'lims/edit_sample_parameter.html', {
+       'parameter': parametro,
+    })
 
 
+@login_required
+def service_parameters(request):
+    service_parameters = models.ParametroDeMuestra.objects.all().order_by('servicio_id')
+    parametros = models.ParametroEspecifico.objects.all()
+    parameters = parametros
+    if request.method == 'POST':
+        print(request.POST)
+        if 'parametro' in request.POST.keys():
+            if request.POST['parametro'] == '':
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+            else:
+                service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro']).order_by('servicio_id')
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+        else:
+            
+            parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
+            responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
+            parametro.responsable_de_analisis= responsable
+            parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
+            parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
+            parametro.resultado = request.POST['resultado']
+            parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
+            parametro.resultado_final = request.POST['resultado_final']
+            parametro.creator_user = request.POST['creator_user']
+            parametro.save()
+            
+           
+            return redirect('lims:service_parameters')
+
+
+    return render(request, 'lims/service_parameters.html',{
+        'service_parameters': service_parameters,
+        'parametros': parametros,
+        'parameters': parameters,
+    })
 

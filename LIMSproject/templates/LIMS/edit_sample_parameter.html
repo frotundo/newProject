@@ -1,0 +1,58 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Informacion de Analisis</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+    <table>
+        <tr style='display:none;'>
+            <td class='item-add'><Label>Responsable</Label></td>
+            <td class='item-input'><input type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Fecha de inicio</Label></td>
+            
+            <td class='item-input'>{% if parameter.fecha_de_inicio != None %}<input type='text' name="fecha_de_inicio" value='{{ parameter.fecha_de_inicio }}'id="" placeholder="" >{% else %}<input type='date' name="fecha_de_inicio" id="" placeholder="" >{% endif %}</td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Fecha de terminado</Label></td>
+            <td class='item-input'>{% if parameter.fecha_de_terminado != None %}<input type='text' name="fecha_de_terminado" value='{{ parameter.fecha_de_terminado }}'id="" placeholder="" >{% else %}<input type='date' name="fecha_de_terminado" id="" placeholder="" >{% endif %}</td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Resultado de analisis</Label></td>
+            <td class='item-input'>{% if parameter.resultado != None %}<input type='text' name="resultado" value='{{ parameter.resultado }}'id="" placeholder="" >{% else %}<input type='text' name="resultado" id="" placeholder="" >{% endif %}</td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Factor de dilución</Label></td>
+            <td class='item-input'>{% if parameter.factor_de_dilucion != None %}<input type='text' name="factor_de_dilucion" value='{{ parameter.factor_de_dilucion }}'id="" placeholder="" >{% else %}<input type='text' name="factor_de_dilucion" id="" placeholder="" >{% endif %}</td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Resultado final</Label></td>
+            <td class='item-input'>{% if parameter.resultado_final != None %}<input type='text' name="resultado_final" value='{{ parameter.resultado_final }}'id="" placeholder="" >{% else %}<input type='text' name="resultado_final" id="" placeholder="" >{% endif %}</td>
+        </tr>
+
+
+        <tr style='display:none'>
+            <td class='item-add'><label for="">Creador</label></td>
+            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' readonly></td>
+        </tr>
+
+    </table>
+        
+
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+{% endblock  %}
