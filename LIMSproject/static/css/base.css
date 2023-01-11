@@ -26,6 +26,7 @@ nav {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: +1;
     
 }
 
@@ -88,7 +89,7 @@ a:hover {
 }
 
 .right-bar-item:hover, .left-bar-item:hover {
-    background-color: #f2f2f2;
+    background-color: #dbecf7;
     border-radius: 10px;
 }
 

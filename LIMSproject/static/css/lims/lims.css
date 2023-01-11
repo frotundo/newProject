@@ -209,3 +209,65 @@ input {
     border: none;
     font-size: 1.2rem;
 }
+
+/* ----------------------- Service Parameter ---------------------- */
+
+.search-contain {
+    position: absolute;
+    top: 110px;
+    right: 50px;
+}
+
+.search-contain form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: end;
+    flex-direction: row;
+}
+
+.search-contain select {
+    width: 150px;
+}
+
+.search-contain button {
+    width: 50px;
+}
+
+/* --------------------------- Principal Menu ------------------- */
+#body-menu {
+    padding: 0 10%;
+}
+.main-menu  {
+    display: grid;
+    place-items : center;
+}
+
+#menu-contain { 
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 30px;
+    row-gap: 50px;
+    grid-auto-rows: minmax(1fr, auto);
+}
+
+.link-menu {
+    width: 100%;
+    height: 100px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+    border-radius: 20px;
+    text-align: center;
+    padding: 20px 10px;
+    font-size: 1.2rem;
+    background-color: #dbecf7;
+    font-weight: bold;
+}
+
+.link-menu:hover {
+    transition: 0.05s;
+    transform: translateY(-4px);
+}
+
+.link-menu i {
+    font-size: 4rem;
+    margin-bottom: 5px ;
+}

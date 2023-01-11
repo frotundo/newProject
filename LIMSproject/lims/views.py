@@ -12,14 +12,34 @@ from . import models, forms
 @login_required
 def index(request):
     """Index view."""
-    return render(request, 'base/base.html')
+    return render(request, 'lims/menu.html')
 
 
 @login_required
 def clients(request):
     """Clients view."""
-    
+
     clients = models.Cliente.objects.all().order_by('titular')
+
+    if request.method == 'POST':
+        if request.POST['search_text'] == '' or request.POST['opcion'] == '':
+            return render(request, 'LIMS/clients.html', {
+                'clients': clients,
+            })
+        elif request.POST['opcion'] == 'titular':
+            clients = models.Cliente.objects.filter(titular__icontains = request.POST['search_text']).order_by('titular')
+            return render(request, 'LIMS/clients.html',{
+                'clients': clients,
+                })
+
+
+        elif request.POST['opcion'] == 'rut':
+            clients = models.Cliente.objects.filter(rut__contains = request.POST['search_text']).order_by('titular')
+            return render(request, 'LIMS/clients.html',{
+                'clients': clients,
+                })
+    
+    
     return render(request, 'LIMS/clients.html', {
         'clients': clients,
     })
@@ -500,7 +520,7 @@ def add_service(request, project_id):
                     
 
         for pid in parameters:
-            models.ParametroDeMuestra(servicio_id = codigo_muestra, parametro_id= pid).save()
+            models.ParametroDeMuestra(servicio_id = codigo_muestra, parametro_id= pid, codigo_servicio= codigo_muestra).save()
 
         return redirect('lims:project', project_id)
     return render(request, 'lims/add_service.html', {
@@ -513,6 +533,28 @@ def add_service(request, project_id):
         'normas': normas,
     })
 
+
+@login_required
+def add_service_parameter(request, service_id):
+    servicio = models.Servicio.objects.get(codigo_muestra = service_id)
+    project = models.Proyecto.objects.get(pk = servicio.proyecto_id)
+    parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
+
+    
+    if request.method == 'POST':
+        codigo_muestra = request.POST['codigo_muestra']
+        creator_user = request.POST['creator_user']
+        parameters = request.POST.getlist('parameters')
+
+
+        for pid in parameters:
+            models.ParametroDeMuestra(servicio_id = service_id, parametro_id= pid, codigo_servicio= service_id, creator_user=creator_user).save()
+
+        return redirect('lims:project', service.proyecto_id)
+    return render(request, 'lims/add_service_parameter.html', {
+        'project': project, 
+        'parameters': parametros,
+    })
 
 @login_required
 def service(request, service_id):
@@ -559,8 +601,8 @@ def service_parameters(request):
     service_parameters = models.ParametroDeMuestra.objects.all().order_by('servicio_id')
     parametros = models.ParametroEspecifico.objects.all()
     parameters = parametros
+
     if request.method == 'POST':
-        print(request.POST)
         if 'parametro' in request.POST.keys():
             if request.POST['parametro'] == '':
                 return render(request, 'lims/service_parameters.html',{
@@ -575,6 +617,32 @@ def service_parameters(request):
                     'parametros': parametros,
                     'parameters': parameters,
                     })
+
+
+        if 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+            elif request.POST['buscar'] == 'servicio':
+                service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains=request.POST['search_text'])
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+
+            elif request.POST['buscar'] == 'inicio':
+                service_parameters = models.ParametroDeMuestra.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
         else:
             
             parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
@@ -598,3 +666,109 @@ def service_parameters(request):
         'parameters': parameters,
     })
 
+@login_required
+def projects(request):
+    proyectos = models.Proyecto.objects.all().order_by('codigo')
+    clientes = models.Cliente.objects.all().order_by('titular')
+    if request.method == 'POST':
+        if 'client' in request.POST.keys():
+            if request.POST['client'] == '' :
+                return render(request, 'LIMS/projects.html',{
+                    'proyectos': proyectos,
+                    'clientes': clientes,
+                })
+            else:
+                proyectos = models.Proyecto.objects.filter(cliente_id=request.POST['client']).order_by('codigo')
+                return render(request, 'LIMS/projects.html',{
+                    'proyectos': proyectos,
+                    'clientes': clientes,
+                })
+
+        if 'search_text' in request.POST.keys():
+            
+            if request.POST['search_text'] == '' or request.POST['opcion'] == '':
+                return render(request, 'LIMS/projects.html',{
+                    'proyectos': proyectos,
+                    'clientes': clientes,
+                })
+
+            if request.POST['opcion'] == 'codigo':
+                proyectos = models.Proyecto.objects.filter(codigo__contains=request.POST['search_text']).order_by('codigo')
+                return render(request, 'LIMS/projects.html',{
+                    'proyectos': proyectos,
+                    'clientes': clientes,
+                })
+
+            if request.POST['opcion'] == 'nombre':
+                proyectos = models.Proyecto.objects.filter(nombre__icontains=request.POST['search_text']).order_by('codigo')
+                return render(request, 'LIMS/projects.html',{
+                    'proyectos': proyectos,
+                    'clientes': clientes,
+                })
+
+    return render(request, 'LIMS/projects.html',{
+        'proyectos': proyectos,
+        'clientes': clientes,
+    })
+
+
+@login_required
+def services(request):
+    servicios = models.Servicio.objects.all().order_by('codigo_muestra')
+    clientes = models.Cliente.objects.all().order_by('titular')
+
+    if request.method == 'POST':
+        if 'client' in request.POST.keys():
+            if request.POST['client'] == '' :
+                return render(request, 'LIMS/services.html',{
+                    'servicios': servicios,
+                    'clientes': clientes,
+                })
+
+            else:
+                servicios = models.Servicio.objects.filter(cliente=request.POST['client']).order_by('codigo_muestra')
+                return render(request, 'LIMS/services.html',{
+                    'servicios': servicios,
+                    'clientes': clientes,
+                })
+
+        if 'search_text' in request.POST.keys():
+            
+            if request.POST['search_text'] == '' or request.POST['opcion'] == '':
+                return render(request, 'LIMS/services.html',{
+                    'servicios': servicios,
+                    'clientes': clientes,
+                })
+
+            if request.POST['opcion'] == 'codigo':
+                servicios = models.Servicio.objects.filter(codigo_muestra__contains=request.POST['search_text']).order_by('codigo_muestra')
+                return render(request, 'LIMS/services.html',{
+                    'servicios': servicios,
+                    'clientes': clientes,
+                })
+
+            if request.POST['opcion'] == 'punto':
+                servicios = models.Servicio.objects.filter(punto_de_muestreo__icontains=request.POST['search_text']).order_by('codigo_muestra')
+                return render(request, 'LIMS/services.html',{
+                    'servicios': servicios,
+                    'clientes': clientes,
+                })
+
+            if request.POST['opcion'] == 'muestreo':
+                servicios = models.Servicio.objects.filter(fecha_de_muestreo__contains=request.POST['search_text']).order_by('codigo_muestra')
+                return render(request, 'LIMS/services.html',{
+                    'servicios': servicios,
+                    'clientes': clientes,
+                })
+            
+            if request.POST['opcion'] == 'recepcion':
+                servicios = models.Servicio.objects.filter(fecha_de_recepción__contains=request.POST['search_text']).order_by('codigo_muestra')
+                return render(request, 'LIMS/services.html',{
+                    'servicios': servicios,
+                    'clientes': clientes,
+                })
+
+    return render(request, 'LIMS/services.html',{
+        'servicios': servicios,
+        'clientes': clientes,
+    })

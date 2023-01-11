@@ -14,14 +14,16 @@
         <select name="opcion" id="">
             <option value=""></option>
             <option value="codigo">Codigo</option>
-            <option value="nombre">Nombre</option>
+            <option value="punto">Punto de muestreo</option>
+            <option value="muestreo">Fecha de muestreo</option>
+            <option value="recepcion">Fecha de recepción</option>
         </select>
         <button type="submit" class='btn-filtrar'>Buscar</button>
     </form>
 </div>
 
 <div class='title_contain'>
-    <h1 class="title  title-par">Proyectos</h1>
+    <h1 class="title  title-par">Servicios</h1>
     <div style='margin: auto 0;'>
         <form action="" method='POST'>
             {% csrf_token %}
@@ -43,17 +45,22 @@
     </div>
 </div>
 
-{% if proyectos %}
+{% if servicios %}
     <table>
         <tr>
             <td class='item-list title-item-list'>Codigo</td>
-            <td class='item-list title-item-list'>Nombre</td>
+            <td class='item-list title-item-list'>Punto de muestreo</td>
+            <td class='item-list title-item-list'>Fecha de muestreo</td>
+            <td class='item-list title-item-list'>Fecha de recepción</td>
+
         </tr>
     
-        {% for proyecto in proyectos %}
+        {% for servicio in servicios %}
         <tr>
-            <td class='item-list-sp'><a href="{% url 'lims:project' proyecto.codigo %}" class='item-list-sp'>{{ proyecto.codigo }}</a></td>
-            <td class='item-list'>{{ proyecto.nombre }}</td>
+            <td class='item-list-sp'><a href="{% url 'lims:service' servicio.codigo_muestra %}" class='item-list-sp'>{{ servicio.codigo_muestra }}</a></td>
+            <td class='item-list'>{{ servicio.punto_de_muestreo }}</td>
+            <td class='item-list'>{{ servicio.fecha_de_muestreo }}</td>
+            <td class='item-list'>{{ servicio.fecha_de_recepción }}</td>
         </tr>
         {% endfor %}
     </table>

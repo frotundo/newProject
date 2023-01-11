@@ -30,7 +30,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Parametros</h2>
-        <a class='link-add' href="#"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% url 'lims:add_service_parameter' service.codigo_muestra%}"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
     
     {% if parameters %}

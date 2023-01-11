@@ -147,6 +147,7 @@ class Servicio(models.Model):
 
     codigo_muestra = models.CharField(max_length=50, primary_key=True, unique=True)
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
+    cliente = models.CharField(max_length=5)
     punto_de_muestreo = models.CharField(max_length=200)
     tipo_de_muestra = models.CharField(max_length=200)
     fecha_de_muestreo = models.DateField(null=True, blank=True,)
@@ -165,6 +166,7 @@ class Servicio(models.Model):
 
 class ParametroDeMuestra(models.Model):
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    codigo_servicio = models.CharField(max_length=100)
     parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
     responsable_de_analisis = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
     fecha_de_inicio = models.DateTimeField(null=True, blank=True,)
