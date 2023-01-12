@@ -23,6 +23,23 @@
         </tr>
         {% endfor %}
     </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if normas.has_previous %}
+                <a href="?page={{ normas.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ normas.number }} de {{ normas.paginator.num_pages }}
+            </span>
+    
+            {% if normas.has_next %}
+                <a href="?page={{ normas.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+
 {% else %}
     No hay registro de normas de referencia.
 {% endif %}

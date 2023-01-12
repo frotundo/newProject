@@ -57,9 +57,27 @@
         </tr>
         {% endfor %}
     </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if proyectos.has_previous %}
+                <a href="?page={{ proyectos.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ proyectos.number }} de {{ proyectos.paginator.num_pages }}
+            </span>
+    
+            {% if proyectos.has_next %}
+                <a href="?page={{ proyectos.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+    
 {% else %}
     No hay registro de proyectos.
 {% endif %}
+
 
 
 {% endblock content %}

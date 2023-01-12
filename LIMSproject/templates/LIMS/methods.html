@@ -23,6 +23,23 @@
         </tr>
         {% endfor %}
     </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if metodos.has_previous %}
+                <a href="?page={{ metodos.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ metodos.number }} de {{ metodos.paginator.num_pages }}
+            </span>
+    
+            {% if metodos.has_next %}
+                <a href="?page={{ metodos.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+    
 {% else %}
     No hay registro de metodos.
 {% endif %}

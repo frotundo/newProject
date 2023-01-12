@@ -83,9 +83,27 @@
         </tr>
         {% endfor %}
     </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if service_parameters.has_previous %}
+                <a href="?page={{ service_parameters.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ service_parameters.number }} de {{ service_parameters.paginator.num_pages }}
+            </span>
+    
+            {% if service_parameters.has_next %}
+                <a href="?page={{ service_parameters.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+    
 {% else %}
     No hay registro de parametros.
 {% endif %}
+
 
 
 {% endblock content %}

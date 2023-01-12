@@ -39,9 +39,27 @@
                 </tr>
             {% endfor %}
         </table>
+
+        <div class="pagination">
+            <span class="page-links">
+                {% if services.has_previous %}
+                    <a href="?page={{ services.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="page-current">
+                    Pagina {{ services.number }} de {{ services.paginator.num_pages }}
+                </span>
+        
+                {% if services.has_next %}
+                    <a href="?page={{ services.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+        
     {% else  %}
         No hay registro de servicios.
     {% endif %}
+
 </div>
 
 

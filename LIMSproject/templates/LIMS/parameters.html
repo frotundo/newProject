@@ -33,9 +33,28 @@
         </tr>
         {% endfor %}
     </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if parameters.has_previous %}
+                <a href="?page={{ parameters.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ parameters.number }} de {{ parameters.paginator.num_pages }}
+            </span>
+    
+            {% if parameters.has_next %}
+                <a href="?page={{ parameters.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+    
 {% else %}
     No hay registro de parametros.
 {% endif %}
+
+
 
 
 {% endblock content %}

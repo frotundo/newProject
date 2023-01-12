@@ -64,9 +64,24 @@
         </tr>
         {% endfor %}
     </table>
-{% else %}
-    No hay registro de proyectos.
-{% endif %}
+    <div class="pagination">
+        <span class="page-links">
+            {% if servicios.has_previous %}
+                <a href="?page={{ servicios.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ servicios.number }} de {{ servicios.paginator.num_pages }}
+            </span>
+    
+            {% if servicios.has_next %}
+                <a href="?page={{ servicios.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
 
+{% else %}
+    No hay registro de servicios.
+{% endif %}
 
 {% endblock content %}

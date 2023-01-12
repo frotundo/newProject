@@ -42,9 +42,27 @@
         </tr>
         {% endfor %}
     </table>
-        {% else %}
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if clients.has_previous %}
+                <a href="?page={{ clients.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ clients.number }} de {{ clients.paginator.num_pages }}
+            </span>
+    
+            {% if clients.has_next %}
+                <a href="?page={{ clients.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+{% else %}
     No hay registro de clientes.
 {% endif %}
+
+
 
 
 {% comment %} <div class='right-bar-contain'>

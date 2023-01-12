@@ -43,6 +43,23 @@
                 </tr>
             {% endfor %}
         </table>
+
+        <div class="pagination">
+            <span class="page-links">
+                {% if legal_representatives.has_previous %}
+                    <a href="?page_lr={{ legal_representatives.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="page-current">
+                    Pagina {{ legal_representatives.number }} de {{ legal_representatives.paginator.num_pages }}
+                </span>
+        
+                {% if legal_representatives.has_next %}
+                    <a href="?page_lr={{ legal_representatives.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+
     {% else  %}
         No hay registro de representates legales.
     {% endif %}
@@ -69,6 +86,23 @@
                 </tr>
             {% endfor %}
         </table>
+
+        <div class="pagination">
+            <span class="page-links">
+                {% if contacts.has_previous %}
+                    <a href="?page_contact={{ contacts.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="page-current">
+                    Pagina {{ contacts.number }} de {{ contacts.paginator.num_pages }}
+                </span>
+        
+                {% if contacts.has_next %}
+                    <a href="?page_contact={{ contacts.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+
     {% else  %}
         No hay registro de contactos.
     {% endif %}
@@ -93,6 +127,22 @@
                 {% endfor %}
             </table>
         
+            <div class="pagination">
+                <span class="page-links">
+                    {% if sample_points.has_previous %}
+                        <a href="?page_sp={{ sample_points.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="page-current">
+                        Pagina {{ sample_points.number }} de {{ sample_points.paginator.num_pages }}
+                    </span>
+            
+                    {% if sample_points.has_next %}
+                        <a href="?page_sp={{ sample_points.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+
         {% else  %}
             No hay registro de puntos de muestreo.
         {% endif %}
@@ -116,6 +166,22 @@
                     </tr>
                 {% endfor %}
             </table>
+
+            <div class="pagination">
+                <span class="page-links">
+                    {% if rcas.has_previous %}
+                        <a href="?page_rca={{ rcas.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="page-current">
+                        Pagina {{ rcas.number }} de {{ rcas.paginator.num_pages }}
+                    </span>
+            
+                    {% if rcas.has_next %}
+                        <a href="?page_rca={{ rcas.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
         
         {% else  %}
             No hay registro de RCA.
@@ -142,6 +208,22 @@
                     </tr>
                 {% endfor %}
             </table>
+
+            <div class="pagination">
+                <span class="page-links">
+                    {% if projects.has_previous %}
+                        <a href="?page_project={{ projects.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="page-current">
+                        Pagina {{ projects.number }} de {{ projects.paginator.num_pages }}
+                    </span>
+            
+                    {% if projects.has_next %}
+                        <a href="?page_project={{ projects.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
         
         {% else  %}
             No hay registro de proyectos.

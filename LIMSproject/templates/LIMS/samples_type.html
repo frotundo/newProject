@@ -23,6 +23,23 @@
         </tr>
         {% endfor %}
     </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if samples_type.has_previous %}
+                <a href="?page={{ samples_type.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ samples_type.number }} de {{ samples_type.paginator.num_pages }}
+            </span>
+    
+            {% if samples_type.has_next %}
+                <a href="?page={{ samples_type.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+    
 {% else %}
     No hay registro de parametros.
 {% endif %}

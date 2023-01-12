@@ -271,3 +271,7 @@ input {
     font-size: 4rem;
     margin-bottom: 5px ;
 }
+
+.pagination {
+    text-align: end;
+}

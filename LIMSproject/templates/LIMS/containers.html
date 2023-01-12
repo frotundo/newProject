@@ -29,6 +29,22 @@
         </tr>
         {% endfor %}
     </table>
+    
+    <div class="pagination">
+        <span class="page-links">
+            {% if envases.has_previous %}
+                <a href="?page={{ envases.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ envases.number }} de {{ envases.paginator.num_pages }}
+            </span>
+    
+            {% if envases.has_next %}
+                <a href="?page={{ envases.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
 {% else %}
     No hay registro de envases.
 {% endif %}
