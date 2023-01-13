@@ -14,8 +14,8 @@
 <p class="p-service"><strong>Servicio ETFA: </strong> {% if service.etfa == True  %} SI {% else %} NO {% endif %}</p>
 <p class="p-service"> <strong>Punto de muestreo:</strong>  {{ service.punto_de_muestreo }}</p>
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
-<p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo }}</p>
-<p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepción }}</p>
+<p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</p>
+<p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepción|date:"d-m-Y" }}</p>
 
 <h3>Envases</h3>
 <p class='p-service'>{{ service.envases }}</p>
@@ -51,8 +51,8 @@
                         {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
                     {% endfor %}</a></td>
                     <td class='item-list-2'> {% if p.responsable_de_analisis == None %}{% else %}{{ p.responsable_de_analisis }}{% endif %}</td>
-                    <td class='item-list-2'>{% if p.responsable_de_analisis == None %}{% else %}{{ p.fecha_de_inicio }}{% endif %}</td>
-                    <td class='item-list-2'>{% if p.responsable_de_analisis == None %}{% else %}{{ p.fecha_de_terminado }}{% endif %}</td>
+                    <td class='item-list-2'>{% if p.fecha_de_inicio == None %}{% else %}{{ p.fecha_de_inicio|date:"d-m-Y" }}{% endif %}</td>
+                    <td class='item-list-2'>{% if p.fecha_de_terminado == None %}{% else %}{{ p.fecha_de_terminado|date:"d-m-Y" }}{% endif %}</td>
                     <td class='item-list-2'>{% if p.resultado == None %}{% else %}{{ p.resultado }}{% endif %}</td>
                     <td class='item-list-2'>{% if p.resultado_final == None %}{% else %}{{ p.resultado_final }}{% endif %}</td>
                 </tr>

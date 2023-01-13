@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 
+from datetime import datetime
+
 from . import models, forms
 
 # Create your views here.
@@ -24,6 +26,7 @@ def clients(request):
     paginator = Paginator(clientes, 25)
     page = request.GET.get('page')
     clients = paginator.get_page(page)
+
     if request.method == 'POST':
         if request.POST['search_text'] == '' or request.POST['opcion'] == '':
             return render(request, 'LIMS/clients.html', {
@@ -82,7 +85,7 @@ def client(request, id_cliente):
 
     cliente = models.Cliente.objects.get(id=id_cliente)
     
-    queryset_contacts = models.ContactoCliente.objects.filter(cliente_id = id_cliente)
+    queryset_contacts = models.ContactoCliente.objects.filter(cliente_id = id_cliente).order_by('nombre')
     paginator_contact = Paginator(queryset_contacts, 5)
     page_contact = request.GET.get('page_contact')
     contacts = paginator_contact.get_page(page_contact)
@@ -410,12 +413,53 @@ def add_container(request):
 def parameters(request):
     '''Parameters view.'''
 
+    metodos = models.Metodo.objects.all()
     queryset_parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
     paginator = Paginator(queryset_parameters, 25)
     page = request.GET.get('page')
     parameters = paginator.get_page(page)
+    if request.method == 'POST':
+        if 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                queryset_parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
+                paginator = Paginator(queryset_parameters, 25)
+                page = request.GET.get('page')
+                parameters = paginator.get_page(page)
+                return render(request, 'lims/parameters.html',{
+                    'parameters': parameters,
+                    'metodos': metodos,
+                })
 
-    metodos = models.Metodo.objects.all()
+            if request.POST['buscar'] == 'ensayo':
+                queryset_parameters = models.ParametroEspecifico.objects.filter(ensayo__icontains=request.POST['search_text']).order_by('ensayo')
+                paginator = Paginator(queryset_parameters, 25)
+                page = request.GET.get('page')
+                parameters = paginator.get_page(page)
+                return render(request, 'lims/parameters.html',{
+                    'parameters': parameters,
+                    'metodos': metodos,
+                    })
+
+            if request.POST['buscar'] == 'codigo':
+                queryset_parameters = models.ParametroEspecifico.objects.filter(codigo__icontains=request.POST['search_text']).order_by('ensayo')
+                paginator = Paginator(queryset_parameters, 25)
+                page = request.GET.get('page')
+                parameters = paginator.get_page(page)
+                return render(request, 'lims/parameters.html',{
+                    'parameters': parameters,
+                    'metodos': metodos,
+                    })
+
+            if request.POST['buscar'] == 'metodo':
+                queryset_parameters = models.ParametroEspecifico.objects.filter(metodo__icontains=request.POST['search_text']).order_by('ensayo')
+                paginator = Paginator(queryset_parameters, 25)
+                page = request.GET.get('page')
+                parameters = paginator.get_page(page)
+                return render(request, 'lims/parameters.html',{
+                    'parameters': parameters,
+                    'metodos': metodos,
+                    })
+    
     return render(request, 'lims/parameters.html', {
         'parameters': parameters,
         'metodos': metodos,
@@ -429,9 +473,16 @@ def add_parameter(request):
     metodos = models.Metodo.objects.all()
     tipos_de_muestras = models.TipoDeMuestra.objects.all()
     if request.method == 'POST':
-        form = forms.ParameterForm(request.POST)
-        if form.is_valid():
-            form.save()
+        ensayo = request.POST['ensayo']
+        codigo = request.POST['codigo']
+        metodo = request.POST['metodo']
+        ldm = request.POST['LDM']
+        lcm = request.POST['LCM']
+        unidad = request.POST['unidad']
+        tipo_de_muestra = request.POST['tipo_de_muestra']
+        creator_user = request.POST['creator_user']
+
+        models.ParametroEspecifico.objects.create(ensayo=ensayo, codigo= codigo, metodo= metodo, LDM= ldm, LCM= lcm, unidad=unidad, tipo_de_muestra= tipo_de_muestra, creator_user= creator_user)
         return redirect('lims:parameters')
 
     return render(request, 'lims/add_parameter.html',{
@@ -561,11 +612,12 @@ def add_service(request, project_id):
     if request.method == 'POST':
         codigo_muestra = request.POST['codigo_muestra']
         proyecto = request.POST['proyecto']
+        cliente = request.POST['cliente']
         punto_de_muestreo = request.POST['punto_de_muestreo']
         tipo_de_muestra = request.POST['tipo_de_muestra']
         fecha_de_muestreo = request.POST['fecha_de_muestreo']
         envases = request.POST['envases']
-        fecha_de_recepcion = request.POST['fecha_de_recepcion']
+        #fecha_de_recepcion = request.POST['fecha_de_recepcion']
         norma_de_referencia = request.POST['norma_de_referencia']
         rCA = request.POST['rCA']
         etfa = request.POST['etfa']
@@ -582,12 +634,13 @@ def add_service(request, project_id):
                     tipo_de_muestra = tipo_de_muestra,
                     fecha_de_muestreo = fecha_de_muestreo,
                     envases = envases,
-                    fecha_de_recepción = fecha_de_recepcion,
+                    #fecha_de_recepción = fecha_de_recepcion,
                     norma_de_referencia = norma_de_referencia,
                     rCA = rCA,
                     etfa = etfa,
                     muestreado_por_algoritmo = muestreado_por_algoritmo,
-                    creator_user = creator_user
+                    creator_user = creator_user,
+                    cliente = cliente,
                     ).save()
 
             else:
@@ -598,12 +651,13 @@ def add_service(request, project_id):
                     tipo_de_muestra = tipo_de_muestra,
                     fecha_de_muestreo = fecha_de_muestreo,
                     envases = envases,
-                    fecha_de_recepción = fecha_de_recepcion,
+                   #fecha_de_recepción = fecha_de_recepcion,
                     norma_de_referencia = norma_de_referencia,
                     rCA = rCA,
                     etfa = etfa,
                     muestreado_por_algoritmo = muestreado_por_algoritmo,
-                    creator_user = creator_user
+                    creator_user = creator_user,
+                    cliente = cliente,
                     ).save()
                     
 
@@ -756,8 +810,12 @@ def service_parameters(request):
             parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
             responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
             parametro.responsable_de_analisis= responsable
-            parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
-            parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
+            fecha_inicio = request.POST['fecha_de_inicio']
+            fecha_de_inicio = datetime.strptime(fecha_inicio, "%d-%m-%Y")
+            parametro.fecha_de_inicio = fecha_de_inicio.strftime("%Y-%m-%d")
+            fecha_terminado = request.POST['fecha_de_terminado']
+            fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
+            parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
             parametro.resultado = request.POST['resultado']
             parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
             parametro.resultado_final = request.POST['resultado_final']
@@ -862,7 +920,7 @@ def services(request):
                     'clientes': clientes,
                 })
 
-        if 'search_text' in request.POST.keys():
+        elif 'search_text' in request.POST.keys():
             
             if request.POST['search_text'] == '' or request.POST['opcion'] == '':
                 return render(request, 'LIMS/services.html',{
@@ -910,6 +968,21 @@ def services(request):
                     'clientes': clientes,
                 })
 
+        else:
+            
+            servicio = models.Servicio.objects.get(codigo_muestra=request.POST['servicio_id'])
+            servicio.responsable = request.POST['responsable']
+            fecha_muestreo = request.POST['fecha_de_muestreo']
+            fecha_de_muestreo = datetime.strptime(fecha_muestreo, "%d-%m-%Y")
+            servicio.fecha_de_muestreo = fecha_de_muestreo.strftime("%Y-%m-%d")
+            fecha_recepcion = request.POST['fecha_de_recepcion']
+            fecha_de_recepcion = datetime.strptime(fecha_recepcion, "%d-%m-%Y")
+            servicio.fecha_de_recepción = fecha_de_recepcion.strftime("%Y-%m-%d")
+            servicio.save()
+            
+           
+            return redirect('lims:services')
+            
     return render(request, 'LIMS/services.html',{
         'servicios': servicios,
         'clientes': clientes,

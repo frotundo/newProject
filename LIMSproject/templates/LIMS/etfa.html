@@ -15,17 +15,25 @@
     <table>
         <tr>
             <td class='item-list title-item-list'>Código de autorización</td>
+            <td class='item-list title-item-list'>Ensayo</td>
+            <td class='item-list title-item-list'>Codigo</td>
+            <td class='item-list title-item-list'>Método</td>
+            <td class='item-list title-item-list'>Tipo de muestra</td>
         </tr>
     
         {% for service in services %}
         <tr>
             <td class='item-list'>{{ service.codigo }}</td>
-            <td class='item-list'>
-                {% for parameter in parameters %}
-                    {% if parameter.id == service.parametro_id %}
-                        {{ parameter.ensayo }}
-                    {% endif %}
-                {% endfor %}</td>
+            {% for parameter in parameters %}
+                {% if parameter.id == service.parametro_id %}
+                
+                    <td class='item-list'>{{ parameter.ensayo }}</td>
+                    <td class='item-list'>{{ parameter.codigo }}</td>
+                    <td class='item-list'>{{ parameter.metodo }}</td>
+                    <td class='item-list'>{{ parameter.tipo_de_muestra }}</td>
+                {% endif %}
+            {% endfor %}  
+                
         </tr>
         {% endfor %}
     </table>
