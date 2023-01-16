@@ -57,7 +57,7 @@
     
         {% for servicio in servicios %}
         <tr>
-            <td class='item-list-sp'><a  href="{% url 'lims:service' servicio.codigo_muestra %}" class='item-list-sp'>{{ servicio.codigo_muestra }}</a></td>
+            <td class='item-list-sp'><a  href="{% url 'lims:service' servicio.codigo %}" class='item-list-sp'>{{ servicio.codigo_muestra }}</a></td>
             <td class='item-list'  style="text-align: center;">{{ servicio.punto_de_muestreo }}</td>
             <form action="" method='POST'>
                 {% csrf_token %}

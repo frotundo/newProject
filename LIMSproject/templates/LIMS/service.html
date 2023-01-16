@@ -15,12 +15,14 @@
 <p class="p-service"> <strong>Punto de muestreo:</strong>  {{ service.punto_de_muestreo }}</p>
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
 <p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</p>
+<p class='p-service'><strong>Fecha de entrega al cliente: </strong>{{ service.fecha_de_entrega_cliente|date:"d-m-Y" }}</p>
+<p class='p-service'><strong>Fecha de entrega de envase para enviar a terreno: </strong>{{ service.fecha_de_contenedores|date:"d-m-Y" }}</p>
 <p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepción|date:"d-m-Y" }}</p>
 
 <h3>Envases</h3>
 <p class='p-service'>{{ service.envases }}</p>
 
-<p><strong>Norma de referencia</strong></p>
+<h3>Norma de referencia</h3>
 <p class='p-service'>{{ norma.norma }}</p>
 
 <p></p><h3>RCA</h3>
@@ -30,7 +32,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Parametros</h2>
-        <a class='link-add' href="{% url 'lims:add_service_parameter' service.codigo_muestra%}"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% url 'lims:add_service_parameter' service.codigo %}"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
     
     {% if parameters %}
@@ -76,7 +78,7 @@
         </div>
         
     {% else  %}
-        No hay registro de parametyros.
+        No hay registro de parametros.
     {% endif %}
 
 </div>

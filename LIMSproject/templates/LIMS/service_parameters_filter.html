@@ -50,8 +50,8 @@
             <td class='item-list title-item-list'>Ensayo</td>
             <td class='item-list title-item-list'>F. inicio</td>
             <td class='item-list title-item-list'>F. terminado</td>
-            <td class='item-list title-item-list'>Resul. inicial</td>
-            <td class='item-list title-item-list'>Factor dil.</td>
+            <td class='item-list title-item-list'>Peso inicial</td>
+            <td class='item-list title-item-list'>Peso final</td>
             <td class='item-list title-item-list'>Resul. final</td>
         </tr>
     
@@ -65,9 +65,9 @@
                 
                 <td class=''>{% if service_parameter.fecha_de_terminado != None %}<input class='input-par' type='text' name="fecha_de_terminado" value='{{ service_parameter.fecha_de_terminado|date:"d-m-Y" }}'id="" placeholder="" >{% else %}<input class='input-par' type='date' name="fecha_de_terminado" id="" placeholder="" >{% endif %}</td>
                 
-                <td class=''>{% if service_parameter.resultado != None %}<input class='input-par' type='text' name="resultado" value='{{ service_parameter.resultado }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="resultado" id="" placeholder="" >{% endif %}</td>
+                <td class=''>{% if service_parameter.peso_inicial != None %}<input class='input-par' type='text' name="peso_inicial" value='{{ service_parameter.peso_inicial }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="peso_inicial" id="" placeholder="" >{% endif %}</td>
                 
-                <td class=''>{% if service_parameter.factor_de_dilucion != None %}<input class='input-par' type='text' name="factor_de_dilucion" value='{{ service_parameter.factor_de_dilucion }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="factor_de_dilucion" id="" placeholder="" >{% endif %}</td>
+                <td class=''>{% if service_parameter.peso_final != None %}<input class='input-par' type='text' name="peso_final" value='{{ service_parameter.peso_final }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="peso_final" id="" placeholder="" >{% endif %}</td>
                 
                 <td class=''>{% if service_parameter.resultado_final != None %}<input class='input-par' type='text' name="resultado_final" value='{{ service_parameter.resultado_final }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="resultado_final" id="" placeholder="" >{% endif %}</td>
                 

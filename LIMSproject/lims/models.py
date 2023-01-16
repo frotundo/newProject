@@ -145,7 +145,8 @@ class Proyecto(models.Model):
 class Servicio(models.Model):
     """Service model."""
 
-    codigo_muestra = models.CharField(max_length=50, primary_key=True, unique=True)
+    codigo = models.CharField(max_length=50, primary_key=True, unique=True)
+    codigo_muestra = models.CharField(max_length=50, unique=True)
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
     cliente = models.CharField(max_length=5)
     punto_de_muestreo = models.CharField(max_length=200)
@@ -153,6 +154,8 @@ class Servicio(models.Model):
     fecha_de_muestreo = models.DateField(null=True, blank=True,)
     envases = models.TextField(null=True, blank=True,)
     fecha_de_recepción = models.DateField(null=True, blank=True,)
+    fecha_de_entrega_cliente = models.DateField(null=True, blank=True,)
+    fecha_de_contenedores = models.DateField(null=True, blank=True,)
     norma_de_referencia = models.CharField(max_length=254)
     responsable = models.CharField(max_length=200)
     rCA = models.CharField(max_length=254)
@@ -175,11 +178,30 @@ class ParametroDeMuestra(models.Model):
     resultado = models.FloatField(null=True, blank=True,)
     factor_de_dilucion = models.IntegerField(null=True, blank=True,)
     resultado_final = models.FloatField(null=True, blank=True,)
+    peso_inicial = models.FloatField(null=True, blank=True,)
+    peso_final = models.FloatField(null=True, blank=True,)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return self.codigo_muestra
+
+
+# class ParametroDeMuestraFiltro(models.Model):
+#     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+#     codigo_servicio = models.CharField(max_length=100)
+#     parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
+#     responsable_de_analisis = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
+#     fecha_de_inicio = models.DateTimeField(null=True, blank=True,)
+#     fecha_de_terminado = models.DateTimeField(null=True, blank=True,)
+#     peso_inicial = models.FloatField(null=True, blank=True,)
+#     peso_final = models.FloatField(null=True, blank=True,)
+#     resultado_final = models.FloatField(null=True, blank=True,)
+#     created = models.DateTimeField(auto_now_add=True)
+#     creator_user = models.CharField(max_length=100, null=True, blank=True)
+
+#     def __str__(self):
+#         return self.codigo_muestra
 
 
 class ETFA(models.Model):
