@@ -15,11 +15,13 @@
     <table>
         <tr>
             <td class='item-list title-item-list'>Nombre</td>
+            <td class='item-list title-item-list'>Descripción</td>
         </tr>
     
         {% for metodo in metodos %}
         <tr>
             <td class='item-list'>{{ metodo.nombre }}</td>
+            <td class='item-list'>{{ metodo.descripcion }}</td>
         </tr>
         {% endfor %}
     </table>

@@ -17,7 +17,7 @@
                 <td class='item-input'><input type="text" name="titular" id="" placeholder="Razon social" required></td>
                 
             </tr>
-            
+           
             <tr>
                 <td class='item-add'><Label>RUT</Label></td>
                 <td class='item-input'><input type="text" name="rut" id="" placeholder="123456789-1" required></td>
@@ -38,6 +38,7 @@
             </tr>
         </table>
         
+        {% if error_client %}<p class="error_client">{{ error_client }}</p>{% endif %}
 
     <button class='button-save' type="submit">Guardar</button>
 </form>

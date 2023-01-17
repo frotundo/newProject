@@ -36,10 +36,10 @@
             <td class='item-input'><input type="text" name="cliente" id="" placeholder="" value='{{ project.cliente_id }}'></td>
         </tr>
         
-        <tr>
+        {% comment %} <tr>
             <td class='item-add'><Label>Codigo de muestra</Label></td>
             <td class='item-input'><input type="text" name="codigo_muestra" id="" placeholder="codigo"></td>
-        </tr>
+        </tr> {% endcomment %}
 
         <tr>
             <td class='item-add'><Label>Fecha de muestreo</Label></td>
@@ -72,8 +72,8 @@
         </tr>
 
         <tr>
-            <td class='item-add'><Label>Envases</Label></td>
-            <td class='item-input'><input type="text" name="envases" id="" placeholder="lista de envases"></td>
+            <td class='item-add'><Label>Observación</Label></td>
+            <td class='item-input'><input type="text" name="observacion" id="" placeholder="Información adicional"></td>
         </tr>
 
         <table  class='client-select'>

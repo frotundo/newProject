@@ -75,15 +75,21 @@ def add_client(request):
         direccion = request.POST['direccion']
         actividad = request.POST['actividad']
         usuario = request.POST['creador']
-        models.Cliente.objects.create(
-            titular=titular, 
-            rut=rut, 
-            direccion=direccion, 
-            actividad=actividad, 
-            creator_user=usuario
-            )
+        try:
+            models.Cliente.objects.create(
+                titular=titular, 
+                rut=rut, 
+                direccion=direccion, 
+                actividad=actividad, 
+                creator_user=usuario
+                )
+            return redirect('lims:clients')
+        except:
+            error = "El titular o el RUT ya existe."
+            return render(request, 'LIMS/add_client.html', {
+                'error_client': error,
+            })
 
-        return redirect('lims:clients')
     return render(request, 'LIMS/add_client.html')
 
 
@@ -371,11 +377,14 @@ def add_method(request):
             todo = []
             for valor in request.POST.values():
                 todo.append(valor)
-            metodos = todo[1::2]
-            usuarios = todo[2::2]
-            for nombre, usuario in zip(metodos, usuarios):
+            print(todo)
+            metodos = todo[1::3]
+            descripciones = todo[2::3]
+            usuarios = todo[3::3]
+            for nombre, descripcion, usuario in zip(metodos, descripciones,usuarios):
                 models.Metodo.objects.create(
                     nombre= nombre, 
+                    descripcion= descripcion,
                     creator_user=usuario
                     ) 
             return redirect('lims:methods')
@@ -490,8 +499,16 @@ def add_parameter(request):
         tipo_de_muestra = request.POST['tipo_de_muestra']
         creator_user = request.POST['creator_user']
 
-        models.ParametroEspecifico.objects.create(ensayo=ensayo, codigo= codigo, metodo= metodo, LDM= ldm, LCM= lcm, unidad=unidad, tipo_de_muestra= tipo_de_muestra, creator_user= creator_user)
-        return redirect('lims:parameters')
+        try:
+            models.ParametroEspecifico.objects.create(ensayo=ensayo, codigo= codigo, metodo= metodo, LDM= ldm, LCM= lcm, unidad=unidad, tipo_de_muestra= tipo_de_muestra, creator_user= creator_user)
+            return redirect('lims:parameters')
+        except:
+            error = 'EL código del parametro ya existe.'
+            return render(request, 'lims/add_parameter.html',{
+                'metodos': metodos,
+                'tipos_de_muestras': tipos_de_muestras,
+                'error_parameter': error,
+            })
 
     return render(request, 'lims/add_parameter.html',{
         'metodos': metodos,
@@ -618,16 +635,14 @@ def add_service(request, project_id):
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
     if request.method == 'POST':
-        codigo_muestra = request.POST['codigo_muestra']
         proyecto = request.POST['proyecto']
         cliente = request.POST['cliente']
         punto_de_muestreo = request.POST['punto_de_muestreo']
         tipo_de_muestra = request.POST['tipo_de_muestra']
         fecha_de_muestreo = request.POST['fecha_de_muestreo']
-        envases = request.POST['envases']
+        observacion = request.POST['observacion']
         habiles = request.POST['habiles']
         fecha_de_contenedores = request.POST['fecha_de_contenedores']
-        #fecha_de_recepcion = request.POST['fecha_de_recepcion']
         norma_de_referencia = request.POST['norma_de_referencia']
         rCA = request.POST['rCA']
         etfa = request.POST['etfa']
@@ -640,70 +655,45 @@ def add_service(request, project_id):
         fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
+        last_service = models.Servicio.objects.latest('codigo_muestra')
 
-        if models.Servicio.objects.exists()==True:
-            last_service = models.Servicio.objects.latest('codigo')
-            codigo_de_servicio = str(int(last_service.codigo) +1).zfill(4)
+        if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(4)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-        if models.Servicio.objects.exists()==False: 
+        if models.Servicio.objects.exists()==False:
             codigo_de_servicio = ('1').zfill(4)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-            
-        if codigo_muestra == '':
-            for sp in sample_points:
-                if int(punto_de_muestreo) == int(sp.id):   
-                    models.Servicio.objects.create(
-                        codigo = codigo_de_servicio,
-                        codigo_muestra = codigo_generado, 
-                        proyecto_id = proyecto, 
-                        punto_de_muestreo = sp.nombre,
-                        tipo_de_muestra = tipo_de_muestra,
-                        fecha_de_muestreo = fecha_de_muestreo,
-                        envases = envases,
-                        fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                        fecha_de_contenedores = fecha_de_contenedores,
-                        #fecha_de_recepción = fecha_de_recepcion,
-                        norma_de_referencia = norma_de_referencia,
-                        rCA = rCA,
-                        etfa = etfa,
-                        muestreado_por_algoritmo = muestreado_por_algoritmo,
-                        creator_user = creator_user,
-                        cliente = cliente,
-                        )                    
-
-            for pid in parameters:
-                models.ParametroDeMuestra(servicio_id = codigo_de_servicio, parametro_id= pid, codigo_servicio= codigo_generado).save()
-
-            return redirect('lims:project', project_id)
+        if last_service.codigo_muestra[-2:] != current_year: 
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(4)
+            codigo_central = ('1').zfill(4)
+            codigo_generado = f'{codigo_central}-{current_year}'
         
-        else:
-            for sp in sample_points:
-                if int(punto_de_muestreo) == int(sp.id):   
-                    models.Servicio.objects.create(
-                        codigo = codigo_de_servicio,
-                        codigo_muestra = codigo_muestra, 
-                        proyecto_id = proyecto, 
-                        punto_de_muestreo = sp.nombre,
-                        tipo_de_muestra = tipo_de_muestra,
-                        fecha_de_muestreo = fecha_de_muestreo,
-                        envases = envases,
-                        fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                        fecha_de_contenedores = fecha_de_contenedores,
-                        #fecha_de_recepción = fecha_de_recepcion,
-                        norma_de_referencia = norma_de_referencia,
-                        rCA = rCA,
-                        etfa = etfa,
-                        muestreado_por_algoritmo = muestreado_por_algoritmo,
-                        creator_user = creator_user,
-                        cliente = cliente,
-                        )                    
+        for sp in sample_points:
+            if int(punto_de_muestreo) == int(sp.id):   
+                models.Servicio.objects.create(
+                    codigo = codigo_de_servicio,
+                    codigo_muestra = codigo_generado, 
+                    proyecto_id = proyecto, 
+                    punto_de_muestreo = sp.nombre,
+                    tipo_de_muestra = tipo_de_muestra,
+                    fecha_de_muestreo = fecha_de_muestreo,
+                    observacion = observacion,
+                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                    fecha_de_contenedores = fecha_de_contenedores,
+                    norma_de_referencia = norma_de_referencia,
+                    rCA = rCA,
+                    etfa = etfa,
+                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+                    creator_user = creator_user,
+                    cliente = cliente,
+                    )                    
 
-            for pid in parameters:
-                models.ParametroDeMuestra(servicio_id = codigo_de_servicio, parametro_id= pid, codigo_servicio= codigo_generado).save()
+        for pid in parameters:
+            models.ParametroDeMuestra(servicio_id = codigo_de_servicio, parametro_id= pid, codigo_servicio= codigo_generado).save()
 
-            return redirect('lims:project', project_id)
+        return redirect('lims:project', project_id)
         
     return render(request, 'lims/add_service.html', {
         'project': project, 
@@ -1088,7 +1078,7 @@ def services(request):
                 })
             
             if request.POST['opcion'] == 'recepcion':
-                queryset_servicios = models.Servicio.objects.filter(fecha_de_recepción__contains=request.POST['search_text']).order_by('codigo_muestra')
+                queryset_servicios = models.Servicio.objects.filter(fecha_de_recepcion__contains=request.POST['search_text']).order_by('codigo_muestra')
                 paginator = Paginator(queryset_servicios, 25)
                 page = request.GET.get('page')
                 servicios = paginator.get_page(page)
@@ -1106,7 +1096,7 @@ def services(request):
             servicio.fecha_de_muestreo = fecha_de_muestreo.strftime("%Y-%m-%d")
             fecha_recepcion = request.POST['fecha_de_recepcion']
             fecha_de_recepcion = datetime.strptime(fecha_recepcion, "%d-%m-%Y")
-            servicio.fecha_de_recepción = fecha_de_recepcion.strftime("%Y-%m-%d")
+            servicio.fecha_de_recepcion = fecha_de_recepcion.strftime("%Y-%m-%d")
             servicio.save()
             
            
@@ -1115,4 +1105,35 @@ def services(request):
     return render(request, 'LIMS/services.html',{
         'servicios': servicios,
         'clientes': clientes,
+    })
+
+
+@login_required
+def edit_sample_code(request, service_id):
+    """Edit sample code view."""
+
+    service = models.Servicio.objects.get(pk= service_id)
+    parameters = models.ParametroDeMuestra.objects.filter(servicio_id = service_id)
+    try:
+        if request.method == 'POST':
+            codigo_muestra = request.POST['codigo_muestra']
+            service.codigo_muestra = codigo_muestra
+            service.editor_sample_code = request.POST['edit_code']
+            service.save()
+
+            for parameter in parameters:
+                parameter.codigo_servicio = codigo_muestra
+                parameter.save()
+
+            return redirect('lims:services')
+    except:
+        error = 'El código de muestra ya existe.'
+        return render(request, 'LIMS/edit_service_code.html', {
+        'service': service,
+        'error': error,
+    })
+
+
+    return render(request, 'LIMS/edit_service_code.html', {
+        'service': service,
     })

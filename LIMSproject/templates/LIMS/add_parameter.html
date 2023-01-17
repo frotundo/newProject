@@ -64,7 +64,7 @@
                 <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
             </tr>
         </table>
-
+        {% if error_parameter %}<p class="error_parameter">{{ error_parameter }}</p>{% endif %}
     <button class='button-save' type="submit">Guardar</button>
 </form>
 

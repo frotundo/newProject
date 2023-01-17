@@ -279,3 +279,16 @@ input {
 .pagination {
     text-align: end;
 }
+
+.sample_code_error,
+.error_client,
+.error_parameter {
+    margin: 20px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    background-color: rgb(250, 187, 187);
+    color: #610000;
+    text-align: center;
+    padding: 5px;
+    border-radius: 5px;
+}

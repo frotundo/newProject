@@ -1,0 +1,32 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Editar código del servicio</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+    <table  class='client-select'>
+        
+        <tr>
+            <td class='item-add'><Label>Código de servicio</Label></td>
+            <td class='item-input'><input type="text" name="codigo_muestra" id="" placeholder="codigo" value={{ service.codigo_muestra }}></td>
+        </tr>
+
+        <tr style='display:none'>
+            <td class='item-add'><label for="">Editor_de_codigo</label></td>
+            <td class='item-input'><input type='text' name="edit_code" value='{{ user.username }}' required></td>
+        </tr>
+    </table>
+    {% if error %}<p class='sample_code_error'>{{ error }}</p>{% endif %}
+
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

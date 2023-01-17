@@ -81,7 +81,8 @@ class Envase(models.Model):
 
 class Metodo(models.Model):
     """Method model."""
-    nombre = models.CharField(max_length=254)
+    nombre = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=254, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -153,7 +154,8 @@ class Servicio(models.Model):
     tipo_de_muestra = models.CharField(max_length=200)
     fecha_de_muestreo = models.DateField(null=True, blank=True,)
     envases = models.TextField(null=True, blank=True,)
-    fecha_de_recepción = models.DateField(null=True, blank=True,)
+    observacion = models.TextField(null=True, blank=True,)
+    fecha_de_recepcion = models.DateField(null=True, blank=True,)
     fecha_de_entrega_cliente = models.DateField(null=True, blank=True,)
     fecha_de_contenedores = models.DateField(null=True, blank=True,)
     norma_de_referencia = models.CharField(max_length=254)
@@ -163,6 +165,7 @@ class Servicio(models.Model):
     muestreado_por_algoritmo = models.CharField(max_length=254)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
+    editor_sample_code = models.CharField(max_length=100, null=True, blank=True,)
 
     def __str__(self):
         return self.codigo_muestra
@@ -184,24 +187,7 @@ class ParametroDeMuestra(models.Model):
     creator_user = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        return self.codigo_muestra
-
-
-# class ParametroDeMuestraFiltro(models.Model):
-#     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
-#     codigo_servicio = models.CharField(max_length=100)
-#     parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
-#     responsable_de_analisis = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
-#     fecha_de_inicio = models.DateTimeField(null=True, blank=True,)
-#     fecha_de_terminado = models.DateTimeField(null=True, blank=True,)
-#     peso_inicial = models.FloatField(null=True, blank=True,)
-#     peso_final = models.FloatField(null=True, blank=True,)
-#     resultado_final = models.FloatField(null=True, blank=True,)
-#     created = models.DateTimeField(auto_now_add=True)
-#     creator_user = models.CharField(max_length=100, null=True, blank=True)
-
-#     def __str__(self):
-#         return self.codigo_muestra
+        return self.codigo_servicio
 
 
 class ETFA(models.Model):
