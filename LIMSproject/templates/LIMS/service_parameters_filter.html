@@ -13,6 +13,7 @@
         <select name="buscar" id="">
             <option value=""></option>
             <option value="servicio">Servicio</option>
+            <option value="ensayo">Ensayo</option>
             <option value="inicio">Fecha de inicio</option>
         </select>
         <button type="submit" class='btn-filtrar'>Buscar</button>
@@ -58,7 +59,7 @@
         {% for service_parameter in service_parameters %}
         <tr>
             <td class='item-list'>{{ service_parameter.codigo_servicio }}</td>
-            <td class='item-list'>{% for parametro in parametros %}{% if parametro.id == service_parameter.parametro_id %}{{ parametro.codigo }}{% endif %}{% endfor %}</td>
+            <td class='item-list'>{{ service_parameter.ensayo }}</td>
             <form action="" method='POST'>
                 {% csrf_token %}
                 <td class=''>{% if service_parameter.fecha_de_inicio != None %}<input class='input-par' type='text' name="fecha_de_inicio" value='{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}'id="" placeholder="" >{% else %}<input class='input-par' type='date' name="fecha_de_inicio" id="" placeholder="" >{% endif %}</td>
@@ -98,6 +99,15 @@
                 <a href="?page={{ service_parameters.next_page_number }}">next</a>
             {% endif %}
         </span>
+    </div>
+
+    <div class='import'>
+        <form action="" method="post" enctype="multipart/form-data" class='import-form'>
+            {% csrf_token %}
+            <input type="file" name="excel_file" id="">
+            <input style='display:none;' type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly>
+            <button type="submit">Importar</button>
+        </form>
     </div>
     
 {% else %}

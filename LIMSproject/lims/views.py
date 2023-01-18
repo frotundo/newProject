@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 from datetime import datetime
 
@@ -12,6 +13,8 @@ from . import models, forms
 from datetime import datetime
 from workdays import workday
 
+
+import pandas as pd
 # Create your views here.
 
 
@@ -220,14 +223,11 @@ def client_add_sample_point(request, id_cliente):
                     'len_pm': len_pm,
                     })
         else:
-            print(request.POST)
             todo = []
             for valor in request.POST.values():
                 todo.append(valor)
             puntos = todo[1::2]
-            print(puntos)
             usuarios = todo[2::2]
-            print(usuarios)
             for punto, usuario in zip(puntos, usuarios):
                 models.PuntoDeMuestreo.objects.create(
                     nombre= punto, 
@@ -336,7 +336,10 @@ def add_normas_ref(request):
             normas = todo[1::2]
             usuarios = todo[2::2]
             for norma, usuario in zip(normas, usuarios):
-                models.NormaDeReferencia.objects.create(norma=norma, creator_user=usuario) 
+                models.NormaDeReferencia.objects.create(
+                    norma=norma, 
+                    creator_user=usuario
+                    ) 
             return redirect('lims:normas_ref')
 
     return render(request, 'LIMS/add_normas_ref.html', {
@@ -377,7 +380,6 @@ def add_method(request):
             todo = []
             for valor in request.POST.values():
                 todo.append(valor)
-            print(todo)
             metodos = todo[1::3]
             descripciones = todo[2::3]
             usuarios = todo[3::3]
@@ -419,7 +421,13 @@ def add_container(request):
         material = request.POST['material']
         preservante = request.POST['preservante']
         usuario = request.POST['creador']
-        models.Envase.objects.create(nombre=nombre, volumen=volumen, material=material, preservante=preservante, creator_user=usuario)
+        models.Envase.objects.create(
+            nombre=nombre, 
+            volumen=volumen, 
+            material=material, 
+            preservante=preservante, 
+            creator_user=usuario
+            )
 
         return redirect('lims:containers')
 
@@ -432,7 +440,7 @@ def parameters(request):
 
     metodos = models.Metodo.objects.all()
     queryset_parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
-    paginator = Paginator(queryset_parameters, 25)
+    paginator = Paginator(queryset_parameters, 35)
     page = request.GET.get('page')
     parameters = paginator.get_page(page)
     if request.method == 'POST':
@@ -651,23 +659,23 @@ def add_service(request, project_id):
         parameters = request.POST.getlist('parameters')
         
         fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
-
         fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
+
         last_service = models.Servicio.objects.latest('codigo_muestra')
 
         if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(4)
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
         if models.Servicio.objects.exists()==False:
-            codigo_de_servicio = ('1').zfill(4)
+            codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
         if last_service.codigo_muestra[-2:] != current_year: 
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(4)
-            codigo_central = ('1').zfill(4)
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_central = ('1').zfill(5)
             codigo_generado = f'{codigo_central}-{current_year}'
         
         for sp in sample_points:
@@ -691,7 +699,14 @@ def add_service(request, project_id):
                     )                    
 
         for pid in parameters:
-            models.ParametroDeMuestra(servicio_id = codigo_de_servicio, parametro_id= pid, codigo_servicio= codigo_generado).save()
+            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+            models.ParametroDeMuestra(
+                servicio_id = codigo_de_servicio, 
+                parametro_id= pid,
+                ensayo= ensayo.codigo, 
+                codigo_servicio= codigo_generado,
+                creator_user = creator_user,
+                ).save()
 
         return redirect('lims:project', project_id)
         
@@ -719,7 +734,14 @@ def add_service_parameter(request, service_id):
         parameters = request.POST.getlist('parameters')
 
         for pid in parameters:
-            models.ParametroDeMuestra(servicio_id = service_id, parametro_id= pid, codigo_servicio= servicio.codigo_muestra, creator_user=creator_user).save()
+            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+            models.ParametroDeMuestra(
+                servicio_id = service_id, 
+                parametro_id= pid, 
+                ensayo= ensayo.codigo,
+                codigo_servicio= servicio.codigo_muestra,
+                creator_user=creator_user
+                ).save()
 
         return redirect('lims:project', servicio.proyecto_id)
     return render(request, 'lims/add_service_parameter.html', {
@@ -734,7 +756,7 @@ def service(request, service_id):
 
     service = models.Servicio.objects.get(pk=service_id)
     parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
-    queryset_parameters = models.ParametroDeMuestra.objects.filter(servicio_id=service_id)
+    queryset_parameters = models.ParametroDeMuestra.objects.filter(servicio_id=service_id).order_by('-created')
     paginator = Paginator(queryset_parameters, 10)
     page = request.GET.get('page')
     parameters = paginator.get_page(page)
@@ -778,7 +800,8 @@ def edit_sample_parameter(request,parameter_id):
 def service_parameters(request):
     """Service parameters view."""
 
-    queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('servicio_id')
+    # queryset_service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains='-').order_by('servicio_id')
+    queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
     parametros = models.ParametroEspecifico.objects.all()
     parameters = parametros
     paginator = Paginator(queryset_service_parameters, 25)
@@ -786,6 +809,31 @@ def service_parameters(request):
     service_parameters = paginator.get_page(page)
 
     if request.method == 'POST':
+        if 'excel_file' in request.POST.keys():
+            if request.POST['excel_file'] == '':
+                return render(request, 'lims/service_parameters_filter.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+
+        if request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+
+            for index, row in df.iterrows():
+                if models.ParametroDeMuestra.objects.filter(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo'])).exists():
+                    parametro = models.ParametroDeMuestra.objects.get(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo']))
+                    parametro.fecha_de_inicio = row['fecha_de_inicio']
+                    parametro.fecha_de_terminado = row['fecha_de_terminado']
+                    parametro.peso_inicial = row['peso_inicial']
+                    parametro.peso_final = row['peso_final']
+                    parametro.resultado_final = round(row['resultado_final'],4)
+                    parametro.responsable_de_analisis = request.POST['responsable_de_analisis']
+                    parametro.save()
+
+            return redirect('lims:service_parameters_filter')
+
         if 'parametro' in request.POST.keys():
             if request.POST['parametro'] == '':
                 return render(request, 'lims/service_parameters.html',{
@@ -794,7 +842,7 @@ def service_parameters(request):
                     'parameters': parameters,
                 })
             else:
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro']).order_by('servicio_id')
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro']).order_by('-created')
                 paginator = Paginator(queryset_service_parameters, 25)
                 page = request.GET.get('page')
                 service_parameters = paginator.get_page(page)
@@ -812,8 +860,20 @@ def service_parameters(request):
                     'parametros': parametros,
                     'parameters': parameters,
                 })
+
             elif request.POST['buscar'] == 'servicio':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains=request.POST['search_text'])
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+            elif request.POST['buscar'] == 'ensayo':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains=request.POST['search_text'])
                 paginator = Paginator(queryset_service_parameters, 25)
                 page = request.GET.get('page')
                 service_parameters = paginator.get_page(page)
@@ -851,8 +911,7 @@ def service_parameters(request):
             parametro.resultado_final = request.POST['resultado_final']
             parametro.creator_user = request.POST['creator_user']
             parametro.save()
-            
-           
+
             return redirect('lims:service_parameters')
 
 
@@ -867,7 +926,8 @@ def service_parameters(request):
 def service_parameters_filter(request):
     """Service parameters for filter view."""
 
-    queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('servicio_id')
+    # queryset_service_parameters = models.ParametroDeMuestra.objects.exclude(codigo_servicio__contains='-').order_by('servicio_id')
+    queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
     parametros = models.ParametroEspecifico.objects.all()
     parameters = parametros
     paginator = Paginator(queryset_service_parameters, 25)
@@ -875,6 +935,33 @@ def service_parameters_filter(request):
     service_parameters = paginator.get_page(page)
 
     if request.method == 'POST':
+        
+        if 'excel_file' in request.POST.keys():
+            if request.POST['excel_file'] == '':
+                return render(request, 'lims/service_parameters_filter.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+
+        if request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+
+            for index, row in df.iterrows():
+                if models.ParametroDeMuestra.objects.filter(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo'])).exists():
+                    parametro = models.ParametroDeMuestra.objects.get(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo']))
+                    parametro.fecha_de_inicio = row['fecha_de_inicio']
+                    parametro.fecha_de_terminado = row['fecha_de_terminado']
+                    parametro.peso_inicial = row['peso_inicial']
+                    parametro.peso_final = row['peso_final']
+                    parametro.resultado_final = round(row['resultado_final'],4)
+                    parametro.responsable_de_analisis = request.POST['responsable_de_analisis']
+                    parametro.save()
+
+            return redirect('lims:service_parameters_filter')
+
+
         if 'parametro' in request.POST.keys():
             if request.POST['parametro'] == '':
                 return render(request, 'lims/service_parameters_filter.html',{
@@ -883,7 +970,7 @@ def service_parameters_filter(request):
                     'parameters': parameters,
                 })
             else:
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro']).order_by('servicio_id')
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro']).order_by('-created')
                 paginator = Paginator(queryset_service_parameters, 25)
                 page = request.GET.get('page')
                 service_parameters = paginator.get_page(page)
@@ -912,6 +999,16 @@ def service_parameters_filter(request):
                     'parameters': parameters,
                     })
 
+            elif request.POST['buscar'] == 'ensayo':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains=request.POST['search_text'])
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
 
             elif request.POST['buscar'] == 'inicio':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
@@ -938,7 +1035,6 @@ def service_parameters_filter(request):
             parametro.peso_inicial = request.POST['peso_inicial']
             parametro.peso_final = request.POST['peso_final']
             parametro.resultado_final = request.POST['resultado_final']
-            parametro.creator_user = request.POST['creator_user']
             parametro.save()
             
            
@@ -1016,7 +1112,7 @@ def projects(request):
 def services(request):
     """Services view."""
 
-    queryset_servicios = models.Servicio.objects.all().order_by('codigo_muestra')
+    queryset_servicios = models.Servicio.objects.all().order_by('-created')
     clientes = models.Cliente.objects.all().order_by('titular')
     paginator = Paginator(queryset_servicios, 25)
     page = request.GET.get('page')
@@ -1030,7 +1126,7 @@ def services(request):
                 })
 
             else:
-                queryset_servicios = models.Servicio.objects.filter(cliente=request.POST['client']).order_by('codigo_muestra')
+                queryset_servicios = models.Servicio.objects.filter(cliente=request.POST['client']).order_by('-created')
                 paginator = Paginator(queryset_servicios, 25)
                 page = request.GET.get('page')
                 servicios = paginator.get_page(page)
@@ -1048,7 +1144,7 @@ def services(request):
                 })
 
             if request.POST['opcion'] == 'codigo':
-                queryset_servicios = models.Servicio.objects.filter(codigo_muestra__contains=request.POST['search_text']).order_by('codigo_muestra')
+                queryset_servicios = models.Servicio.objects.filter(codigo_muestra__contains=request.POST['search_text']).order_by('-created')
                 paginator = Paginator(queryset_servicios, 25)
                 page = request.GET.get('page')
                 servicios = paginator.get_page(page)
@@ -1058,7 +1154,7 @@ def services(request):
                 })
 
             if request.POST['opcion'] == 'punto':
-                queryset_servicios = models.Servicio.objects.filter(punto_de_muestreo__icontains=request.POST['search_text']).order_by('codigo_muestra')
+                queryset_servicios = models.Servicio.objects.filter(punto_de_muestreo__icontains=request.POST['search_text']).order_by('-created')
                 paginator = Paginator(queryset_servicios, 25)
                 page = request.GET.get('page')
                 servicios = paginator.get_page(page)
@@ -1068,7 +1164,7 @@ def services(request):
                 })
 
             if request.POST['opcion'] == 'muestreo':
-                queryset_servicios = models.Servicio.objects.filter(fecha_de_muestreo__contains=request.POST['search_text']).order_by('codigo_muestra')
+                queryset_servicios = models.Servicio.objects.filter(fecha_de_muestreo__contains=request.POST['search_text']).order_by('-created')
                 paginator = Paginator(queryset_servicios, 25)
                 page = request.GET.get('page')
                 servicios = paginator.get_page(page)
@@ -1078,7 +1174,7 @@ def services(request):
                 })
             
             if request.POST['opcion'] == 'recepcion':
-                queryset_servicios = models.Servicio.objects.filter(fecha_de_recepcion__contains=request.POST['search_text']).order_by('codigo_muestra')
+                queryset_servicios = models.Servicio.objects.filter(fecha_de_recepcion__contains=request.POST['search_text']).order_by('-created')
                 paginator = Paginator(queryset_servicios, 25)
                 page = request.GET.get('page')
                 servicios = paginator.get_page(page)

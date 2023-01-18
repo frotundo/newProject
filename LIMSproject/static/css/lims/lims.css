@@ -155,7 +155,6 @@ input {
 .btn-add {
     width: 100px;
     height: 30px;
-    /* padding: 7px; */
     font-size: 1.4rem;
     text-align: center;
     margin-left: 10px;
@@ -169,7 +168,7 @@ input {
     font-weight: bold;
 }
 
-.button-save, .btn-selector, .btn-add {
+.button-save, .btn-selector, .btn-add, .import-form button {
     padding: 4px;
     color: white;
     background: #0c7cbf;
@@ -177,7 +176,7 @@ input {
     font-weight: bold;
 }
 
-.button-save:hover, .btn-selector:hover, .btn-add:hover, .btn-filtrar:hover{
+.button-save:hover, .btn-selector:hover, .btn-add:hover, .btn-filtrar:hover, .import-form button:hover{
     background: #acc835;
 }
 
@@ -291,4 +290,17 @@ input {
     text-align: center;
     padding: 5px;
     border-radius: 5px;
+}
+
+
+.import-form {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: start;
+}
+
+.import-form button {
+    margin-right: 10px;
+    border-radius: 5px;
+    padding: 3px 8px;
 }

@@ -12,7 +12,7 @@
 
 
 <p class="p-service"><strong>Servicio ETFA: </strong> {% if service.etfa == True  %} SI {% else %} NO {% endif %}</p>
-<p class="p-service"> <strong>Punto de muestreo:</strong>  {{ service.punto_de_muestreo }}</p>
+<p class="p-service"><strong>Punto de muestreo: </strong>{{ service.punto_de_muestreo }}</p>
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
 <p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</p>
 <p class='p-service'><strong>Fecha de entrega al cliente: </strong>{{ service.fecha_de_entrega_cliente|date:"d-m-Y" }}</p>
@@ -22,10 +22,13 @@
 <h3>Envases</h3>
 <p class='p-service'>{{ service.envases }}</p>
 
+<h3>Observación</h3>
+<p class='p-service'>{{ service.observacion }}</p>
+
 <h3>Norma de referencia</h3>
 <p class='p-service'>{{ norma.norma }}</p>
 
-<p></p><h3>RCA</h3>
+<h3>RCA</h3>
 <p class='p-service'>{{ rca.rca_asociada }}</p>
 
 

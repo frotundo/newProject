@@ -172,6 +172,8 @@ class Servicio(models.Model):
 
 
 class ParametroDeMuestra(models.Model):
+    """Sample paramenter model."""
+
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
     codigo_servicio = models.CharField(max_length=100)
     parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
@@ -183,6 +185,7 @@ class ParametroDeMuestra(models.Model):
     resultado_final = models.FloatField(null=True, blank=True,)
     peso_inicial = models.FloatField(null=True, blank=True,)
     peso_final = models.FloatField(null=True, blank=True,)
+    ensayo = models.CharField(max_length=50, null=True, blank=True,)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100, null=True, blank=True)
 
@@ -191,6 +194,7 @@ class ParametroDeMuestra(models.Model):
 
 
 class ETFA(models.Model):
+    """ETFA model."""
 
     codigo = models.CharField(max_length=20, primary_key=True)
     parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
