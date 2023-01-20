@@ -185,12 +185,12 @@ input {
     margin-top: 15px;
 }
 
-.fa-circle-plus, .fa-cloud-arrow-up {
+.fa-circle-plus, .fa-cloud-arrow-up, .fa-circle-xmark {
     color: #0c7cbf;
     font-size: 2rem;
 }
 
-.fa-circle-plus:hover, .fa-cloud-arrow-up:hover {
+.fa-circle-plus:hover, .fa-cloud-arrow-up:hover, .fa-circle-xmark:hover {
     color: #acc835;
 }
 .link-add {
@@ -303,4 +303,56 @@ input {
     margin-right: 10px;
     border-radius: 5px;
     padding: 3px 8px;
+}
+
+.add_service_type {
+    color: rgb(97, 95, 95);
+    position: absolute;
+    top: calc(50% - 80px);
+    left: calc(50% - 200px);
+    padding: 5px 25px 25px;
+    box-shadow: 0 0 16px rgba(0, 0, 0, .1), 0 0 16px rgba(0, 0, 0, .1);
+    font-size: 2rem;
+    background: white;
+    border-radius: 10px;
+    z-index: +2;
+}
+
+.add_service_type h2 {
+    margin-bottom: 20px;
+}
+
+.add_service_type div {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.add_service_type a {
+    padding: 5px 40px;
+    width: auto;
+    background: #0c7cbf;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+}
+.add_service_type a:hover {
+    color: white;
+    background: #acc835;
+}
+
+.inactive {
+    display: none;
+}
+
+.btn_add_service {
+    margin-left: 10px;
+    /* position: absolute;
+    top: 260px;
+    left: 200px; */
+}
+
+.service_exit {
+    width: 100%;
+    margin: 10px;
+    
 }

@@ -18,7 +18,8 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Servicios</h2>
-        <a class='link-add' href="{% url 'lims:add_service' project.codigo %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        {% comment %} <a class='link-add' href="{% url 'lims:add_service' project.codigo %}"><i class="fa-solid fa-circle-plus"></i></a>  {% endcomment %}
+        <span class='btn_add_service'><i class="fa-solid fa-circle-plus"></i></span>
     </div>
     
     {% if services %}
@@ -62,9 +63,16 @@
 
 </div>
 
-
 {% endblock content %}
 
 {% block extrajs %}
+    <div class='add_service_type inactive'>
+        <div class="service_exit" style='justify-content: end;'><i class="fa-solid fa-circle-xmark"></i></div>
+        <h2>¿El servicio es ETFA?</h2>
+        <div>
+            <a href="{% url 'lims:add_service_etfa' project.codigo %}">SI</a>
+            <a href="{% url 'lims:add_service' project.codigo %}">NO</a>
+        </div>
+    </div>
     <script src="{% static 'js/lims.js' %}"></script>
 {% endblock  %}

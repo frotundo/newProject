@@ -23,16 +23,12 @@
     
         {% for service in services %}
         <tr>
+            <td class='item-list'>{{ service.codigo_etfa }}</td>               
+            <td class='item-list'>{{ service.ensayo }}</td>
             <td class='item-list'>{{ service.codigo }}</td>
-            {% for parameter in parameters %}
-                {% if parameter.id == service.parametro_id %}
-                
-                    <td class='item-list'>{{ parameter.ensayo }}</td>
-                    <td class='item-list'>{{ parameter.codigo }}</td>
-                    <td class='item-list'>{{ parameter.metodo }}</td>
-                    <td class='item-list'>{{ parameter.tipo_de_muestra }}</td>
-                {% endif %}
-            {% endfor %}  
+            <td class='item-list'>{{ service.metodo }}</td>
+            <td class='item-list'>{{ service.tipo_de_muestra }}</td>
+
                 
         </tr>
         {% endfor %}

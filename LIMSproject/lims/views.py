@@ -160,7 +160,7 @@ def client_add_legal_representative(request, id_cliente):
             usuarios = todo[3::3]
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.RepresentanteLegalCliente.objects.create(
-                    nombre= contacto, 
+                    nombre= contacto.title(), 
                     rut=rut, 
                     cliente_id= id_cliente, 
                     creator_user= usuario
@@ -196,7 +196,7 @@ def client_add_contact(request, id_cliente):
             usuarios = todo[3::3]
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.ContactoCliente.objects.create(
-                    nombre= contacto, 
+                    nombre= contacto.title(), 
                     rut=rut, 
                     cliente_id= id_cliente, 
                     creator_user= usuario
@@ -576,15 +576,13 @@ def add_sample_type(request):
 def etfa(request):
     """ETFA view."""
 
-    queryset_services = models.ETFA.objects.all().order_by('codigo')
+    queryset_services = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('codigo_etfa')
     paginator = Paginator(queryset_services, 20)
     page = request.GET.get('page')
     services = paginator.get_page(page)
-    parameters = models.ParametroEspecifico.objects.all()
     
     return render(request, 'lims/etfa.html',{
         'services':services,
-        'parameters': parameters,
     })
 
 
@@ -639,7 +637,7 @@ def add_service(request, project_id):
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
-    parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
+    parametros = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
     if request.method == 'POST':
@@ -653,7 +651,7 @@ def add_service(request, project_id):
         fecha_de_contenedores = request.POST['fecha_de_contenedores']
         norma_de_referencia = request.POST['norma_de_referencia']
         rCA = request.POST['rCA']
-        etfa = request.POST['etfa']
+        etfa = False
         muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
         creator_user = request.POST['creator_user']
         parameters = request.POST.getlist('parameters')
@@ -711,6 +709,97 @@ def add_service(request, project_id):
         return redirect('lims:project', project_id)
         
     return render(request, 'lims/add_service.html', {
+        'project': project, 
+        'cliente': cliente,
+        'sample_points': sample_points,
+        'rcas': rcas,
+        'tipos_de_muestras': tipo_de_muestra,
+        'parameters': parametros,
+        'normas': normas,
+    })
+
+
+@login_required
+def add_service_etfa(request, project_id):
+    """Add service view."""
+
+    project = models.Proyecto.objects.get(pk = project_id)
+    cliente = models.Cliente.objects.get(pk=project.cliente_id)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
+    tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
+    parametros = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
+    normas = models.NormaDeReferencia.objects.all().order_by('norma')
+    
+    if request.method == 'POST':
+        proyecto = request.POST['proyecto']
+        cliente = request.POST['cliente']
+        punto_de_muestreo = request.POST['punto_de_muestreo']
+        tipo_de_muestra = request.POST['tipo_de_muestra']
+        fecha_de_muestreo = request.POST['fecha_de_muestreo']
+        observacion = request.POST['observacion']
+        habiles = request.POST['habiles']
+        fecha_de_contenedores = request.POST['fecha_de_contenedores']
+        norma_de_referencia = request.POST['norma_de_referencia']
+        rCA = request.POST['rCA']
+        etfa = True
+        muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
+        creator_user = request.POST['creator_user']
+        parameters = request.POST.getlist('parameters')
+        
+        fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
+        fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
+        current_year = datetime.now().year
+        current_year = str(current_year)[2:]
+
+        last_service = models.Servicio.objects.latest('codigo_muestra')
+
+        if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        
+        if models.Servicio.objects.exists()==False:
+            codigo_de_servicio = ('1').zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        
+        if last_service.codigo_muestra[-2:] != current_year: 
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_central = ('1').zfill(5)
+            codigo_generado = f'{codigo_central}-{current_year}'
+        
+        for sp in sample_points:
+            if int(punto_de_muestreo) == int(sp.id):   
+                models.Servicio.objects.create(
+                    codigo = codigo_de_servicio,
+                    codigo_muestra = codigo_generado, 
+                    proyecto_id = proyecto, 
+                    punto_de_muestreo = sp.nombre,
+                    tipo_de_muestra = tipo_de_muestra,
+                    fecha_de_muestreo = fecha_de_muestreo,
+                    observacion = observacion,
+                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                    fecha_de_contenedores = fecha_de_contenedores,
+                    norma_de_referencia = norma_de_referencia,
+                    rCA = rCA,
+                    etfa = etfa,
+                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+                    creator_user = creator_user,
+                    cliente = cliente,
+                    )                    
+
+        for pid in parameters:
+            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+            models.ParametroDeMuestra(
+                servicio_id = codigo_de_servicio, 
+                parametro_id= pid,
+                ensayo= ensayo.codigo, 
+                codigo_servicio= codigo_generado,
+                creator_user = creator_user,
+                ).save()
+
+        return redirect('lims:project', project_id)
+        
+    return render(request, 'lims/add_service_etfa.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
@@ -800,16 +889,81 @@ def edit_sample_parameter(request,parameter_id):
 def service_parameters(request):
     """Service parameters view."""
 
-    # queryset_service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains='-').order_by('servicio_id')
-    queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
-    parametros = models.ParametroEspecifico.objects.all()
+    queryset_service_parameters = models.ParametroDeMuestra.objects.exclude(ensayo__icontains='GRV').order_by('servicio_id')
+    # queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
+    parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV')
     parameters = parametros
     paginator = Paginator(queryset_service_parameters, 25)
     page = request.GET.get('page')
     service_parameters = paginator.get_page(page)
 
     if request.method == 'POST':
-        if 'excel_file' in request.POST.keys():
+        if 'parametro' in request.POST.keys():
+            if request.POST['parametro'] == '':
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+            else:
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+
+        elif 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+
+            elif request.POST['buscar'] == 'servicio':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains=request.POST['search_text'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+            elif request.POST['buscar'] == 'ensayo':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains=request.POST['search_text'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+
+            elif request.POST['buscar'] == 'inicio':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+        elif 'excel_file' in request.POST.keys():
             if request.POST['excel_file'] == '':
                 return render(request, 'lims/service_parameters_filter.html',{
                     'service_parameters': service_parameters,
@@ -817,7 +971,7 @@ def service_parameters(request):
                     'parameters': parameters,
                 })
 
-        if request.FILES['excel_file']:
+        elif request.FILES['excel_file']:
             excel_file = request.FILES['excel_file']
             df = pd.read_excel(excel_file)
 
@@ -834,66 +988,6 @@ def service_parameters(request):
 
             return redirect('lims:service_parameters_filter')
 
-        if 'parametro' in request.POST.keys():
-            if request.POST['parametro'] == '':
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
-            else:
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro']).order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
-
-        if 'search_text' in request.POST.keys():
-            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
-
-            elif request.POST['buscar'] == 'servicio':
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains=request.POST['search_text'])
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
-            elif request.POST['buscar'] == 'ensayo':
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains=request.POST['search_text'])
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
-
-            elif request.POST['buscar'] == 'inicio':
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
 
         else:
             
@@ -926,17 +1020,75 @@ def service_parameters(request):
 def service_parameters_filter(request):
     """Service parameters for filter view."""
 
-    # queryset_service_parameters = models.ParametroDeMuestra.objects.exclude(codigo_servicio__contains='-').order_by('servicio_id')
-    queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
-    parametros = models.ParametroEspecifico.objects.all()
+    queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('servicio_id')
+    # queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
+    parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV')
     parameters = parametros
     paginator = Paginator(queryset_service_parameters, 25)
     page = request.GET.get('page')
     service_parameters = paginator.get_page(page)
 
     if request.method == 'POST':
-        
-        if 'excel_file' in request.POST.keys():
+        if 'parametro' in request.POST.keys():
+            if request.POST['parametro'] == '':
+                return render(request, 'lims/service_parameters_filter.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+            else:
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(parametro_id=request.POST['parametro'])).order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters_filter.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+
+        elif 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                return render(request, 'lims/service_parameters_filter.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                })
+            elif request.POST['buscar'] == 'servicio':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(codigo_servicio__contains=request.POST['search_text'])).order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters_filter.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+            elif request.POST['buscar'] == 'ensayo':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(ensayo__icontains=request.POST['search_text'])).order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+            elif request.POST['buscar'] == 'inicio':
+                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(fecha_de_inicio__contains=request.POST['search_text'])).order_by('-created')
+                paginator = Paginator(queryset_service_parameters, 25)
+                page = request.GET.get('page')
+                service_parameters = paginator.get_page(page)
+                return render(request, 'lims/service_parameters_filter.html',{
+                    'service_parameters': service_parameters,
+                    'parametros': parametros,
+                    'parameters': parameters,
+                    })
+
+        elif 'excel_file' in request.POST.keys():
             if request.POST['excel_file'] == '':
                 return render(request, 'lims/service_parameters_filter.html',{
                     'service_parameters': service_parameters,
@@ -944,7 +1096,7 @@ def service_parameters_filter(request):
                     'parameters': parameters,
                 })
 
-        if request.FILES['excel_file']:
+        elif request.FILES['excel_file']:
             excel_file = request.FILES['excel_file']
             df = pd.read_excel(excel_file)
 
@@ -960,66 +1112,6 @@ def service_parameters_filter(request):
                     parametro.save()
 
             return redirect('lims:service_parameters_filter')
-
-
-        if 'parametro' in request.POST.keys():
-            if request.POST['parametro'] == '':
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
-            else:
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro']).order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
-
-        if 'search_text' in request.POST.keys():
-            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
-            elif request.POST['buscar'] == 'servicio':
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains=request.POST['search_text'])
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
-            elif request.POST['buscar'] == 'ensayo':
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains=request.POST['search_text'])
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
-            elif request.POST['buscar'] == 'inicio':
-                queryset_service_parameters = models.ParametroDeMuestra.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
 
         else:
             
