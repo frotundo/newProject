@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">{{ project.nombre }}</h1>
+</div>
+
+
+<h3>Codigo</h3>
+<p class='p-client'>{{ project.codigo }}</p>
+<p></p>
+
+{% if parametros_cotizados %}
+<h3>Parametros cotizados</h3>
+{% for pc in parametros_cotizados %}
+<p style='margin-left: 20px'>{{ pc.codigo }} ({{pc}})</p>
+{% endfor %}
+{% endif %}
+
+<div>
+    <div class='subtitle_contain'>
+        <h2 class="subtitle">Servicios</h2>
+        <a class='link-add' href="{% url 'lims:add_service_cot' project.codigo %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        {% comment %} <span class='btn_add_service'><i class="fa-solid fa-circle-plus"></i></span> {% endcomment %}
+    </div>
+    
+    {% if services %}
+        <table id='#table-service'>
+            <tr>
+                <td class='item-list-2 title-item-list'>Codigo de muestra</td>
+                <td class='item-list-2 title-item-list'>Punto de muestreo</td>
+                <td class='item-list-2 title-item-list'>Fecha de muestreo</td>
+                <td class='item-list-2 title-item-list'>Fecha de recepción</td>       
+            </tr>
+        
+            {% for service in services %}
+                <tr class='btn-service'>
+                    <td class='item-list-2'><a href="{% url 'lims:service' service.codigo %}">{{ service.codigo_muestra }}</a></td>
+                    <td class='item-list-2'>{{ service.punto_de_muestreo }}</td>
+                    <td class='item-list-2'>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</td>
+                    <td class='item-list-2'>{{ service.fecha_de_recepcion|date:"d-m-Y" }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <div class="pagination">
+            <span class="page-links">
+                {% if services.has_previous %}
+                    <a href="?page={{ services.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="page-current">
+                    Pagina {{ services.number }} de {{ services.paginator.num_pages }}
+                </span>
+        
+                {% if services.has_next %}
+                    <a href="?page={{ services.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+        
+    {% else  %}
+        No hay registro de servicios.
+    {% endif %}
+
+</div>
+
+{% endblock content %}
+
+{% block extrajs %}
+    {% comment %} <div class='add_service_type inactive'>
+        <div class="service_exit" style='justify-content: end;'><i class="fa-solid fa-circle-xmark"></i></div>
+        <h2>¿El servicio es ETFA?</h2>
+        <div>
+            <a href="{% url 'lims:add_service_etfa' project.codigo %}">SI</a>
+            <a href="{% url 'lims:add_service' project.codigo %}">NO</a>
+        </div>
+    </div>
+    <script src="{% static 'js/lims.js' %}"></script> {% endcomment %}
+{% endblock  %}

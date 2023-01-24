@@ -137,6 +137,9 @@ class Proyecto(models.Model):
     codigo = models.CharField(max_length=10, primary_key=True)
     nombre = models.CharField(max_length=254)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.PROTECT)
+    parametros_cotizados = models.ManyToManyField(ParametroEspecifico)
+    cotizado = models.BooleanField(null=True, blank=True,) 
+    etfa = models.BooleanField(null=True, blank=True,) 
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 

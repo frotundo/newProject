@@ -4,11 +4,11 @@
     <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
 {% endblock %}
 {% block content %}
-<h1 class="title">Agregar Metodos</h1>
+<h1 class="title">Agregar Métodos</h1>
 
 <form class='form-contador' action="" method='POST'>
     {% csrf_token %}
-        <label for="">¿Metodos a agregar?</label>
+        <label for="">¿Métodos a agregar?</label>
         <input type="number" name='sp-number' value='{{len_pm}}' class='input-sp'>   
         <button type="submit" class='btn-selector'>Agregar</button>
 </form>
@@ -19,7 +19,7 @@
         <table class='table-client'>
             <tr>
                 <td class='item-add'><label for="">Nombre</label></td>
-                <td class='item-input'><input type="text" name="metodo{{ forloop.counter }}" placeholder="Metodo" required></td>
+                <td class='item-input'><input type="text" name="metodo{{ forloop.counter }}" placeholder="Método" required></td>
             </tr>
 
             <tr>
@@ -33,6 +33,8 @@
             </tr>
         </table>
     {% endfor %}
+
+    {% if error_duplicados %} <p class="error_client">{{ error_duplicados }}</p> {% endif %}
     <button class='button-save' type="submit">Guardar</button>
 </form>
 

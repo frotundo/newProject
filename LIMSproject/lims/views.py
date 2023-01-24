@@ -23,6 +23,13 @@ def add_workdays(start_date, num_workdays):
     end_date = workday(start_date, num_workdays)
     return end_date
 
+def list_to_string(lista):
+    if len(lista)==2:
+        return ' y '.join(lista)
+    else:
+        return ', '.join(lista)
+
+
 @login_required
 def index(request):
     """Index view."""
@@ -287,9 +294,17 @@ def client_add_project(request, id_cliente):
     matrices = models.TipoDeMuestra.objects.all()
     
     if request.method == 'POST':
-       form = forms.ProjectForm(request.POST)
-       if form.is_valid():
-        form.save()
+        client = request.POST['cliente']
+        codigo = request.POST['codigo']
+        nombre = request.POST['nombre']
+        creator_user = request.POST['creator_user']
+        
+        models.Proyecto.objects.create(
+            codigo=codigo, 
+            nombre=nombre, 
+            creator_user=creator_user,
+            cliente_id=client)
+
         return redirect('lims:client', id_cliente)
     
     return render(request, 'LIMS/client_add_project.html', {
@@ -298,6 +313,70 @@ def client_add_project(request, id_cliente):
         'normas': normas,
         'matrices': matrices,
         'cliente': cliente,
+    })
+
+
+def client_add_project_cot(request, id_cliente):
+    """Add Standards of reference view."""
+
+    cliente = models.Cliente.objects.get(id=id_cliente)
+    parameters = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
+    
+    if request.method == 'POST':
+        client = request.POST['cliente']
+        codigo = request.POST['codigo']
+        nombre = request.POST['nombre']
+        creator_user = request.POST['creator_user']
+        parametros = request.POST.getlist('parameters')
+        
+        project = models.Proyecto.objects.create(
+            codigo=codigo, 
+            nombre=nombre, 
+            creator_user=creator_user,
+            cliente_id=client, 
+            cotizado=True,
+            )
+        
+        project.parametros_cotizados.set(parametros)
+
+        return redirect('lims:client', id_cliente)
+    
+    return render(request, 'LIMS/client_add_project_cot.html', {
+        'cliente': cliente,
+        'parameters': parameters,
+    })
+
+
+def client_add_project_cot_etfa(request, id_cliente):
+    """Add Standards of reference view."""
+
+    cliente = models.Cliente.objects.get(id=id_cliente)
+    parameters = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
+    
+    if request.method == 'POST':
+        print(request.POST)
+        client = request.POST['cliente']
+        codigo = request.POST['codigo']
+        nombre = request.POST['nombre']
+        creator_user = request.POST['creator_user']
+        parametros = request.POST.getlist('parameters')
+        
+        project = models.Proyecto.objects.create(
+            codigo=codigo, 
+            nombre=nombre, 
+            creator_user=creator_user,
+            cliente_id=client, 
+            cotizado=True,
+            etfa=True
+            )
+        
+        project.parametros_cotizados.set(parametros)
+
+        return redirect('lims:client', id_cliente)
+    
+    return render(request, 'LIMS/client_add_project_cot_etfa.html', {
+        'cliente': cliente,
+        'parameters': parameters,
     })
 
 
@@ -383,13 +462,38 @@ def add_method(request):
             metodos = todo[1::3]
             descripciones = todo[2::3]
             usuarios = todo[3::3]
-            for nombre, descripcion, usuario in zip(metodos, descripciones,usuarios):
+            duplicados = []
+            for metodo in metodos:
+                try:
+                    if metodo == models.Metodo.objects.get(nombre=metodo).nombre:
+                            duplicados.append(metodo) 
+                            duplicado =  metodos.index(metodo)
+                            usuarios.pop(duplicado)
+                            descripciones.pop(duplicado)
+                            metodos.pop(duplicado)
+                except:
+                    continue
+            for nombre, descripcion, usuario in zip(metodos, descripciones, usuarios):
                 models.Metodo.objects.create(
                     nombre= nombre, 
                     descripcion= descripcion,
                     creator_user=usuario
                     ) 
-            return redirect('lims:methods')
+            
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'El método {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Los métodos: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+
+                return render(request, 'lims/add_method.html', {
+                    'pm':[0],
+                    'len_pm': 1,
+                    'error_duplicados': error_duplicados,
+                })
+            else:
+                return redirect('lims:methods')
+
     
     return render(request, 'lims/add_method.html', {
         'pm':[0],
@@ -629,6 +733,32 @@ def project(request, project_id):
 
 
 @login_required
+def project_cot(request, project_id):
+    """Project view."""
+
+    project = models.Proyecto.objects.get(pk = project_id)
+    cliente = models.Cliente.objects.get(pk=project.cliente_id)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id)
+    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id)
+    queryset_services = models.Servicio.objects.filter(proyecto_id=project_id).order_by('-created', 'codigo')
+    paginator = Paginator(queryset_services, 20)
+    page = request.GET.get('page')
+    services = paginator.get_page(page)
+    parameters_service = models.ParametroDeMuestra.objects.all()
+    parametros_cotizados = project.parametros_cotizados.all()
+    
+    return render(request, 'lims/project_cot.html', {
+        'project': project, 
+        'cliente': cliente,
+        'sample_points': sample_points,
+        'rcas': rcas,
+        'services': services,
+        'parameters': parameters_service,
+        'parametros_cotizados':parametros_cotizados,
+    })
+
+
+@login_required
 def add_service(request, project_id):
     """Add service view."""
 
@@ -660,8 +790,7 @@ def add_service(request, project_id):
         fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
-
-        last_service = models.Servicio.objects.latest('codigo_muestra')
+        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
 
         if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
             codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
@@ -752,7 +881,7 @@ def add_service_etfa(request, project_id):
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
 
-        last_service = models.Servicio.objects.latest('codigo_muestra')
+        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
 
         if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
             codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
@@ -809,6 +938,103 @@ def add_service_etfa(request, project_id):
         'normas': normas,
     })
 
+@login_required
+def add_service_cot(request, project_id):
+    """Add service view."""
+
+    project = models.Proyecto.objects.get(pk = project_id)
+    parametros_cot = project.parametros_cotizados.all()
+    cliente = models.Cliente.objects.get(pk=project.cliente_id)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
+    tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
+    # parametros = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
+    normas = models.NormaDeReferencia.objects.all().order_by('norma')
+    
+    if request.method == 'POST':
+        proyecto = request.POST['proyecto']
+        cliente = request.POST['cliente']
+        punto_de_muestreo = request.POST['punto_de_muestreo']
+        tipo_de_muestra = request.POST['tipo_de_muestra']
+        fecha_de_muestreo = request.POST['fecha_de_muestreo']
+        fecha_de_recepcion = request.POST['fecha_de_recepcion']
+        observacion = request.POST['observacion']
+        habiles = request.POST['habiles']
+        norma_de_referencia = request.POST['norma_de_referencia']
+        rCA = request.POST['rCA']
+        etfa = request.POST['etfa']
+        muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
+        creator_user = request.POST['creator_user']
+        parameters = request.POST.getlist('parameters')
+        
+        fecha_de_recepcion= datetime.strptime(fecha_de_recepcion, "%Y-%m-%d")
+        fecha_de_entrega_cliente = add_workdays(fecha_de_recepcion, int(habiles))
+        current_year = datetime.now().year
+        current_year = str(current_year)[2:]
+
+        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+
+        if 'SI' in etfa: 
+            etfa=True
+        else: 
+            etfa=False
+
+        if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        
+        elif models.Servicio.objects.exists()==False:
+            codigo_de_servicio = ('1').zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        
+        elif last_service.codigo_muestra[-2:] != current_year: 
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_central = ('1').zfill(5)
+            codigo_generado = f'{codigo_central}-{current_year}'
+        
+
+        for sp in sample_points:
+            if int(punto_de_muestreo) == int(sp.id):   
+                models.Servicio.objects.create(
+                    codigo = codigo_de_servicio,
+                    codigo_muestra = codigo_generado, 
+                    proyecto_id = proyecto, 
+                    punto_de_muestreo = sp.nombre,
+                    tipo_de_muestra = tipo_de_muestra,
+                    fecha_de_muestreo = fecha_de_muestreo,
+                    fecha_de_recepcion = fecha_de_recepcion,
+                    observacion = observacion,
+                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                    norma_de_referencia = norma_de_referencia,
+                    rCA = rCA,
+                    etfa = etfa,
+                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+                    creator_user = creator_user,
+                    cliente = cliente,
+                    )                    
+
+        for pid in parameters:
+            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+            models.ParametroDeMuestra(
+                servicio_id = codigo_de_servicio, 
+                parametro_id= pid,
+                ensayo= ensayo.codigo, 
+                codigo_servicio= codigo_generado,
+                creator_user = creator_user,
+                ).save()
+
+        return redirect('lims:project', project_id)
+        
+    return render(request, 'lims/add_service_cot.html', {
+        'project': project, 
+        'cliente': cliente,
+        'sample_points': sample_points,
+        'rcas': rcas,
+        'tipos_de_muestras': tipo_de_muestra,
+        'normas': normas,
+        'parametros_cot': parametros_cot,
+    })
+
 
 @login_required
 def add_service_parameter(request, service_id):
@@ -816,7 +1042,10 @@ def add_service_parameter(request, service_id):
 
     servicio = models.Servicio.objects.get(pk=service_id)
     project = models.Proyecto.objects.get(pk = servicio.proyecto_id)
-    parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
+    parametros = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
+    parametros_muestra = models.ParametroDeMuestra.objects.filter(servicio_id = service_id)
+    for pm in parametros_muestra:
+        parametros = parametros.exclude(pk= pm.parametro_id)
 
     if request.method == 'POST':
         creator_user = request.POST['creator_user']
@@ -840,6 +1069,38 @@ def add_service_parameter(request, service_id):
 
 
 @login_required
+def add_service_parameter_etfa(request, service_id):
+    """Add service parameter view."""
+
+    servicio = models.Servicio.objects.get(pk=service_id)
+    project = models.Proyecto.objects.get(pk = servicio.proyecto_id)
+    parametros = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
+    parametros_muestra = models.ParametroDeMuestra.objects.filter(servicio_id = service_id)
+    for pm in parametros_muestra:
+        parametros = parametros.exclude(pk= pm.parametro_id)
+        
+    if request.method == 'POST':
+        creator_user = request.POST['creator_user']
+        parameters = request.POST.getlist('parameters')
+
+        for pid in parameters:
+            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+            models.ParametroDeMuestra(
+                servicio_id = service_id, 
+                parametro_id= pid, 
+                ensayo= ensayo.codigo,
+                codigo_servicio= servicio.codigo_muestra,
+                creator_user=creator_user
+                ).save()
+
+        return redirect('lims:project', servicio.proyecto_id)
+    return render(request, 'lims/add_service_parameter_etfa.html', {
+        'project': project, 
+        'parameters': parametros,
+    })
+
+
+@login_required
 def service(request, service_id):
     """Service view."""
 
@@ -851,13 +1112,15 @@ def service(request, service_id):
     parameters = paginator.get_page(page)
     rca = models.RCACliente.objects.get(pk=service.rCA)
     norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
-    
+    project = models.Proyecto.objects.get(pk=service.proyecto_id)
+    print(project.codigo)
     return render(request, 'lims/service.html', {
         'service': service,
         'parametros': parametros,
         'parameters': parameters,
         'rca': rca,
         'norma': norma,
+        'project': project,
     })
 
  

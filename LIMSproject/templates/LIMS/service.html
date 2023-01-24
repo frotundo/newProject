@@ -16,11 +16,18 @@
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
 <p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</p>
 <p class='p-service'><strong>Fecha de entrega al cliente: </strong>{{ service.fecha_de_entrega_cliente|date:"d-m-Y" }}</p>
+{% if project.cotizado %}
+{% else %}
 <p class='p-service'><strong>Fecha de entrega de envase para enviar a terreno: </strong>{{ service.fecha_de_contenedores|date:"d-m-Y" }}</p>
+{% endif %}
+
 <p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepcion|date:"d-m-Y" }}</p>
 
+{% if project.cotizado %}
+{% else %}
 <h3>Envases</h3>
 <p class='p-service'>{{ service.envases }}</p>
+{% endif %}
 
 <h3>Observación</h3>
 <p class='p-service'>{{ service.observacion }}</p>
@@ -35,7 +42,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Parametros</h2>
-        <a class='link-add' href="{% url 'lims:add_service_parameter' service.codigo %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% if service.etfa == True  %} {% url 'lims:add_service_parameter_etfa' service.codigo %} {% else %} {% url 'lims:add_service_parameter' service.codigo %} {% endif %}"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
     
     {% if parameters %}
@@ -52,9 +59,10 @@
         
             {% for p in parameters %}
                 <tr class='btn-service'>
-                    <td class='item-list-2'><a href="{% url 'lims:edit_sample_parameter' p.id%}">{% for i in parametros %}
-                        {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
-                    {% endfor %}</a></td>
+                    <td class='item-list-2'><a href="{% url 'lims:edit_sample_parameter' p.id%}">
+                        {% for i in parametros %}
+                            {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
+                        {% endfor %}</a></td>
                     <td class='item-list-2'> {% if p.responsable_de_analisis == None %}{% else %}{{ p.responsable_de_analisis }}{% endif %}</td>
                     <td class='item-list-2'>{% if p.fecha_de_inicio == None %}{% else %}{{ p.fecha_de_inicio|date:"d-m-Y" }}{% endif %}</td>
                     <td class='item-list-2'>{% if p.fecha_de_terminado == None %}{% else %}{{ p.fecha_de_terminado|date:"d-m-Y" }}{% endif %}</td>

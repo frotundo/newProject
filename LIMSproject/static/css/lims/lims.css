@@ -143,7 +143,7 @@ input {
 
 .select1 {
     width: 400px;
-    margin-left: 20%;
+    /* margin-left: 20%; */
 }
 .button-save {
     width: 250px;
@@ -185,12 +185,19 @@ input {
     margin-top: 15px;
 }
 
-.fa-circle-plus, .fa-cloud-arrow-up, .fa-circle-xmark {
+.fa-circle-plus, 
+.fa-cloud-arrow-up, 
+.fa-circle-xmark, 
+.fa-rotate-left {
     color: #0c7cbf;
     font-size: 2rem;
+    cursor: pointer;
 }
 
-.fa-circle-plus:hover, .fa-cloud-arrow-up:hover, .fa-circle-xmark:hover {
+.fa-circle-plus:hover, 
+.fa-cloud-arrow-up:hover, 
+.fa-circle-xmark:hover, 
+.fa-rotate-left:hover {
     color: #acc835;
 }
 .link-add {
@@ -305,11 +312,12 @@ input {
     padding: 3px 8px;
 }
 
-.add_service_type {
+.add_service_type, 
+.add_project_type1,
+.add_project_type2 {
     color: rgb(97, 95, 95);
-    position: absolute;
+    position: fixed;
     top: calc(50% - 80px);
-    left: calc(50% - 200px);
     padding: 5px 25px 25px;
     box-shadow: 0 0 16px rgba(0, 0, 0, .1), 0 0 16px rgba(0, 0, 0, .1);
     font-size: 2rem;
@@ -318,16 +326,33 @@ input {
     z-index: +2;
 }
 
-.add_service_type h2 {
+.add_service_type{
+    left: calc(50% - 200px);
+} 
+.add_project_type1,
+.add_project_type2 {
+    width: 630px;
+    left: calc(50% - 315px);
+    text-align: center;
+}
+.add_service_type h2, 
+.add_project_type1 h2,
+.add_project_type2 h2 {
     margin-bottom: 20px;
 }
 
-.add_service_type div {
+.add_service_type div, 
+.add_project_type1 div,
+.add_project_type2 div {
     display: flex;
     justify-content: space-evenly;
 }
 
-.add_service_type a {
+.add_service_type a, 
+.add_project_type1 a,
+.add_project_type1 span,
+.add_project_type2 a,
+.add_project_type2 span {
     padding: 5px 40px;
     width: auto;
     background: #0c7cbf;
@@ -335,7 +360,12 @@ input {
     text-align: center;
     border-radius: 5px;
 }
-.add_service_type a:hover {
+.add_service_type a:hover, 
+.add_project_type1 a:hover,
+.add_project_type1 span:hover,
+.add_project_type2 a:hover,
+.add_project_type2 span:hover
+{
     color: white;
     background: #acc835;
 }
@@ -344,14 +374,17 @@ input {
     display: none;
 }
 
-.btn_add_service {
+.btn_add_service, 
+.btn_type_project,
+.btn_type_project2 {
     margin-left: 10px;
     /* position: absolute;
     top: 260px;
     left: 200px; */
 }
 
-.service_exit {
+.service_exit, 
+.project_exit {
     width: 100%;
     margin: 10px;
     

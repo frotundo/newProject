@@ -192,7 +192,8 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Proyectos</h2>
-        <a class='link-add' href="{% url 'lims:client_add_project' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        {% comment %} <a class='link-add' href="{% url 'lims:client_add_project' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a>  {% endcomment %}
+        <span class='btn_type_project'><i class="fa-solid fa-circle-plus"></i></span>
     </div>
         {% if projects %}
             <table>
@@ -203,7 +204,7 @@
             
                 {% for project in projects %}
                     <tr>
-                        <td class='item-list-sp'><a href="{% url 'lims:project' project.codigo %}" class='item-list-sp'>{{ project.codigo }}</a></td>
+                        <td class='item-list-sp'><a href="{% if project.cotizado %}{% url 'lims:project_cot' project.codigo %}{% else %}{% url 'lims:project' project.codigo %}{% endif %}" class='item-list-sp'>{{ project.codigo }}</a></td>
                         <td class='item-list-sp'>{{ project.nombre }}</td>
                     </tr>
                 {% endfor %}
@@ -233,3 +234,24 @@
 
 
 {% endblock content %}
+
+{% block extrajs %}
+    <div class='add_project_type1 inactive'>
+        <div class="project_exit" style='justify-content: end;'><i class="fa-solid fa-circle-xmark"></i></div>
+        <h2>¿Tipo de proyecto a agregar?</h2>
+        <div>
+            <a href="{% url 'lims:client_add_project' cliente.id %}">Completo</a>
+            <span class='btn_type_project2'>Cotizado</span>
+        </div>
+    </div>
+
+    <div class='add_project_type2 inactive'>
+        <div class="project_exit" style='justify-content: space-between;'><i class="fa-solid fa-rotate-left return"></i><i class="fa-solid fa-circle-xmark exit"></i></div>
+        <h2>¿El Proyecto es con servicio ETFA?</h2>
+        <div>
+            <a href="{% url 'lims:client_add_project_cot_etfa' cliente.id %}">SI</a>
+            <a href="{% url 'lims:client_add_project_cot' cliente.id %}">NO</a>
+        </div>
+    </div>
+    <script src="{% static 'js/lims_proj.js' %}"></script>
+{% endblock  %}

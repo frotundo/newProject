@@ -1,8 +1,9 @@
 let elements_btn_service = document.querySelectorAll('#table-service .btn-service');
 let btn_add_service = document.querySelector('.btn_add_service');
 let add_service_type = document.querySelector('.add_service_type');
-let service_exit = document.querySelector('.fa-circle-xmark')
-const main = document.querySelector('main')
+let service_exit = document.querySelector('.fa-circle-xmark');
+const main = document.querySelector('main');
+
 
 elements_btn_service.forEach(function(element){
     element.addEventListener('click', addParameters);
@@ -16,7 +17,6 @@ function addParameters() {
 btn_add_service.addEventListener('click', add_service)
 
 function add_service() {
-    console.log('tocaste boton');
     add_service_type.classList.remove('inactive');
     main.style.opacity = '30%';
 
