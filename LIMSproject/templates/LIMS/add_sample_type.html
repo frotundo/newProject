@@ -27,6 +27,7 @@
             </tr>
         </table>
     {% endfor %}
+    {% if error_duplicados %} <p class="error_client">{{ error_duplicados }}</p> {% endif %}
     <button class='button-save' type="submit">Guardar</button>
 </form>
 

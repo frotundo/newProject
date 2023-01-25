@@ -165,6 +165,17 @@ def client_add_legal_representative(request, id_cliente):
             contactos = todo[1::3]
             ruts = todo[2::3]
             usuarios = todo[3::3]
+            duplicados = []
+            for rut in ruts:
+                try:
+                    if rut == models.RepresentanteLegalCliente.objects.get(rut=rut).rut:
+                            duplicados.append(rut) 
+                            duplicado =  ruts.index(rut)
+                            usuarios.pop(duplicado)
+                            contactos.pop(duplicado)
+                            ruts.pop(duplicado)
+                except:
+                    continue
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.RepresentanteLegalCliente.objects.create(
                     nombre= contacto.title(), 
@@ -172,7 +183,19 @@ def client_add_legal_representative(request, id_cliente):
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
-            return redirect('lims:client', id_cliente)
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'El RUT {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Los RUT: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+
+                return render(request, 'lims/client_add_legal_representative.html', {
+                    'pm':[0],
+                    'len_pm': 1,
+                    'error_duplicados': error_duplicados,
+                })
+            else:
+                return redirect('lims:client', id_cliente)
     
     return render(request, 'lims/client_add_legal_representative.html', {
         'pm':[0],
@@ -201,6 +224,17 @@ def client_add_contact(request, id_cliente):
             contactos = todo[1::3]
             ruts = todo[2::3]
             usuarios = todo[3::3]
+            duplicados = []
+            for rut in ruts:
+                try:
+                    if rut == models.ContactoCliente.objects.get(rut=rut).rut:
+                            duplicados.append(rut) 
+                            duplicado =  ruts.index(rut)
+                            usuarios.pop(duplicado)
+                            contactos.pop(duplicado)
+                            ruts.pop(duplicado)
+                except:
+                    continue
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.ContactoCliente.objects.create(
                     nombre= contacto.title(), 
@@ -208,7 +242,19 @@ def client_add_contact(request, id_cliente):
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
-            return redirect('lims:client', id_cliente)
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'El RUT {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Los RUT: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+
+                return render(request, 'lims/client_add_contact.html', {
+                    'pm':[0],
+                    'len_pm': 1,
+                    'error_duplicados': error_duplicados,
+                })
+            else:
+                return redirect('lims:client', id_cliente)
     return render(request, 'lims/client_add_contact.html', {
         'pm':[0],
         'len_pm': 1,
@@ -235,13 +281,34 @@ def client_add_sample_point(request, id_cliente):
                 todo.append(valor)
             puntos = todo[1::2]
             usuarios = todo[2::2]
+            duplicados = []
+            for punto in puntos:
+                try:
+                    if punto == models.PuntoDeMuestreo.objects.get(nombre=punto).nombre:
+                            duplicados.append(punto) 
+                            duplicado =  puntos.index(punto)
+                            usuarios.pop(duplicado)
+                            puntos.pop(duplicado)
+                except:
+                    continue
             for punto, usuario in zip(puntos, usuarios):
                 models.PuntoDeMuestreo.objects.create(
                     nombre= punto, 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
-            return redirect('lims:client', id_cliente)
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'El punto de muestreo {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Los puntos de muestreo: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+                return render(request, 'LIMS/client_add_sample_point.html', {
+                    'pm':[0],
+                    'len_pm': 1,
+                    'error_duplicados': error_duplicados,
+                })
+            else:        
+                return redirect('lims:client', id_cliente)
 
     return render(request, 'LIMS/client_add_sample_point.html', {
         'pm':[0],
@@ -269,13 +336,34 @@ def client_add_rca(request, id_cliente):
                 todo.append(valor)
             puntos = todo[1::2]
             usuarios = todo[2::2]
+            duplicados = []
+            for rca in puntos:
+                try:
+                    if rca == models.RCACliente.objects.get(rca_asociada=rca).rca_asociada:
+                            duplicados.append(rca) 
+                            duplicado =  puntos.index(rca)
+                            usuarios.pop(duplicado)
+                            puntos.pop(duplicado)
+                except:
+                    continue
             for punto, usuario in zip(puntos, usuarios):
                 models.RCACliente.objects.create(
                     rca_asociada= punto, 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
-            return redirect('lims:client', id_cliente)
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'El RCA {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Los RCA: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+                return render(request, 'LIMS/add_normas_ref.html', {
+                    'pm':[0],
+                    'len_pm': 1,
+                    'error_duplicados': error_duplicados,
+                })
+            else:
+                return redirect('lims:client', id_cliente)
 
     return render(request, 'LIMS/client_add_rca.html', {
         'pm':[0],
@@ -298,14 +386,24 @@ def client_add_project(request, id_cliente):
         codigo = request.POST['codigo']
         nombre = request.POST['nombre']
         creator_user = request.POST['creator_user']
-        
-        models.Proyecto.objects.create(
+        try:
+            models.Proyecto.objects.create(
             codigo=codigo, 
             nombre=nombre, 
             creator_user=creator_user,
             cliente_id=client)
 
-        return redirect('lims:client', id_cliente)
+            return redirect('lims:client', id_cliente)
+        except:
+            error = "El Codigo de Proyecto ya existe."
+            return render(request, 'LIMS/client_add_project.html', {
+                'sample_points' : sample_points,
+                'rcas': rcas,
+                'normas': normas,
+                'matrices': matrices,
+                'cliente': cliente,
+                'error_client': error,
+            })
     
     return render(request, 'LIMS/client_add_project.html', {
         'sample_points' : sample_points,
@@ -329,18 +427,25 @@ def client_add_project_cot(request, id_cliente):
         creator_user = request.POST['creator_user']
         parametros = request.POST.getlist('parameters')
         
-        project = models.Proyecto.objects.create(
-            codigo=codigo, 
-            nombre=nombre, 
-            creator_user=creator_user,
-            cliente_id=client, 
-            cotizado=True,
-            )
-        
-        project.parametros_cotizados.set(parametros)
+        try:
+            project = models.Proyecto.objects.create(
+                codigo=codigo, 
+                nombre=nombre, 
+                creator_user=creator_user,
+                cliente_id=client, 
+                cotizado=True,
+                )
+            
+            project.parametros_cotizados.set(parametros)
 
-        return redirect('lims:client', id_cliente)
-    
+            return redirect('lims:client', id_cliente)
+        except:
+            error = "El Codigo de Proyecto ya existe."
+            return render(request, 'LIMS/client_add_project_cot.html', {
+                'cliente': cliente,
+                'parameters': parameters,
+                'error_client': error,
+            })
     return render(request, 'LIMS/client_add_project_cot.html', {
         'cliente': cliente,
         'parameters': parameters,
@@ -360,20 +465,26 @@ def client_add_project_cot_etfa(request, id_cliente):
         nombre = request.POST['nombre']
         creator_user = request.POST['creator_user']
         parametros = request.POST.getlist('parameters')
-        
-        project = models.Proyecto.objects.create(
-            codigo=codigo, 
-            nombre=nombre, 
-            creator_user=creator_user,
-            cliente_id=client, 
-            cotizado=True,
-            etfa=True
-            )
-        
-        project.parametros_cotizados.set(parametros)
+        try:
+            project = models.Proyecto.objects.create(
+                codigo=codigo, 
+                nombre=nombre, 
+                creator_user=creator_user,
+                cliente_id=client, 
+                cotizado=True,
+                etfa=True
+                )
+            
+            project.parametros_cotizados.set(parametros)
 
-        return redirect('lims:client', id_cliente)
-    
+            return redirect('lims:client', id_cliente)
+        except:
+            error = "El Codigo de Proyecto ya existe."
+            return render(request, 'LIMS/client_add_project_cot_etfa.html', {
+                'cliente': cliente,
+                'parameters': parameters,
+                'error_client': error,
+            })
     return render(request, 'LIMS/client_add_project_cot_etfa.html', {
         'cliente': cliente,
         'parameters': parameters,
@@ -414,12 +525,33 @@ def add_normas_ref(request):
                 todo.append(valor)
             normas = todo[1::2]
             usuarios = todo[2::2]
+            duplicados = []
+            for norma in normas:
+                try:
+                    if norma == models.NormaDeReferencia.objects.get(norma=norma).norma:
+                            duplicados.append(norma) 
+                            duplicado =  normas.index(norma)
+                            usuarios.pop(duplicado)
+                            normas.pop(duplicado)
+                except:
+                    continue
             for norma, usuario in zip(normas, usuarios):
                 models.NormaDeReferencia.objects.create(
                     norma=norma, 
                     creator_user=usuario
                     ) 
-            return redirect('lims:normas_ref')
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'La norma {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Las normas: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+                return render(request, 'LIMS/add_normas_ref.html', {
+                    'pm':[0],
+                    'len_pm': 1,
+                    'error_duplicados': error_duplicados,
+                })
+            else:
+                return redirect('lims:normas_ref')
 
     return render(request, 'LIMS/add_normas_ref.html', {
         'pm':[0],
@@ -663,12 +795,34 @@ def add_sample_type(request):
                 todo.append(valor)
             nombres = todo[1::2]
             usuarios = todo[2::2]
+            duplicados = []
+            for nombre in nombres:
+                try:
+                    if nombre == models.TipoDeMuestra.objects.get(nombre=nombre).nombre:
+                            duplicados.append(nombre) 
+                            duplicado =  nombres.index(nombre)
+                            usuarios.pop(duplicado)
+                            nombres.pop(duplicado)
+                except:
+                    continue
             for nombre, usuario in zip(nombres, usuarios):
                 models.TipoDeMuestra.objects.create(
                     nombre=nombre, 
                     creator_user=usuario
                     ) 
-            return redirect('lims:samples_type')
+            
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'El tipo de muestra {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Los tipos de muestra: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+                return render(request, 'LIMS/add_sample_type.html', {
+                    'pm':[0],
+                    'len_pm': 1,
+                    'error_duplicados': error_duplicados,
+                })
+            else:
+                return redirect('lims:samples_type')
 
     return render(request, 'LIMS/add_sample_type.html', {
         'pm':[0],
