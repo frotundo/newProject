@@ -1,0 +1,54 @@
+{% extends 'base/base_client.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">{{ cliente.titular }}</h1>
+</div>
+
+
+<h3>RUT</h3>
+<p class='p-client'>{{ cliente.rut }}</p>
+<p></p>
+
+<h3>Dirección</h3>
+<p class='p-client'>{{ cliente.direccion }}</p>
+<p></p>
+
+<h3>Actividad</h3>
+<p class='p-client'>{{ cliente.actividad }}</p>
+<p></p>
+
+
+<table>
+    <tr>
+        <td>ID Muestra</td>
+        <td>Descripción</td>
+        <td>Fecha de muestreo</td>
+        <td>Fecha de recepción</td>
+        <td>Parametro</td>
+        <td>Unidad</td>
+        <td>Resultado</td>
+    </tr>
+    {% for parametro in parametros %}
+    
+        <tr>
+            <td>{{ parametro.codigo_servicio }}</td>
+            <td>{{ parametro.servicio.punto_de_muestreo }}</td>
+            <td>{{ parametro.servicio.fecha_de_muestreo }}</td>
+            <td>{{ parametro.servicio.fecha_de_recepcion }}</td>
+            <td>{{ parametro.ensayo }}</td>
+            <td>{{ parametro.parametro.unidad }}</td>
+            <td>{{ parametro.resultado_final }}</td>
+        </tr>
+    {% endfor %}    
+    
+</table>
+<form action="{% url 'lims:export_data' usuario.username %}" method="get">
+    <button type="submit">Descargar Excel</button>
+</form>
+{% endblock  %}

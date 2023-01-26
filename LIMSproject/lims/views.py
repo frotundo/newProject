@@ -1,7 +1,7 @@
 """LIMS views."""
 
 from django.urls import reverse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -32,6 +32,7 @@ def list_to_string(lista):
 
 @login_required
 def index(request):
+
     """Index view."""
     return render(request, 'lims/menu.html')
 
@@ -179,7 +180,7 @@ def client_add_legal_representative(request, id_cliente):
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.RepresentanteLegalCliente.objects.create(
                     nombre= contacto.title(), 
-                    rut=rut, 
+                    rut=rut.replace('-',''), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -238,7 +239,7 @@ def client_add_contact(request, id_cliente):
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.ContactoCliente.objects.create(
                     nombre= contacto.title(), 
-                    rut=rut, 
+                    rut=rut.replace('-',''), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -414,6 +415,7 @@ def client_add_project(request, id_cliente):
     })
 
 
+@login_required
 def client_add_project_cot(request, id_cliente):
     """Add Standards of reference view."""
 
@@ -452,6 +454,7 @@ def client_add_project_cot(request, id_cliente):
     })
 
 
+@login_required
 def client_add_project_cot_etfa(request, id_cliente):
     """Add Standards of reference view."""
 
@@ -1741,4 +1744,47 @@ def edit_sample_code(request, service_id):
 
     return render(request, 'LIMS/edit_service_code.html', {
         'service': service,
+    })
+
+
+@login_required
+def export_data_to_excel(request, username):
+    """Export data to excel view."""
+    usuario = User.objects.get(username = username)
+    clave = models.Cliente.objects.get(titular=User.objects.get(username = usuario.username).first_name).id
+    parametros = models.ParametroDeMuestra.objects.filter(servicio_id__proyecto_id__cliente_id__pk = clave)
+    parametros = parametros.select_related('servicio').all()
+    parametros = parametros.select_related('parametro').all().order_by('-codigo_servicio')
+    
+    data = [
+        {
+        'ID Muestra':parametro.codigo_servicio,
+        'Descripción':parametro.servicio.punto_de_muestreo,
+        'Fecha de muestreo': parametro.servicio.fecha_de_muestreo,
+        'Fecha de recepción': parametro.servicio.fecha_de_recepcion,
+        'Parametro': parametro.ensayo,
+        'Unidad': parametro.parametro.unidad,
+        'Resultado': parametro.resultado_final
+        }
+        for parametro in parametros
+    ]
+    
+    df = pd.DataFrame.from_records(data)
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=data_algoritmos.xlsx'
+    df.to_excel(response, index=False)
+    return response
+    
+
+@login_required
+def client_index(request, username):
+    usuario = User.objects.get(username = username)
+    cliente = models.Cliente.objects.get(titular=User.objects.get(username = usuario.username).first_name)
+    parametros = models.ParametroDeMuestra.objects.select_related('servicio').all()
+    parametros = parametros.select_related('parametro').all().order_by('-codigo_servicio')
+    return render(request, 'lims/client_index.html', {
+        'cliente': cliente,
+        'parametros': parametros,
+        'usuario': usuario,
+        
     })

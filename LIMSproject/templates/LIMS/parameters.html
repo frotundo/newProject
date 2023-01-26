@@ -65,10 +65,17 @@
     </div>
     
 {% else %}
-    No hay registro de parametros.
+    <p style='margin: 0 0 15px'>No hay registro de parametros.</p>
 {% endif %}
 
-
+<div class='import'>
+    <form action="" method="post" enctype="multipart/form-data" class='import-form'>
+        {% csrf_token %}
+        <input type="file" name="excel_file" id="">
+        <input style='display:none;' type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly>
+        <button type="submit">Importar</button>
+    </form>
+</div>
 
 
 {% endblock content %}

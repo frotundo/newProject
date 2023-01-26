@@ -43,4 +43,7 @@ urlpatterns = [
     path('service_parameters_filter/', views.service_parameters_filter, name="service_parameters_filter"),
     path('projects/', views.projects, name="projects"),
     path('services/', views.services, name="services"),
+    path('export/<username>/', views.export_data_to_excel, name='export_data'),
+
+    path('<username>/', views.client_index, name="client_index"),
     ]
