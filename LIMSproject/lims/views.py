@@ -130,7 +130,7 @@ def client(request, id_cliente):
     page_rca = request.GET.get('page_rca')
     rcas = paginator_rca.get_page(page_rca)
 
-    queryset_projects = models.Proyecto.objects.filter(cliente_id = id_cliente).order_by('codigo')
+    queryset_projects = models.Proyecto.objects.filter(cliente_id = id_cliente).order_by('-created')
     paginator_projects = Paginator(queryset_projects, 5)
     page_project = request.GET.get('page_project')
     projects = paginator_projects.get_page(page_project)
@@ -980,6 +980,7 @@ def add_service(request, project_id):
                     muestreado_por_algoritmo = muestreado_por_algoritmo,
                     creator_user = creator_user,
                     cliente = cliente,
+                    created = datetime.now()
                     )                    
 
         for pid in parameters:
@@ -990,6 +991,7 @@ def add_service(request, project_id):
                 ensayo= ensayo.codigo, 
                 codigo_servicio= codigo_generado,
                 creator_user = creator_user,
+                created = datetime.now()
                 ).save()
 
         return redirect('lims:project', project_id)
@@ -1071,6 +1073,7 @@ def add_service_etfa(request, project_id):
                     muestreado_por_algoritmo = muestreado_por_algoritmo,
                     creator_user = creator_user,
                     cliente = cliente,
+                    created = datetime.now()
                     )                    
 
         for pid in parameters:
@@ -1081,6 +1084,7 @@ def add_service_etfa(request, project_id):
                 ensayo= ensayo.codigo, 
                 codigo_servicio= codigo_generado,
                 creator_user = creator_user,
+                created = datetime.now()
                 ).save()
 
         return redirect('lims:project', project_id)
@@ -1168,6 +1172,7 @@ def add_service_cot(request, project_id):
                     muestreado_por_algoritmo = muestreado_por_algoritmo,
                     creator_user = creator_user,
                     cliente = cliente,
+                    created = datetime.now()
                     )                    
 
         for pid in parameters:
@@ -1178,6 +1183,7 @@ def add_service_cot(request, project_id):
                 ensayo= ensayo.codigo, 
                 codigo_servicio= codigo_generado,
                 creator_user = creator_user,
+                created = datetime.now()
                 ).save()
 
         return redirect('lims:project', project_id)
@@ -1215,7 +1221,8 @@ def add_service_parameter(request, service_id):
                 parametro_id= pid, 
                 ensayo= ensayo.codigo,
                 codigo_servicio= servicio.codigo_muestra,
-                creator_user=creator_user
+                creator_user=creator_user,
+                created = datetime.now()
                 ).save()
 
         return redirect('lims:project', servicio.proyecto_id)
@@ -1247,7 +1254,8 @@ def add_service_parameter_etfa(request, service_id):
                 parametro_id= pid, 
                 ensayo= ensayo.codigo,
                 codigo_servicio= servicio.codigo_muestra,
-                creator_user=creator_user
+                creator_user=creator_user,
+                created = datetime.now()
                 ).save()
 
         return redirect('lims:project', servicio.proyecto_id)
@@ -1309,8 +1317,7 @@ def edit_sample_parameter(request,parameter_id):
 def service_parameters(request):
     """Service parameters view."""
 
-    queryset_service_parameters = models.ParametroDeMuestra.objects.exclude(ensayo__icontains='GRV').order_by('servicio_id')
-    # queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
+    queryset_service_parameters = models.ParametroDeMuestra.objects.exclude(ensayo__icontains='GRV').order_by('-created')
     parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV')
     parameters = parametros
     paginator = Paginator(queryset_service_parameters, 25)
@@ -1318,6 +1325,7 @@ def service_parameters(request):
     service_parameters = paginator.get_page(page)
 
     if request.method == 'POST':
+        print(request.method)
         if 'parametro' in request.POST.keys():
             if request.POST['parametro'] == '':
                 return render(request, 'lims/service_parameters.html',{
@@ -1383,6 +1391,29 @@ def service_parameters(request):
                     'parameters': parameters,
                     })
 
+
+        elif 'fecha_de_inicio' in request.POST.keys():
+            
+            parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
+            responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
+            parametro.responsable_de_analisis= responsable
+            fecha_inicio = request.POST['fecha_de_inicio']
+            if fecha_inicio.endswith(str(datetime.now().year)):
+                fecha_de_inicio = datetime.strptime(fecha_inicio, "%d-%m-%Y")
+                parametro.fecha_de_inicio = fecha_de_inicio.strftime("%Y-%m-%d")
+            else: parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
+            fecha_terminado = request.POST['fecha_de_terminado']
+            if fecha_terminado.endswith(str(datetime.now().year)):
+                fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
+                parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
+            else: parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
+            parametro.resultado = request.POST['resultado']
+            parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
+            parametro.resultado_final = request.POST['resultado_final']
+            parametro.save()
+
+            return redirect('lims:service_parameters')
+
         elif 'excel_file' in request.POST.keys():
             if request.POST['excel_file'] == '':
                 return render(request, 'lims/service_parameters_filter.html',{
@@ -1390,11 +1421,11 @@ def service_parameters(request):
                     'parametros': parametros,
                     'parameters': parameters,
                 })
-
+        
         elif request.FILES['excel_file']:
             excel_file = request.FILES['excel_file']
             df = pd.read_excel(excel_file)
-
+            responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
             for index, row in df.iterrows():
                 if models.ParametroDeMuestra.objects.filter(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo'])).exists():
                     parametro = models.ParametroDeMuestra.objects.get(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo']))
@@ -1403,28 +1434,8 @@ def service_parameters(request):
                     parametro.peso_inicial = row['peso_inicial']
                     parametro.peso_final = row['peso_final']
                     parametro.resultado_final = round(row['resultado_final'],4)
-                    parametro.responsable_de_analisis = request.POST['responsable_de_analisis']
+                    parametro.responsable_de_analisis = responsable_de_analisis
                     parametro.save()
-
-            return redirect('lims:service_parameters_filter')
-
-
-        else:
-            
-            parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
-            responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
-            parametro.responsable_de_analisis= responsable
-            fecha_inicio = request.POST['fecha_de_inicio']
-            fecha_de_inicio = datetime.strptime(fecha_inicio, "%d-%m-%Y")
-            parametro.fecha_de_inicio = fecha_de_inicio.strftime("%Y-%m-%d")
-            fecha_terminado = request.POST['fecha_de_terminado']
-            fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
-            parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
-            parametro.resultado = request.POST['resultado']
-            parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
-            parametro.resultado_final = request.POST['resultado_final']
-            parametro.creator_user = request.POST['creator_user']
-            parametro.save()
 
             return redirect('lims:service_parameters')
 
@@ -1441,7 +1452,6 @@ def service_parameters_filter(request):
     """Service parameters for filter view."""
 
     queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('servicio_id')
-    # queryset_service_parameters = models.ParametroDeMuestra.objects.all().order_by('-created')
     parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV')
     parameters = parametros
     paginator = Paginator(queryset_service_parameters, 25)
@@ -1508,6 +1518,28 @@ def service_parameters_filter(request):
                     'parameters': parameters,
                     })
 
+        elif 'fecha_de_inicio' in request.POST.keys():
+
+            parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
+            responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
+            parametro.responsable_de_analisis= responsable
+            fecha_inicio = request.POST['fecha_de_inicio']
+            if fecha_inicio.endswith(str(datetime.now().year)):
+                fecha_de_inicio = datetime.strptime(fecha_inicio, "%d-%m-%Y")
+                parametro.fecha_de_inicio = fecha_de_inicio.strftime("%Y-%m-%d")
+            else: parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
+            fecha_terminado = request.POST['fecha_de_terminado']
+            if fecha_terminado.endswith(str(datetime.now().year)):
+                fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
+                parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
+            else: parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
+            parametro.peso_inicial = request.POST['peso_inicial']
+            parametro.peso_final = request.POST['peso_final']
+            parametro.resultado_final = request.POST['resultado_final']
+            parametro.save()
+           
+            return redirect('lims:service_parameters_filter')
+
         elif 'excel_file' in request.POST.keys():
             if request.POST['excel_file'] == '':
                 return render(request, 'lims/service_parameters_filter.html',{
@@ -1519,7 +1551,7 @@ def service_parameters_filter(request):
         elif request.FILES['excel_file']:
             excel_file = request.FILES['excel_file']
             df = pd.read_excel(excel_file)
-
+            responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
             for index, row in df.iterrows():
                 if models.ParametroDeMuestra.objects.filter(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo'])).exists():
                     parametro = models.ParametroDeMuestra.objects.get(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo']))
@@ -1528,30 +1560,10 @@ def service_parameters_filter(request):
                     parametro.peso_inicial = row['peso_inicial']
                     parametro.peso_final = row['peso_final']
                     parametro.resultado_final = round(row['resultado_final'],4)
-                    parametro.responsable_de_analisis = request.POST['responsable_de_analisis']
+                    parametro.responsable_de_analisis = responsable_de_analisis
                     parametro.save()
 
             return redirect('lims:service_parameters_filter')
-
-        else:
-            
-            parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
-            responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
-            parametro.responsable_de_analisis= responsable
-            fecha_inicio = request.POST['fecha_de_inicio']
-            fecha_de_inicio = datetime.strptime(fecha_inicio, "%d-%m-%Y")
-            parametro.fecha_de_inicio = fecha_de_inicio.strftime("%Y-%m-%d")
-            fecha_terminado = request.POST['fecha_de_terminado']
-            fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
-            parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
-            parametro.peso_inicial = request.POST['peso_inicial']
-            parametro.peso_final = request.POST['peso_final']
-            parametro.resultado_final = request.POST['resultado_final']
-            parametro.save()
-            
-           
-            return redirect('lims:service_parameters_filter')
-
 
     return render(request, 'lims/service_parameters_filter.html',{
         'service_parameters': service_parameters,
@@ -1696,15 +1708,17 @@ def services(request):
                 })
 
         else:
-            
+            print(request.POST)
             servicio = models.Servicio.objects.get(codigo_muestra=request.POST['servicio_id'])
             servicio.responsable = request.POST['responsable']
             fecha_muestreo = request.POST['fecha_de_muestreo']
             fecha_de_muestreo = datetime.strptime(fecha_muestreo, "%d-%m-%Y")
             servicio.fecha_de_muestreo = fecha_de_muestreo.strftime("%Y-%m-%d")
             fecha_recepcion = request.POST['fecha_de_recepcion']
-            fecha_de_recepcion = datetime.strptime(fecha_recepcion, "%d-%m-%Y")
-            servicio.fecha_de_recepcion = fecha_de_recepcion.strftime("%Y-%m-%d")
+            if fecha_recepcion.endswith(str(datetime.now().year)):
+                fecha_de_recepcion = datetime.strptime(fecha_recepcion, "%d-%m-%Y")
+                servicio.fecha_de_recepcion = fecha_de_recepcion.strftime("%Y-%m-%d")
+            else: servicio.fecha_de_recepcion = request.POST['fecha_de_recepcion']
             servicio.save()
             
            
@@ -1777,14 +1791,126 @@ def export_data_to_excel(request, username):
     
 
 @login_required
-def client_index(request, username):
-    usuario = User.objects.get(username = username)
-    cliente = models.Cliente.objects.get(titular=User.objects.get(username = usuario.username).first_name)
-    parametros = models.ParametroDeMuestra.objects.select_related('servicio').all()
-    parametros = parametros.select_related('parametro').all().order_by('-codigo_servicio')
-    return render(request, 'lims/client_index.html', {
+def project_client(request, project_id):
+    """Project view."""
+
+    project = models.Proyecto.objects.get(pk = project_id)
+    cliente = models.Cliente.objects.get(pk = project.cliente_id)
+    queryset_parametros = models.ParametroDeMuestra.objects.filter(servicio_id__proyecto_id = project_id)
+    queryset_parametros = queryset_parametros.select_related('servicio').all()
+    queryset_parametros = queryset_parametros.select_related('parametro').all().order_by('-codigo_servicio')
+    paginator = Paginator(queryset_parametros, 20)
+    page = request.GET.get('page')
+    parametros = paginator.get_page(page)
+
+    if request.method == 'POST':
+        if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+            return render(request, 'lims/client_analysis.html', {
+                'project': project, 
+                'cliente': cliente,
+                'parametros': parametros,
+            })
+
+        elif request.POST['buscar'] == 'servicio':
+            queryset_parametros = queryset_parametros.filter(codigo_servicio__contains=request.POST['search_text'])
+            paginator = Paginator(queryset_parametros, 20)
+            page = request.GET.get('page')
+            parametros = paginator.get_page(page)
+            return render(request, 'lims/client_analysis.html', {
+                'project': project, 
+                'cliente': cliente,
+                'parametros': parametros,
+            })
+
+        elif request.POST['buscar'] == 'ensayo':
+            queryset_parametros = queryset_parametros.filter(ensayo__icontains=request.POST['search_text'])
+            paginator = Paginator(queryset_parametros, 20)
+            page = request.GET.get('page')
+            parametros = paginator.get_page(page)
+            return render(request, 'lims/client_analysis.html', {
+                'project': project, 
+                'cliente': cliente,
+                'parametros': parametros,
+            })
+
+        elif request.POST['buscar'] == 'muestreo':
+            queryset_parametros = queryset_parametros.filter(servicio__fecha_de_muestreo__contains=request.POST['search_text'])
+            paginator = Paginator(queryset_parametros, 20)
+            page = request.GET.get('page')
+            parametros = paginator.get_page(page)
+            return render(request, 'lims/client_analysis.html', {
+                'project': project, 
+                'cliente': cliente,
+                'parametros': parametros,
+            })
+        
+        elif request.POST['buscar'] == 'punto':
+            queryset_parametros = queryset_parametros.filter(servicio__punto_de_muestreo__icontains=request.POST['search_text'])
+            paginator = Paginator(queryset_parametros, 20)
+            page = request.GET.get('page')
+            parametros = paginator.get_page(page)
+            return render(request, 'lims/client_analysis.html', {
+                'project': project, 
+                'cliente': cliente,
+                'parametros': parametros,
+            })
+
+
+
+    return render(request, 'lims/client_analysis.html', {
+        'project': project, 
         'cliente': cliente,
         'parametros': parametros,
-        'usuario': usuario,
-        
     })
+
+
+@login_required
+def export_data_project_to_excel(request, project_id):
+    """Export data to excel view."""
+    parametros = models.ParametroDeMuestra.objects.filter(servicio_id__proyecto_id = project_id)
+    parametros = parametros.select_related('servicio').all()
+    parametros = parametros.select_related('parametro').all().order_by('-codigo_servicio')
+    
+    data = [
+        {
+        'ID Muestra':parametro.codigo_servicio,
+        'Descripción':parametro.servicio.punto_de_muestreo,
+        'Fecha de muestreo': parametro.servicio.fecha_de_muestreo,
+        'Fecha de recepción': parametro.servicio.fecha_de_recepcion,
+        'Parametro': parametro.ensayo,
+        'Unidad': parametro.parametro.unidad,
+        'Resultado': parametro.resultado_final
+        }
+        for parametro in parametros
+    ]
+    
+    df = pd.DataFrame.from_records(data)
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=data_algoritmos.xlsx'
+    df.to_excel(response, index=False)
+    return response
+
+# Logica para grafico con bokeh
+from bokeh.plotting import figure
+from bokeh.embed import components
+from bokeh.palettes import Spectral
+from bokeh.models import ColumnDataSource
+
+def grafico(request, service_id):
+    """vista para graficar."""
+    parametros = models.ParametroDeMuestra.objects.filter(codigo_servicio=service_id)
+    parametros_x = [p.ensayo for p in parametros]
+    resultados_y = [0 if p.resultado_final == None else 1 for p in parametros]
+
+    data=dict(parametros_x=parametros_x, resultados_y=resultados_y)
+    source = ColumnDataSource(data=data)
+    
+
+    plot = figure(x_range=parametros_x, y_range=(0,1.1), height=350,
+            toolbar_location=None, tools="")
+
+    plot.vbar(x='parametros_x', top='resultados_y', width=0.9, source=source)
+   
+    script, div = components(plot)
+
+    return render(request, 'lims/service_chart.html', {'script': script, 'div': div})

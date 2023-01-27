@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class='title_contain'>
-    <h1 class="title">{{ service.codigo_muestra }}</h1>
+    <h1 class="title">{{ service.codigo_muestra }} <a href="{% url 'lims:grafico' service.codigo_muestra %}"><i class="fa-solid fa-chart-column"></i></a></h1>
 </div>
 
 

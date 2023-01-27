@@ -10,7 +10,9 @@ main {
     color: rgb(97, 95, 95);
     box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
 }
-.title_contain, .subtitle_contain {
+
+.title_contain, 
+.subtitle_contain {
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -36,10 +38,12 @@ main {
 .title-par {
     margin-right: 20px;
 }
+
 .p-service {
     font-size: 1.2rem;
     padding-bottom: 10px;
 }
+
 .p-client {
     margin-bottom: 10px;
 }
@@ -53,7 +57,8 @@ table {
 }
 
 
-.btn-service:hover,  .btn-service-active{
+.btn-service:hover,  
+.btn-service-active {
     background: #ececec;
     border-radius:  5px;
 }
@@ -61,7 +66,8 @@ table {
     margin-bottom: 10px;
 }
 
-.item-add, .item-input {
+.item-add, 
+.item-input {
     padding: 5px 0;
 }
 .item-input {
@@ -88,7 +94,9 @@ table {
     text-align: center;
     width: 100%;
 }
-.item-list, .item-list-2, .item-list-sp {
+.item-list, 
+.item-list-2, 
+.item-list-sp {
     font-size: 1.2rem;
     padding: 5px;
     vertical-align: center;
@@ -143,8 +151,8 @@ input {
 
 .select1 {
     width: 400px;
-    /* margin-left: 20%; */
 }
+
 .button-save {
     width: 250px;
     margin: 20px auto 0;
@@ -162,24 +170,32 @@ input {
     font-weight: bold;
     border-radius: 10px;
 }
+
 .btn-selector {
     width: 100px;
     border-radius: 5px;
     font-weight: bold;
 }
 
-.button-save, .btn-selector, .btn-add, .import-form button {
+.button-save, 
+.btn-selector, 
+.btn-add, 
+.import-form button {
     padding: 4px;
     color: white;
     background: #0c7cbf;
     cursor: pointer;
     font-weight: bold;
+    border: 2px solid #979797;
 }
 
-.button-save:hover, .btn-selector:hover, .btn-add:hover, .btn-filtrar:hover, .import-form button:hover{
+.button-save:hover, 
+.btn-selector:hover, 
+.btn-add:hover, 
+.btn-filtrar:hover, 
+.import-form button:hover{
     background: #acc835;
 }
-
 
 .subtitle_contain {
     margin-top: 15px;
@@ -188,7 +204,8 @@ input {
 .fa-circle-plus, 
 .fa-cloud-arrow-up, 
 .fa-circle-xmark, 
-.fa-rotate-left {
+.fa-rotate-left, 
+.fa-chart-column {
     color: #0c7cbf;
     font-size: 2rem;
     cursor: pointer;
@@ -197,9 +214,11 @@ input {
 .fa-circle-plus:hover, 
 .fa-cloud-arrow-up:hover, 
 .fa-circle-xmark:hover, 
-.fa-rotate-left:hover {
+.fa-rotate-left:hover,
+.fa-chart-column:hover {
     color: #acc835;
 }
+
 .link-add {
     margin-left: 10px;
 }
@@ -226,6 +245,12 @@ input {
     position: absolute;
     top: 110px;
     right: 50px;
+}
+
+.search-2 {
+    position: absolute;
+    top: 290px;
+    right: 230px;
 }
 
 .search-contain form {

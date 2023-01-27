@@ -62,15 +62,28 @@
             <td class='item-list'>{{ service_parameter.ensayo }}</td>
             <form action="" method='POST'>
                 {% csrf_token %}
-                <td class=''>{% if service_parameter.fecha_de_inicio != None %}<input class='input-par' type='text' name="fecha_de_inicio" value='{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}'id="" placeholder="" >{% else %}<input class='input-par' type='date' name="fecha_de_inicio" id="" placeholder="" >{% endif %}</td>
+                {% if service_parameter.resultado_final != None %}
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_terminado|date:"d-m-Y" }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.factor_de_dilucion }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado_final }}</p></td>
+                {% else %}
+                    <td class=''><input class='input-par' type='date' name="fecha_de_inicio" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='date' name="fecha_de_terminado" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="resultado" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="factor_de_dilucion" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="resultado_final" id="" placeholder="" ></td>
+                {% endif %}
                 
-                <td class=''>{% if service_parameter.fecha_de_terminado != None %}<input class='input-par' type='text' name="fecha_de_terminado" value='{{ service_parameter.fecha_de_terminado|date:"d-m-Y" }}'id="" placeholder="" >{% else %}<input class='input-par' type='date' name="fecha_de_terminado" id="" placeholder="" >{% endif %}</td>
-                
-                <td class=''>{% if service_parameter.resultado != None %}<input class='input-par' type='text' name="resultado" value='{{ service_parameter.resultado }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="resultado" id="" placeholder="" >{% endif %}</td>
-                
-                <td class=''>{% if service_parameter.factor_de_dilucion != None %}<input class='input-par' type='text' name="factor_de_dilucion" value='{{ service_parameter.factor_de_dilucion }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="factor_de_dilucion" id="" placeholder="" >{% endif %}</td>
-                
-                <td class=''>{% if service_parameter.resultado_final != None %}<input class='input-par' type='text' name="resultado_final" value='{{ service_parameter.resultado_final }}'id="" placeholder="" >{% else %}<input class='input-par' type='text' name="resultado_final" id="" placeholder="" >{% endif %}</td>
                 
                 <td style='display:none;' class='item-input'><input type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly></td>
                 
@@ -78,9 +91,9 @@
                 
                 <td style='display:none;' class='item-input'><input type='text' name="parametro_id" value='{{ service_parameter.id }}' readonly></td>
                 
-                <td><button type="submit"><i class="fa-solid fa-cloud-arrow-up"></i></button></td>
+                <td>{% if service_parameter.resultado_final != None  %}{% else %}<button type="submit"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
             </form>
-            
+            {% comment %} service_parameter.responsable_de_analisis_id != None {% endcomment %}
         </tr>
         {% endfor %}
     </table>

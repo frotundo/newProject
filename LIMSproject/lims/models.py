@@ -17,6 +17,7 @@ class Cliente(models.Model):
     def __str__(self):
         return self.titular
 
+
 class ContactoCliente(models.Model):
     """Contact client model."""
     
@@ -167,7 +168,7 @@ class Servicio(models.Model):
     rCA = models.CharField(max_length=254)
     etfa = models.BooleanField() 
     muestreado_por_algoritmo = models.CharField(max_length=254)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField()
     creator_user = models.CharField(max_length=100)
     editor_sample_code = models.CharField(max_length=100, null=True, blank=True,)
 
@@ -190,7 +191,7 @@ class ParametroDeMuestra(models.Model):
     peso_inicial = models.FloatField(null=True, blank=True,)
     peso_final = models.FloatField(null=True, blank=True,)
     ensayo = models.CharField(max_length=50, null=True, blank=True,)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField()
     creator_user = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):

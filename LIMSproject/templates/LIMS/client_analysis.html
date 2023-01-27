@@ -1,0 +1,92 @@
+{% extends 'base/base_client.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">{{ cliente.titular }}</h1>
+</div>
+
+<p class="p-service"><strong>Proyecto:</strong> {{ project.nombre }}</p>
+<p></p>
+
+<p class="p-service"><strong>Código:</strong> {{ project.codigo }}</p>
+<p></p>
+
+<div>
+    
+    <div class='subtitle_contain'>
+        <div class='search-contain search-2 '>
+            <form action="" method="post">
+                {% csrf_token %}
+                <input type="text" name='search_text'placeholder='Buscar'>
+                <select name="buscar" id="">
+                    <option value=""></option>
+                    <option value="servicio">ID Muestra</option>
+                    <option value="punto">Decripción</option>
+                    <option value="muestreo">Fecha de muestreo</option>
+                    <option value="ensayo">Parametro</option>
+                </select>
+                <button type="submit" class='btn-filtrar'>Buscar</button>
+            </form>
+        </div>
+        <div>
+            <h2 class="subtitle" style='margin-top: 20px'>Servicios</h2>
+        </div>
+        
+    </div>
+        {% if parametros %}
+        <table>
+            <tr>
+                <td style='text-align:center;'><strong>ID Muestra</strong></td>
+                <td><strong>Descripción</strong></td>
+                <td style='text-align:center;'><strong>Fecha de muestreo</strong></td>
+                <td style='text-align:center;'><strong>Fecha de recepción</strong></td>
+                <td><strong>Parametro</strong></td>
+                <td style='text-align:center;'><strong>Unidad</strong></td>
+                <td style='text-align:center;'><strong>Resultado</strong></td>
+            </tr>
+            {% for parametro in parametros %}
+            
+                <tr>
+                    <td style='text-align:center;'>{{ parametro.codigo_servicio }}</td>
+                    <td>{{ parametro.servicio.punto_de_muestreo }}</td>
+                    <td style='text-align:center;'>{{ parametro.servicio.fecha_de_muestreo|date:"d-m-Y"  }}</td>
+                    <td style='text-align:center;'>{{ parametro.servicio.fecha_de_recepcion|date:"d-m-Y"  }}</td>
+                    <td>{{ parametro.ensayo }}</td>
+                    <td style='text-align:center;'>{{ parametro.parametro.unidad }}</td>
+                    <td style='text-align:center;'>{{ parametro.resultado_final }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        
+        <div class="pagination">
+            <span class="page-links">
+                {% if parametros.has_previous %}
+                    <a href="?page={{ parametros.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="page-current">
+                    Pagina {{ parametros.number }} de {{ parametros.paginator.num_pages }}
+                </span>
+        
+                {% if parametros.has_next %}
+                    <a href="?page={{ parametros.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+        {% else  %}
+            No hay registro de servicios.
+        {% endif %}
+    
+</div>
+<div style='display: flex; justify-content: end;'>
+    <form action="{% url 'lims:export_data_project' project.codigo %}" method="get">
+        <button class='button-save' type="submit">Descargar Excel</button>
+    </form>
+</div>
+
+{% endblock  %}

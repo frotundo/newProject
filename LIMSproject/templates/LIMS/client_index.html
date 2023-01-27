@@ -23,32 +23,52 @@
 <p class='p-client'>{{ cliente.actividad }}</p>
 <p></p>
 
+<div>
+    <div class='subtitle_contain'>
+        <h2 class="subtitle">Proyectos</h2>
 
-<table>
-    <tr>
-        <td>ID Muestra</td>
-        <td>Descripción</td>
-        <td>Fecha de muestreo</td>
-        <td>Fecha de recepción</td>
-        <td>Parametro</td>
-        <td>Unidad</td>
-        <td>Resultado</td>
-    </tr>
-    {% for parametro in parametros %}
+    </div>
+        {% if projects %}
+            <table>
+                <tr>
+                    <td style='width: 200px;' class='item-list-sp title-item-list'>Codigo</td>
+                    <td class='item-list-sp title-item-list'>Nombre</td>
+                </tr>
+            
+                {% for project in projects %}
+                    <tr>
+                        <td class='item-list-sp'><a href="{% if project.cotizado %}{% url 'lims:project_client' project.codigo %}{% else %}{% url 'lims:project_client' project.codigo %}{% endif %}" class='item-list-sp'>{{ project.codigo }}</a></td>
+                        <td class='item-list-sp'>{{ project.nombre }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <div class="pagination">
+                <span class="page-links">
+                    {% if projects.has_previous %}
+                        <a href="?page_project={{ projects.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="page-current">
+                        Pagina {{ projects.number }} de {{ projects.paginator.num_pages }}
+                    </span>
+            
+                    {% if projects.has_next %}
+                        <a href="?page_project={{ projects.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+        
+        {% else  %}
+            No hay registro de proyectos.
+        {% endif %}
     
-        <tr>
-            <td>{{ parametro.codigo_servicio }}</td>
-            <td>{{ parametro.servicio.punto_de_muestreo }}</td>
-            <td>{{ parametro.servicio.fecha_de_muestreo }}</td>
-            <td>{{ parametro.servicio.fecha_de_recepcion }}</td>
-            <td>{{ parametro.ensayo }}</td>
-            <td>{{ parametro.parametro.unidad }}</td>
-            <td>{{ parametro.resultado_final }}</td>
-        </tr>
-    {% endfor %}    
-    
-</table>
-<form action="{% url 'lims:export_data' usuario.username %}" method="get">
-    <button type="submit">Descargar Excel</button>
-</form>
+</div>
+
+<div style='display: flex; justify-content: end;'>
+    <form action="{% url 'lims:export_data' usuario.username %}" method="get">
+        <button class='button-save' type="submit">Descargar excel (data completa)</button>
+    </form>
+</div>
+
 {% endblock  %}
