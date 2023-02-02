@@ -1,5 +1,5 @@
 """LIMS views."""
-
+# Djnago module
 from django.urls import reverse
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -7,14 +7,18 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-from datetime import datetime
-
 from . import models, forms
 from datetime import datetime
 from workdays import workday
 
-
+# Pandas module
 import pandas as pd
+
+# Bokeh module
+from bokeh.plotting import figure
+from bokeh.embed import components
+from bokeh.palettes import Spectral
+from bokeh.models import ColumnDataSource
 # Create your views here.
 
 
@@ -23,6 +27,7 @@ def add_workdays(start_date, num_workdays):
     end_date = workday(start_date, num_workdays)
     return end_date
 
+
 def list_to_string(lista):
     if len(lista)==2:
         return ' y '.join(lista)
@@ -30,9 +35,14 @@ def list_to_string(lista):
         return ', '.join(lista)
 
 
+def render_view(request, template, context):
+    """Render views"""
+
+    return render(request, template, context)
+
+
 @login_required
 def index(request):
-
     """Index view."""
     return render(request, 'lims/menu.html')
 
@@ -45,20 +55,23 @@ def clients(request):
     paginator = Paginator(clientes, 25)
     page = request.GET.get('page')
     clients = paginator.get_page(page)
+    template = 'LIMS/clients.html'
 
     if request.method == 'POST':
         if request.POST['search_text'] == '' or request.POST['opcion'] == '':
-            return render(request, 'LIMS/clients.html', {
+            context = {
                 'clients': clients,
-            })
+                }
+            return render_view(request, template, context)
         elif request.POST['opcion'] == 'titular':
             clientes = models.Cliente.objects.filter(titular__icontains = request.POST['search_text']).order_by('titular')
             paginator = Paginator(clientes, 25)
             page = request.GET.get('page')
             clients = paginator.get_page(page)
-            return render(request, 'LIMS/clients.html',{
+            context = {
                 'clients': clients,
-                })
+                }
+            return render_view(request, template, context)
 
 
         elif request.POST['opcion'] == 'rut':
@@ -66,14 +79,16 @@ def clients(request):
             paginator = Paginator(clientes, 25)
             page = request.GET.get('page')
             clients = paginator.get_page(page)
-            return render(request, 'LIMS/clients.html',{
+            context = {
                 'clients': clients,
-                })
+                }
+            return render_view(request, template, context)
     
     
-    return render(request, 'LIMS/clients.html', {
-        'clients': clients,
-    })
+    context = {
+                'clients': clients,
+                }
+    return render_view(request, template, context)
 
 
 @login_required
@@ -134,31 +149,34 @@ def client(request, id_cliente):
     paginator_projects = Paginator(queryset_projects, 5)
     page_project = request.GET.get('page_project')
     projects = paginator_projects.get_page(page_project)
-
-    return render(request, 'LIMS/client.html', {
+    template = 'LIMS/client.html'
+    context = {
         'cliente':cliente,
         'contacts': contacts,
         'sample_points':sample_points,
         'legal_representatives': legal_representatives,
         'rcas': rcas,
         'projects': projects,
-    })
+    }
+    return render_view(request, template, context)
 
 
 @login_required
 def client_add_legal_representative(request, id_cliente):
     """Client add legal representative view."""
 
+    template = 'lims/client_add_legal_representative.html'
     if request.method == 'POST':
         if 'contact-number' in request.POST.keys():
             if request.POST['contact-number'] != None:
                 pm = [x for x in range(int(request.POST['contact-number']))]
                 len_pm = len(pm)
-                if len_pm != 1:
-                    return render(request, 'lims/client_add_legal_representative.html', {
+                context = {
                     'pm':pm,
                     'len_pm': len_pm,
-                    })
+                    }
+                if len_pm != 1:
+                    return render_view(request, template, context)
         else:
             todo = []
             for valor in request.POST.values():
@@ -189,19 +207,19 @@ def client_add_legal_representative(request, id_cliente):
                     error_duplicados = f'El RUT {duplicados[0]}, ya se encuentra en la base de datos.'
                 else:
                     error_duplicados = f'Los RUT: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
-
-                return render(request, 'lims/client_add_legal_representative.html', {
+                context = {
                     'pm':[0],
                     'len_pm': 1,
                     'error_duplicados': error_duplicados,
-                })
+                }
+                return render_view(request, template, context)
             else:
                 return redirect('lims:client', id_cliente)
-    
-    return render(request, 'lims/client_add_legal_representative.html', {
+    context = {
         'pm':[0],
         'len_pm': 1,
-    })
+    }
+    return render_view(request, template, context )
 
 
 @login_required
@@ -1109,7 +1127,6 @@ def add_service_cot(request, project_id):
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
-    # parametros = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
     if request.method == 'POST':
@@ -1429,13 +1446,15 @@ def service_parameters(request):
             for index, row in df.iterrows():
                 if models.ParametroDeMuestra.objects.filter(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo'])).exists():
                     parametro = models.ParametroDeMuestra.objects.get(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo']))
-                    parametro.fecha_de_inicio = row['fecha_de_inicio']
-                    parametro.fecha_de_terminado = row['fecha_de_terminado']
-                    parametro.peso_inicial = row['peso_inicial']
-                    parametro.peso_final = row['peso_final']
-                    parametro.resultado_final = round(row['resultado_final'],4)
-                    parametro.responsable_de_analisis = responsable_de_analisis
-                    parametro.save()
+                    if parametro.resultado_final == None:
+                        parametro.fecha_de_inicio = row['fecha_de_inicio']
+                        parametro.fecha_de_terminado = row['fecha_de_terminado']
+                        parametro.resultado = row['resultado']
+                        parametro.factor_de_dilucion = row['factor_de_dilucion']
+                        parametro.resultado_final = round(row['resultado_final'],4)
+                        parametro.responsable_de_analisis = responsable_de_analisis
+                        parametro.save()
+                    else: continue
 
             return redirect('lims:service_parameters')
 
@@ -1555,13 +1574,15 @@ def service_parameters_filter(request):
             for index, row in df.iterrows():
                 if models.ParametroDeMuestra.objects.filter(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo'])).exists():
                     parametro = models.ParametroDeMuestra.objects.get(Q(codigo_servicio=row['servicio']) & Q(ensayo=row['ensayo']))
-                    parametro.fecha_de_inicio = row['fecha_de_inicio']
-                    parametro.fecha_de_terminado = row['fecha_de_terminado']
-                    parametro.peso_inicial = row['peso_inicial']
-                    parametro.peso_final = row['peso_final']
-                    parametro.resultado_final = round(row['resultado_final'],4)
-                    parametro.responsable_de_analisis = responsable_de_analisis
-                    parametro.save()
+                    if parametro.resultado_final == None:
+                        parametro.fecha_de_inicio = row['fecha_de_inicio']
+                        parametro.fecha_de_terminado = row['fecha_de_terminado']
+                        parametro.peso_inicial = row['peso_inicial']
+                        parametro.peso_final = row['peso_final']
+                        parametro.resultado_final = round(row['resultado_final'],4)
+                        parametro.responsable_de_analisis = responsable_de_analisis
+                        parametro.save()
+                    else: continue 
 
             return redirect('lims:service_parameters_filter')
 
@@ -1890,24 +1911,23 @@ def export_data_project_to_excel(request, project_id):
     df.to_excel(response, index=False)
     return response
 
-# Logica para grafico con bokeh
-from bokeh.plotting import figure
-from bokeh.embed import components
-from bokeh.palettes import Spectral
-from bokeh.models import ColumnDataSource
 
+@login_required
 def grafico(request, service_id):
     """vista para graficar."""
     parametros = models.ParametroDeMuestra.objects.filter(codigo_servicio=service_id)
     parametros_x = [p.ensayo for p in parametros]
     resultados_y = [0 if p.resultado_final == None else 1 for p in parametros]
 
-    data=dict(parametros_x=parametros_x, resultados_y=resultados_y)
-    source = ColumnDataSource(data=data)
+    source = ColumnDataSource(data=dict(parametros_x=parametros_x, resultados_y=resultados_y))
     
-
-    plot = figure(x_range=parametros_x, y_range=(0,1.1), height=350,
-            toolbar_location=None, tools="")
+    plot = figure(
+        x_range=parametros_x, 
+        y_range=(0,1.1), 
+        height=350,
+        toolbar_location=None, 
+        tools=""
+        )
 
     plot.vbar(x='parametros_x', top='resultados_y', width=0.9, source=source)
    
