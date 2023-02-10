@@ -36,35 +36,6 @@
                 </td>
             </tr>
         </table>
-
-        {% comment %} <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Método</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="metodo" id="lang" size='1'>
-                        <option value=""></option>
-                        {% for m in methods %}
-                        <option value="{{ m.id }}">{{ m.nombre }}</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table>
-
-        <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Tipo de muestra</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="norma_de_referencia" id="lang" size='1'>
-                        <option value=""></option>
-                        {% for matriz in matrices %}
-                        <option value="{{ matriz.id }}">{{ matriz.nombre }}</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table> {% endcomment %}
-
     <button class='button-save' type="submit">Guardar</button>
 </form>
 

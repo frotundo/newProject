@@ -3,7 +3,7 @@
 from django.urls import reverse
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator
 from django.db.models import Q
 
@@ -44,7 +44,7 @@ def render_view(request, template, context):
 @login_required
 def index(request):
     """Index view."""
-    return render(request, 'lims/menu.html')
+    return render(request, 'LIMS/menu.html')
 
 
 @login_required
@@ -165,7 +165,7 @@ def client(request, id_cliente):
 def client_add_legal_representative(request, id_cliente):
     """Client add legal representative view."""
 
-    template = 'lims/client_add_legal_representative.html'
+    template = 'LIMS/client_add_legal_representative.html'
     if request.method == 'POST':
         if 'contact-number' in request.POST.keys():
             if request.POST['contact-number'] != None:
@@ -232,7 +232,7 @@ def client_add_contact(request, id_cliente):
                 pm = [x for x in range(int(request.POST['contact-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'lims/client_add_contact.html', {
+                    return render(request, 'LIMS/client_add_contact.html', {
                     'pm':pm,
                     'len_pm': len_pm,
                     })
@@ -267,14 +267,14 @@ def client_add_contact(request, id_cliente):
                 else:
                     error_duplicados = f'Los RUT: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
 
-                return render(request, 'lims/client_add_contact.html', {
+                return render(request, 'LIMS/client_add_contact.html', {
                     'pm':[0],
                     'len_pm': 1,
                     'error_duplicados': error_duplicados,
                 })
             else:
                 return redirect('lims:client', id_cliente)
-    return render(request, 'lims/client_add_contact.html', {
+    return render(request, 'LIMS/client_add_contact.html', {
         'pm':[0],
         'len_pm': 1,
     })
@@ -290,7 +290,7 @@ def client_add_sample_point(request, id_cliente):
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'lims/client_add_sample_point.html', {
+                    return render(request, 'LIMS/client_add_sample_point.html', {
                     'pm':pm,
                     'len_pm': len_pm,
                     })
@@ -345,7 +345,7 @@ def client_add_rca(request, id_cliente):
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'lims/client_add_rca.html', {
+                    return render(request, 'LIMS/client_add_rca.html', {
                     'pm':pm,
                     'len_pm': len_pm,
                     })
@@ -480,7 +480,6 @@ def client_add_project_cot_etfa(request, id_cliente):
     parameters = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
     
     if request.method == 'POST':
-        print(request.POST)
         client = request.POST['cliente']
         codigo = request.POST['codigo']
         nombre = request.POST['nombre']
@@ -536,7 +535,7 @@ def add_normas_ref(request):
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'lims/add_normas_ref.html', {
+                    return render(request, 'LIMS/add_normas_ref.html', {
                     'pm':pm,
                     'len_pm': len_pm,
                     })
@@ -604,7 +603,7 @@ def add_method(request):
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'lims/add_method.html', {
+                    return render(request, 'LIMS/add_method.html', {
                     'pm':pm,
                     'len_pm': len_pm,
                     })
@@ -639,7 +638,7 @@ def add_method(request):
                 else:
                     error_duplicados = f'Los métodos: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
 
-                return render(request, 'lims/add_method.html', {
+                return render(request, 'LIMS/add_method.html', {
                     'pm':[0],
                     'len_pm': 1,
                     'error_duplicados': error_duplicados,
@@ -648,7 +647,7 @@ def add_method(request):
                 return redirect('lims:methods')
 
     
-    return render(request, 'lims/add_method.html', {
+    return render(request, 'LIMS/add_method.html', {
         'pm':[0],
         'len_pm': 1,
     })
@@ -707,7 +706,7 @@ def parameters(request):
                 paginator = Paginator(queryset_parameters, 25)
                 page = request.GET.get('page')
                 parameters = paginator.get_page(page)
-                return render(request, 'lims/parameters.html',{
+                return render(request, 'LIMS/parameters.html',{
                     'parameters': parameters,
                     'metodos': metodos,
                 })
@@ -717,7 +716,7 @@ def parameters(request):
                 paginator = Paginator(queryset_parameters, 25)
                 page = request.GET.get('page')
                 parameters = paginator.get_page(page)
-                return render(request, 'lims/parameters.html',{
+                return render(request, 'LIMS/parameters.html',{
                     'parameters': parameters,
                     'metodos': metodos,
                     })
@@ -727,7 +726,7 @@ def parameters(request):
                 paginator = Paginator(queryset_parameters, 25)
                 page = request.GET.get('page')
                 parameters = paginator.get_page(page)
-                return render(request, 'lims/parameters.html',{
+                return render(request, 'LIMS/parameters.html',{
                     'parameters': parameters,
                     'metodos': metodos,
                     })
@@ -737,12 +736,12 @@ def parameters(request):
                 paginator = Paginator(queryset_parameters, 25)
                 page = request.GET.get('page')
                 parameters = paginator.get_page(page)
-                return render(request, 'lims/parameters.html',{
+                return render(request, 'LIMS/parameters.html',{
                     'parameters': parameters,
                     'metodos': metodos,
                     })
     
-    return render(request, 'lims/parameters.html', {
+    return render(request, 'LIMS/parameters.html', {
         'parameters': parameters,
         'metodos': metodos,
     })
@@ -769,13 +768,13 @@ def add_parameter(request):
             return redirect('lims:parameters')
         except:
             error = 'EL código del parametro ya existe.'
-            return render(request, 'lims/add_parameter.html',{
+            return render(request, 'LIMS/add_parameter.html',{
                 'metodos': metodos,
                 'tipos_de_muestras': tipos_de_muestras,
                 'error_parameter': error,
             })
 
-    return render(request, 'lims/add_parameter.html',{
+    return render(request, 'LIMS/add_parameter.html',{
         'metodos': metodos,
         'tipos_de_muestras': tipos_de_muestras,
     })
@@ -791,7 +790,7 @@ def samples_type(request):
     page = request.GET.get('page')
     samples_type = paginator.get_page(page)
     
-    return render(request, 'lims/samples_type.html', {
+    return render(request, 'LIMS/samples_type.html', {
         'samples_type':samples_type,
     })
 
@@ -806,7 +805,7 @@ def add_sample_type(request):
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'lims/add_sample_type.html', {
+                    return render(request, 'LIMS/add_sample_type.html', {
                     'pm':pm,
                     'len_pm': len_pm,
                     })
@@ -860,7 +859,7 @@ def etfa(request):
     page = request.GET.get('page')
     services = paginator.get_page(page)
     
-    return render(request, 'lims/etfa.html',{
+    return render(request, 'LIMS/etfa.html',{
         'services':services,
     })
 
@@ -869,15 +868,18 @@ def etfa(request):
 def add_etfa(request):
     """Add ETFA view."""
 
-    parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
+    parameters = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
     
     if request.method == 'POST':
-        form = forms.ETFAForm(request.POST)
-        if form.is_valid():
-            form.save()
+        # form = forms.ETFAForm(request.POST)
+        # if form.is_valid():
+        #     form.save()
+        parametro = models.ParametroEspecifico.objects.get(id=request.POST['parametro'])
+        parametro.codigo_etfa = request.POST['codigo']
+        parametro.save()
         return redirect('lims:etfa')
 
-    return  render(request, 'lims/add_etfa.html', {
+    return  render(request, 'LIMS/add_etfa.html', {
         'parameters': parameters,
     })
 
@@ -897,7 +899,7 @@ def project(request, project_id):
     services = paginator.get_page(page)
     parameters_service = models.ParametroDeMuestra.objects.all()
     
-    return render(request, 'lims/project.html', {
+    return render(request, 'LIMS/project.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
@@ -922,7 +924,7 @@ def project_cot(request, project_id):
     parameters_service = models.ParametroDeMuestra.objects.all()
     parametros_cotizados = project.parametros_cotizados.all()
     
-    return render(request, 'lims/project_cot.html', {
+    return render(request, 'LIMS/project_cot.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
@@ -967,18 +969,17 @@ def add_service(request, project_id):
         current_year = str(current_year)[2:]
         last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
 
-        if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
         if models.Servicio.objects.exists()==False:
             codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-        if last_service.codigo_muestra[-2:] != current_year: 
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+        elif last_service.codigo_muestra[-2:] != current_year: 
             codigo_central = ('1').zfill(5)
             codigo_generado = f'{codigo_central}-{current_year}'
+        
+        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
         for sp in sample_points:
             if int(punto_de_muestreo) == int(sp.id):   
@@ -1014,7 +1015,7 @@ def add_service(request, project_id):
 
         return redirect('lims:project', project_id)
         
-    return render(request, 'lims/add_service.html', {
+    return render(request, 'LIMS/add_service.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
@@ -1060,18 +1061,17 @@ def add_service_etfa(request, project_id):
 
         last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
 
-        if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
         if models.Servicio.objects.exists()==False:
             codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-        if last_service.codigo_muestra[-2:] != current_year: 
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+        elif last_service.codigo_muestra[-2:] != current_year: 
             codigo_central = ('1').zfill(5)
             codigo_generado = f'{codigo_central}-{current_year}'
+        
+        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
         for sp in sample_points:
             if int(punto_de_muestreo) == int(sp.id):   
@@ -1107,7 +1107,7 @@ def add_service_etfa(request, project_id):
 
         return redirect('lims:project', project_id)
         
-    return render(request, 'lims/add_service_etfa.html', {
+    return render(request, 'LIMS/add_service_etfa.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
@@ -1157,19 +1157,17 @@ def add_service_cot(request, project_id):
         else: 
             etfa=False
 
-        if models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
-        elif models.Servicio.objects.exists()==False:
+        if models.Servicio.objects.exists()==False:
             codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
         elif last_service.codigo_muestra[-2:] != current_year: 
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
             codigo_central = ('1').zfill(5)
             codigo_generado = f'{codigo_central}-{current_year}'
         
+        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
 
         for sp in sample_points:
             if int(punto_de_muestreo) == int(sp.id):   
@@ -1205,7 +1203,7 @@ def add_service_cot(request, project_id):
 
         return redirect('lims:project', project_id)
         
-    return render(request, 'lims/add_service_cot.html', {
+    return render(request, 'LIMS/add_service_cot.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
@@ -1243,7 +1241,7 @@ def add_service_parameter(request, service_id):
                 ).save()
 
         return redirect('lims:project', servicio.proyecto_id)
-    return render(request, 'lims/add_service_parameter.html', {
+    return render(request, 'LIMS/add_service_parameter.html', {
         'project': project, 
         'parameters': parametros,
     })
@@ -1276,7 +1274,7 @@ def add_service_parameter_etfa(request, service_id):
                 ).save()
 
         return redirect('lims:project', servicio.proyecto_id)
-    return render(request, 'lims/add_service_parameter_etfa.html', {
+    return render(request, 'LIMS/add_service_parameter_etfa.html', {
         'project': project, 
         'parameters': parametros,
     })
@@ -1295,8 +1293,7 @@ def service(request, service_id):
     rca = models.RCACliente.objects.get(pk=service.rCA)
     norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
     project = models.Proyecto.objects.get(pk=service.proyecto_id)
-    print(project.codigo)
-    return render(request, 'lims/service.html', {
+    return render(request, 'LIMS/service.html', {
         'service': service,
         'parametros': parametros,
         'parameters': parameters,
@@ -1325,7 +1322,7 @@ def edit_sample_parameter(request,parameter_id):
         servicio_id = parametro.servicio_id
         return redirect('lims:service', servicio_id)
     
-    return render(request, 'lims/edit_sample_parameter.html', {
+    return render(request, 'LIMS/edit_sample_parameter.html', {
        'parameter': parametro,
     })
 
@@ -1337,77 +1334,30 @@ def service_parameters(request):
     queryset_service_parameters = models.ParametroDeMuestra.objects.exclude(ensayo__icontains='GRV').order_by('-created')
     parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV')
     parameters = parametros
-    paginator = Paginator(queryset_service_parameters, 25)
-    page = request.GET.get('page')
-    service_parameters = paginator.get_page(page)
 
     if request.method == 'POST':
-        print(request.method)
         if 'parametro' in request.POST.keys():
             if request.POST['parametro'] == '':
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
+                pass
             else:
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(parametro_id=request.POST['parametro'])
                 queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
 
         elif 'search_text' in request.POST.keys():
             if request.POST['search_text'] == '' or request.POST['buscar'] == '':
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
+                pass
 
             elif request.POST['buscar'] == 'servicio':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio__contains=request.POST['search_text'])
                 queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
 
             elif request.POST['buscar'] == 'ensayo':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains=request.POST['search_text'])
                 queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
 
             elif request.POST['buscar'] == 'inicio':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
                 queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
 
         elif 'fecha_de_inicio' in request.POST.keys():
             
@@ -1433,11 +1383,7 @@ def service_parameters(request):
 
         elif 'excel_file' in request.POST.keys():
             if request.POST['excel_file'] == '':
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
+                pass
         
         elif request.FILES['excel_file']:
             excel_file = request.FILES['excel_file']
@@ -1458,8 +1404,10 @@ def service_parameters(request):
 
             return redirect('lims:service_parameters')
 
-
-    return render(request, 'lims/service_parameters.html',{
+    paginator = Paginator(queryset_service_parameters, 25)
+    page = request.GET.get('page')
+    service_parameters = paginator.get_page(page)
+    return render(request, 'LIMS/service_parameters.html',{
         'service_parameters': service_parameters,
         'parametros': parametros,
         'parameters': parameters,
@@ -1473,69 +1421,27 @@ def service_parameters_filter(request):
     queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('servicio_id')
     parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV')
     parameters = parametros
-    paginator = Paginator(queryset_service_parameters, 25)
-    page = request.GET.get('page')
-    service_parameters = paginator.get_page(page)
+    
 
     if request.method == 'POST':
         if 'parametro' in request.POST.keys():
             if request.POST['parametro'] == '':
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
+                pass
             else:
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(parametro_id=request.POST['parametro'])).order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
-
 
         elif 'search_text' in request.POST.keys():
             if request.POST['search_text'] == '' or request.POST['buscar'] == '':
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
+                pass
+
             elif request.POST['buscar'] == 'servicio':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(codigo_servicio__contains=request.POST['search_text'])).order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
 
             elif request.POST['buscar'] == 'ensayo':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(ensayo__icontains=request.POST['search_text'])).order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
 
             elif request.POST['buscar'] == 'inicio':
                 queryset_service_parameters = models.ParametroDeMuestra.objects.filter(Q(ensayo__icontains='GRV') & Q(fecha_de_inicio__contains=request.POST['search_text'])).order_by('-created')
-                paginator = Paginator(queryset_service_parameters, 25)
-                page = request.GET.get('page')
-                service_parameters = paginator.get_page(page)
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                    })
 
         elif 'fecha_de_inicio' in request.POST.keys():
 
@@ -1561,11 +1467,7 @@ def service_parameters_filter(request):
 
         elif 'excel_file' in request.POST.keys():
             if request.POST['excel_file'] == '':
-                return render(request, 'lims/service_parameters_filter.html',{
-                    'service_parameters': service_parameters,
-                    'parametros': parametros,
-                    'parameters': parameters,
-                })
+                pass
 
         elif request.FILES['excel_file']:
             excel_file = request.FILES['excel_file']
@@ -1585,8 +1487,11 @@ def service_parameters_filter(request):
                     else: continue 
 
             return redirect('lims:service_parameters_filter')
-
-    return render(request, 'lims/service_parameters_filter.html',{
+    
+    paginator = Paginator(queryset_service_parameters, 25)
+    page = request.GET.get('page')
+    service_parameters = paginator.get_page(page)
+    return render(request, 'LIMS/service_parameters_filter.html',{
         'service_parameters': service_parameters,
         'parametros': parametros,
         'parameters': parameters,
@@ -1729,7 +1634,6 @@ def services(request):
                 })
 
         else:
-            print(request.POST)
             servicio = models.Servicio.objects.get(codigo_muestra=request.POST['servicio_id'])
             servicio.responsable = request.POST['responsable']
             fecha_muestreo = request.POST['fecha_de_muestreo']
@@ -1826,7 +1730,7 @@ def project_client(request, project_id):
 
     if request.method == 'POST':
         if request.POST['search_text'] == '' or request.POST['buscar'] == '':
-            return render(request, 'lims/client_analysis.html', {
+            return render(request, 'LIMS/client_analysis.html', {
                 'project': project, 
                 'cliente': cliente,
                 'parametros': parametros,
@@ -1837,7 +1741,7 @@ def project_client(request, project_id):
             paginator = Paginator(queryset_parametros, 20)
             page = request.GET.get('page')
             parametros = paginator.get_page(page)
-            return render(request, 'lims/client_analysis.html', {
+            return render(request, 'LIMS/client_analysis.html', {
                 'project': project, 
                 'cliente': cliente,
                 'parametros': parametros,
@@ -1848,7 +1752,7 @@ def project_client(request, project_id):
             paginator = Paginator(queryset_parametros, 20)
             page = request.GET.get('page')
             parametros = paginator.get_page(page)
-            return render(request, 'lims/client_analysis.html', {
+            return render(request, 'LIMS/client_analysis.html', {
                 'project': project, 
                 'cliente': cliente,
                 'parametros': parametros,
@@ -1859,7 +1763,7 @@ def project_client(request, project_id):
             paginator = Paginator(queryset_parametros, 20)
             page = request.GET.get('page')
             parametros = paginator.get_page(page)
-            return render(request, 'lims/client_analysis.html', {
+            return render(request, 'LIMS/client_analysis.html', {
                 'project': project, 
                 'cliente': cliente,
                 'parametros': parametros,
@@ -1870,7 +1774,7 @@ def project_client(request, project_id):
             paginator = Paginator(queryset_parametros, 20)
             page = request.GET.get('page')
             parametros = paginator.get_page(page)
-            return render(request, 'lims/client_analysis.html', {
+            return render(request, 'LIMS/client_analysis.html', {
                 'project': project, 
                 'cliente': cliente,
                 'parametros': parametros,
@@ -1878,7 +1782,7 @@ def project_client(request, project_id):
 
 
 
-    return render(request, 'lims/client_analysis.html', {
+    return render(request, 'LIMS/client_analysis.html', {
         'project': project, 
         'cliente': cliente,
         'parametros': parametros,
@@ -1933,4 +1837,109 @@ def grafico(request, service_id):
    
     script, div = components(plot)
 
-    return render(request, 'lims/service_chart.html', {'script': script, 'div': div})
+    return render(request, 'LIMS/service_chart.html', {
+        'script': script, 
+        'div': div
+        })
+
+@login_required
+def batches(request):
+    """Batches view."""
+    queryset_batches = models.Batch.objects.all().order_by("-created")
+   
+    services = models.ParametroDeMuestra.objects.select_related('batch').order_by('-created')
+
+    if request.method == 'POST':
+        text = request.POST['search_text']
+        opcion = request.POST['opcion']
+        if text=='' or opcion == '':
+            pass
+        elif opcion == 'codigo':
+            queryset_batches = queryset_batches.filter(codigo__icontains = text)
+        elif opcion == 'responsable':
+            queryset_batches = queryset_batches.filter(responsable__icontains = text)
+        elif opcion == 'parametro':
+            queryset_batches = queryset_batches.filter(parametro__icontains= text)
+    
+    paginator = Paginator(queryset_batches, 20)
+    page = request.GET.get('page')
+    lotes = paginator.get_page(page)
+    return render(request, "LIMS/batches.html", {
+        'lotes': lotes,
+        'services': services,
+    })
+
+@login_required
+def add_batch(request):
+    """Add batch view."""
+    parametros = models.ParametroEspecifico.objects.all().order_by('codigo')
+    servicios = models.ParametroDeMuestra.objects.select_related('parametro').filter(Q(resultado_final=None) & Q(batch_id=None)).order_by("-created")
+    group = Group.objects.get(name='analista')
+    analistas = User.objects.filter(groups = group).order_by('username')
+    if request.method == 'POST':
+        if 'parametro' in request.POST:
+            if request.POST['parametro']=='':
+                return render(request, "LIMS/add_batch.html", {
+                    'servicios': servicios,
+                    'parametros': parametros,
+                    'analistas': analistas,
+                })
+
+            servicios = models.ParametroDeMuestra.objects.select_related('parametro').filter(Q(resultado_final=None) & Q(batch_id=None)).order_by("-created")
+            servicios = servicios.filter(parametro__codigo = request.POST['parametro'])
+            return render(request, "LIMS/add_batch.html", {
+                    'servicios': servicios,
+                    'parametros': parametros,
+                    'analistas': analistas,
+                    'parametro': request.POST['parametro'],
+                })
+        else: 
+            current_year = datetime.now().year
+            current_year = str(current_year)[2:]
+            last_batch = models.Batch.objects.all().latest('codigo')
+            if models.Batch.objects.exists()==False:
+                codigo_de_batch = ('1').zfill(5)
+                codigo_generado = f'L-{codigo_de_batch}-{current_year}'
+            
+            elif last_batch.codigo[-2:] != current_year:
+                codigo_central = ('1').zfill(5)
+                codigo_generado = f'L-{codigo_central}-{current_year}'
+
+            elif models.Batch.objects.exists()==True and last_batch.codigo[-2:] == current_year:
+                last_batch = models.Batch.objects.filter(codigo__endswith = '-'+current_year).latest('codigo')
+                codigo_de_batch = str(int(last_batch.codigo[-7:-3]) +1).zfill(5)
+                codigo_generado = f'L-{codigo_de_batch}-{current_year}'
+            
+
+            services = request.POST.getlist('service')
+            batch = models.Batch.objects.create(
+                codigo = codigo_generado, 
+                parametro = request.POST['parametro_escogido'], 
+                responsable_asignado_id = request.POST['analista'],
+                responsable= User.objects.get(id = request.POST['analista']).username, 
+                creator_user= request.POST['creator_user'])
+            for service in services:
+                parameter = models.ParametroDeMuestra.objects.get(id=service)
+                parameter.batch = batch
+                parameter.save()
+            
+            return redirect('lims:batches')
+
+    return render(request, "LIMS/add_batch.html", {
+        'servicios': servicios,
+        'parametros': parametros,
+        'analistas': analistas,
+    })
+
+
+@login_required
+def batch(request, batch_id):
+    lote = models.Batch.objects.get(codigo = batch_id)
+    parametros = models.ParametroDeMuestra.objects.filter(batch_id = lote).exclude(ensayo__icontains='GRV').order_by('servicio_id')
+    service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('servicio_id')
+
+    return render(request, "LIMS/batch_service_parameters.html", {
+        'lote': lote,
+        'parametros': parametros,
+        'service_parameter': service_parameters,
+    })

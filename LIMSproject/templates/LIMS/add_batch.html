@@ -1,0 +1,75 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Lote</h1>
+
+<form action="" method="POST">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td class='item-add'><label for="lang">Parametro</label></td>
+            <td class='item-input'>
+                <select class='select1' name="parametro" id="">
+                    <option value=""></option>
+                    {% for p in parametros %}
+                    <option value="{{ p.codigo }}">{{ p.codigo }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class='btn-filtrar'>Filtrar</button>
+            </td>  
+        </tr>
+    </table>
+    
+    
+</form>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+    <table>
+        <tr style='display:none'>
+            <td class='item-add'><label for="">Creador</label></td>
+            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required readonly></td>
+        </tr>
+
+        <tr style='display:none'>
+            <td class='item-add'><label for="">Parametro seleccionado</label></td>
+            <td class='item-input'><input type='text' name="parametro_escogido" value='{{ parametro }}' required readonly></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><label for="lang">Servicios</label></td>
+            <td class='item-input'>
+                <select class='select1' name="service" id="lang"  multiple required>
+                    {% for s in servicios %}
+                    <option value="{{ s.id }}">{{ s.codigo_servicio }} {{ s.parametro.codigo }}</option>
+                {% endfor %}
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><label for="lang">Analista responsable</label></td>
+            <td class='item-input'>
+                <select class='select1' name="analista" id="">
+                    <option value=""></option>
+                    {% for analista in analistas %}
+                    <option value="{{ analista.id }}">{{ analista.username }}</option>
+                    {% endfor %}
+                </select>
+            </td>  
+        </tr>
+
+    </table>
+        
+
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

@@ -1,3 +1,5 @@
 venv/
 .vscode/
 LIMSproject/LIMSproject/settings.py
+
+Dockerfile

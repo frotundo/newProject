@@ -1,0 +1,178 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='search-contain'>
+    <form action="" method="post">
+        {% csrf_token %}
+        <input type="text" name='search_text'placeholder='Buscar'>
+        <select name="buscar" id="">
+            <option value=""></option>
+            <option value="servicio">Servicio</option>
+            <option value="ensayo">Ensayo</option>
+            <option value="inicio">Fecha de inicio</option>
+        </select>
+        <button type="submit" class='btn-filtrar'>Buscar</button>
+    </form>
+</div>
+<div class='title_contain'>
+    <h1 class="title title-par">Lote</h1>
+    </div>
+    <h3>Código</h3>
+    <p class='p-client'>{{ lote.codigo }}</p>
+    <p></p>
+    <h3>Responsable</h3>
+    <p class='p-client'>{{ lote.responsable_asignado }}</p>
+    <p></p>
+    
+</div>
+
+
+{% if parametros %}
+    
+    <table class='service_parameter_contain'>
+        <tr style='text-align: center;'>
+            <td class='item-list title-item-list'>Servicio</td>
+            <td class='item-list title-item-list'>Ensayo</td>
+            <td class='item-list title-item-list'>F. inicio</td>
+            <td class='item-list title-item-list'>F. terminado</td>
+            <td class='item-list title-item-list'>Resul. inicial</td>
+            <td class='item-list title-item-list'>Factor dil.</td>
+            <td class='item-list title-item-list'>Resul. final</td>
+        </tr>
+    
+        {% for service_parameter in parametros %}
+        <tr>    
+            <td class='item-list'>{{ service_parameter.codigo_servicio }}</td>
+            <td class='item-list'>{{ service_parameter.ensayo }}</td>
+            <form action="" method='POST'>
+                {% csrf_token %}
+                {% if service_parameter.resultado_final != None %}
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_terminado|date:"d-m-Y" }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.factor_de_dilucion }}</p></td>
+                    
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado_final }}</p></td>
+                {% else %}
+                    <td class=''><input class='input-par' type='date' name="fecha_de_inicio" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='date' name="fecha_de_terminado" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="resultado" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="factor_de_dilucion" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="resultado_final" id="" placeholder="" ></td>
+                {% endif %}
+                
+                
+                <td style='display:none;' class='item-input'><input type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly></td>
+                
+                <td style='display:none;' class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' readonly></td>
+                
+                <td style='display:none;' class='item-input'><input type='text' name="parametro_id" value='{{ service_parameter.id }}' readonly></td>
+                
+                <td>{% if service_parameter.resultado_final != None  %}{% else %}<button type="submit"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if service_parameters.has_previous %}
+                <a href="?page={{ service_parameters.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ service_parameters.number }} de {{ service_parameters.paginator.num_pages }}
+            </span>
+    
+            {% if service_parameters.has_next %}
+                <a href="?page={{ service_parameters.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+
+    
+{% elif service_parameters%}
+   
+    <table class='service_parameter_contain'>
+        <tr>
+            <td class='item-list title-item-list'>Servicio</td>
+            <td class='item-list title-item-list'>Ensayo</td>
+            <td class='item-list title-item-list' style='text-align: center;'>F. inicio</td>
+            <td class='item-list title-item-list' style='text-align: center;'>F. terminado</td>
+            <td class='item-list title-item-list' style='text-align: center;'>Peso inicial</td>
+            <td class='item-list title-item-list' style='text-align: center;'>Peso final</td>
+            <td class='item-list title-item-list' style='text-align: center;'>Resul. final</td>
+        </tr>
+
+        {% for service_parameter in service_parameters %}
+        <tr>
+            <td class='item-list'>{{ service_parameter.codigo_servicio }}</td>
+            <td class='item-list'>{{ service_parameter.ensayo }}</td>
+            <form action="" method='POST'>
+                {% csrf_token %}
+                {% if service_parameter.resultado_final != None %}
+                        <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}</p></td>
+                        
+                        <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_terminado|date:"d-m-Y" }}</p></td>
+                        
+                        <td class='item-list'><p style='text-align:center;'>{{ service_parameter.peso_inicial }}</p></td>
+                        
+                        <td class='item-list'><p style='text-align:center;'>{{ service_parameter.peso_final }}</p></td>
+                        
+                        <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado_final }}</p></td>
+                {% else %}
+                    <td class=''><input class='input-par' type='date' name="fecha_de_inicio" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='date' name="fecha_de_terminado" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="peso_inicial" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="peso_final" id="" placeholder="" ></td>
+                    
+                    <td class=''><input class='input-par' type='text' name="resultado_final" id="" placeholder="" ></td>
+                {% endif %}
+                <td style='display:none;' class='item-input'><input type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly></td>
+                
+                <td style='display:none;' class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' readonly></td>
+                
+                <td style='display:none;' class='item-input'><input type='text' name="parametro_id" value='{{ service_parameter.id }}' readonly></td>
+                
+                <td>{% if service_parameter.resultado_final != None %}{% else %}<button type="submit"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
+            </form>
+            
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if service_parameters.has_previous %}
+                <a href="?page={{ service_parameters.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="page-current">
+                Pagina {{ service_parameters.number }} de {{ service_parameters.paginator.num_pages }}
+            </span>
+
+            {% if service_parameters.has_next %}
+                <a href="?page={{ service_parameters.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+{% else %}
+    <p style='margin: 0 0 15px'>No hay registro de parametros.</p>
+{% endif %}
+
+{% endblock content %}

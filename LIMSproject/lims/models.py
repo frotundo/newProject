@@ -175,11 +175,23 @@ class Servicio(models.Model):
     def __str__(self):
         return self.codigo_muestra
 
+class Batch(models.Model):
+    "Batch model."
+    codigo = models.CharField(max_length=10, primary_key=True)
+    parametro = models.CharField(max_length=50, null=True, blank=True)
+    responsable_asignado = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
+    responsable = models.CharField(max_length=50, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    creator_user = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.codigo
 
 class ParametroDeMuestra(models.Model):
     """Sample paramenter model."""
 
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.PROTECT, null=True, blank=True)
     codigo_servicio = models.CharField(max_length=100)
     parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
     responsable_de_analisis = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
