@@ -1,0 +1,100 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='search-contain'>
+    <form action="" method="post">
+        {% csrf_token %}
+        <input type="text" name='search_text'placeholder='Buscar'>
+        <select name="buscar" id="">
+            <option value=""></option>
+            <option value="servicio">Servicio</option>
+            <option value="ensayo">Ensayo</option>
+            <option value="inicio">Fecha de inicio</option>
+        </select>
+        <button type="submit" class='btn-filtrar'>Buscar</button>
+    </form>
+</div>
+<div class='title_contain'>
+    <h1 class="title title-par" style="width:600px;">Parámetros descartados</h1>
+    <div style='margin: auto 0;'>
+        <form action="" method='POST'>
+            {% csrf_token %}
+            <table  class='client-select'>
+                <tr>
+                    <td class='item-input'>
+                        <select class='select2' name="parametro" id="lang"  size='1'>
+                            <option value=""></option>
+                            {% for p in parameters %}
+                                <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                        {% endfor %}
+                        </select>
+                    </td>
+                    <td><button class='btn-filtrar' type="submit">Filtrar</button></td>
+                    
+                </tr>
+            </table>
+        </form>
+    </div>
+    
+</div>
+
+{% if service_parameters %}
+    
+    <table class='service_parameter_contain'>
+        <tr style='text-align: center;'>
+            <td class='item-list title-item-list'>Servicio</td>
+            <td class='item-list title-item-list'>Ensayo</td>
+            <td class='item-list title-item-list'>F. inicio</td>
+            <td class='item-list title-item-list'>F. terminado</td>
+            <td class='item-list title-item-list'>Resul. inicial</td>
+            <td class='item-list title-item-list'>Factor dil.</td>
+            <td class='item-list title-item-list'>Resul. final</td>
+        </tr>
+    
+        {% for service_parameter in service_parameters %}
+        <tr>    
+            <td class='item-list'>{{ service_parameter.codigo_servicio }}</td>
+            <td class='item-list'>{{ service_parameter.ensayo }}</td>
+
+            <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}</p></td>
+            
+            <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_terminado|date:"d-m-Y" }}</p></td>
+            
+            <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado }}</p></td>
+            
+            <td class='item-list'><p style='text-align:center;'>{{ service_parameter.factor_de_dilucion }}</p></td>
+            
+            <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado_final }}</p></td>
+                
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="pagination">
+        <span class="page-links">
+            {% if service_parameters.has_previous %}
+                <a href="?page={{ service_parameters.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ service_parameters.number }} de {{ service_parameters.paginator.num_pages }}
+            </span>
+    
+            {% if service_parameters.has_next %}
+                <a href="?page={{ service_parameters.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+
+    
+    
+{% else %}
+    <p style='margin: 0 0 15px'>No hay registro de parametros.</p>
+{% endif %}
+
+{% endblock content %}

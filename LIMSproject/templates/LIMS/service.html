@@ -12,6 +12,8 @@
 
 
 <p class="p-service"><strong>Servicio ETFA: </strong> {% if service.etfa == True  %} SI {% else %} NO {% endif %}</p>
+<p class="p-service"><strong>Cliente: </strong>{{ client.titular }}</p>
+<p class="p-service"><strong>Proyecto: </strong>{{ service.proyecto.nombre }}</p>
 <p class="p-service"><strong>Punto de muestreo: </strong>{{ service.punto_de_muestreo }}</p>
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
 <p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</p>
@@ -38,22 +40,23 @@
 <h3>RCA</h3>
 <p class='p-service'>{{ rca.rca_asociada }}</p>
 
-
+{% if manager == True %}
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Parametros</h2>
-        <a class='link-add' href="{% if service.etfa == True  %} {% url 'lims:add_service_parameter_etfa' service.codigo %} {% else %} {% url 'lims:add_service_parameter' service.codigo %} {% endif %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% if service.etfa == True  %} {% url 'lims:add_service_parameter_etfa' service.codigo %} {% else %} {% url 'lims:add_service_parameter' service.codigo %} {% endif %}"><i class="fa-solid fa-circle-plus"></i></a>
+        
     </div>
-    
+
     {% if parameters %}
         <table id='#table-service'>
             <tr>
                 <td class='item-list-2 title-item-list'>Ensayo</td>
-                <td class='item-list-2 title-item-list'>Responsable</td>
-                <td class='item-list-2 title-item-list'>Fecha de inicio</td>  
-                <td class='item-list-2 title-item-list'>Fecha de termino</td>      
-                <td class='item-list-2 title-item-list'>Resultado Inical</td>  
-                <td class='item-list-2 title-item-list'>Resultado final</td>
+                <td class='item-list-2 title-item-list centrar'>Responsable</td>
+                <td class='item-list-2 title-item-list centrar'>Fecha de inicio</td>  
+                <td class='item-list-2 title-item-list centrar'>Fecha de termino</td>      
+                {% comment %} <td class='item-list-2 title-item-list centrar'>Resultado Inical</td>   {% endcomment %}
+                <td class='item-list-2 title-item-list centrar'>Resultado final</td>
                 
             </tr>
         
@@ -63,11 +66,11 @@
                         {% for i in parametros %}
                             {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
                         {% endfor %}</a></td>
-                    <td class='item-list-2'> {% if p.responsable_de_analisis == None %}{% else %}{{ p.responsable_de_analisis }}{% endif %}</td>
-                    <td class='item-list-2'>{% if p.fecha_de_inicio == None %}{% else %}{{ p.fecha_de_inicio|date:"d-m-Y" }}{% endif %}</td>
-                    <td class='item-list-2'>{% if p.fecha_de_terminado == None %}{% else %}{{ p.fecha_de_terminado|date:"d-m-Y" }}{% endif %}</td>
-                    <td class='item-list-2'>{% if p.resultado == None %}{% else %}{{ p.resultado }}{% endif %}</td>
-                    <td class='item-list-2'>{% if p.resultado_final == None %}{% else %}{{ p.resultado_final }}{% endif %}</td>
+                    <td class='item-list-2 centrar'> {% if p.responsable_de_analisis == None %}{% else %}{{ p.responsable_de_analisis }}{% endif %}</td>
+                    <td class='item-list-2 centrar'>{% if p.fecha_de_inicio == None %}{% else %}{{ p.fecha_de_inicio|date:"d-m-Y" }}{% endif %}</td>
+                    <td class='item-list-2 centrar'>{% if p.fecha_de_terminado == None %}{% else %}{{ p.fecha_de_terminado|date:"d-m-Y" }}{% endif %}</td>
+                    {% comment %} <td class='item-list-2 centrar'>{% if p.resultado == None %}{% else %}{{ p.resultado }}{% endif %}</td> {% endcomment %}
+                    <td class='item-list-2 centrar'>{% if p.resultado_final == None %}{% else %}{{ p.resultado_final }}{% endif %}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -94,9 +97,20 @@
     
 </div>
 
+{% else %}
+    {% if parameters %}
+    <h3>Parametros</h3>
+    {% for p in parameters %}
+    <p style='margin-left: 20px'>{{ p.ensayo }} ({{ p.parametro.ensayo }})</p>
+    {% endfor %}
+    {% endif %}
+{% endif %}
+
 
 {% endblock content %}
 
 {% block extrajs %}
     <script src="{% static 'js/lims.js' %}"></script>
 {% endblock  %}
+
+

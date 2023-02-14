@@ -2,7 +2,7 @@
 # Djnago module
 from django.urls import reverse
 from django.shortcuts import render, redirect, HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -21,7 +21,23 @@ from bokeh.palettes import Spectral
 from bokeh.models import ColumnDataSource
 # Create your views here.
 
+def is_lab(user):
+    return user.groups.filter(name='laboratorio').exists()
 
+def is_manager(user):
+    return user.groups.filter(name='manager').exists()
+
+def is_commercial(user):
+    return user.groups.filter(name='comercial').exists()
+
+def is_income(user):
+    return user.groups.filter(name='ingreso').exists()
+
+def is_commercial_or_income(user):
+    return user.groups.filter(name='comercial').exists() or user.groups.filter(name='ingreso').exists()
+
+def is_analyst(user):
+    return user.groups.filter(name='analista').exists()
 
 def add_workdays(start_date, num_workdays):
     end_date = workday(start_date, num_workdays)
@@ -37,17 +53,18 @@ def list_to_string(lista):
 
 def render_view(request, template, context):
     """Render views"""
-
     return render(request, template, context)
 
 
 @login_required
+@user_passes_test(is_lab)
 def index(request):
     """Index view."""
     return render(request, 'LIMS/menu.html')
 
 
 @login_required
+@user_passes_test(is_commercial,login_url='lims:index')
 def clients(request):
     """Clients view."""
 
@@ -92,9 +109,9 @@ def clients(request):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def add_client(request):
     """Add client view."""
-
     if request.method == 'POST':
         titular = request.POST['titular']
         rut = request.POST['rut']
@@ -120,6 +137,7 @@ def add_client(request):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client(request, id_cliente):
     """Client model."""
 
@@ -162,6 +180,7 @@ def client(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_legal_representative(request, id_cliente):
     """Client add legal representative view."""
 
@@ -223,6 +242,7 @@ def client_add_legal_representative(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_contact(request, id_cliente):
     """Client add contact view."""
 
@@ -281,6 +301,7 @@ def client_add_contact(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_sample_point(request, id_cliente):
     '''Client add sample point view.'''
 
@@ -336,6 +357,7 @@ def client_add_sample_point(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_rca(request, id_cliente):
     '''Client add RCA view.'''
 
@@ -391,6 +413,7 @@ def client_add_rca(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_project(request, id_cliente):
     """Add Standards of reference view."""
 
@@ -434,6 +457,7 @@ def client_add_project(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_project_cot(request, id_cliente):
     """Add Standards of reference view."""
 
@@ -473,6 +497,7 @@ def client_add_project_cot(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_project_cot_etfa(request, id_cliente):
     """Add Standards of reference view."""
 
@@ -512,6 +537,7 @@ def client_add_project_cot_etfa(request, id_cliente):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def normas_ref(request):
     """Normas de referencias view."""
 
@@ -526,6 +552,7 @@ def normas_ref(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def add_normas_ref(request):
     """Add Standards of reference view."""
 
@@ -580,6 +607,7 @@ def add_normas_ref(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def methods(request):
     """Normas de referencias view."""
 
@@ -594,6 +622,7 @@ def methods(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def add_method(request):
     """Add method view."""
 
@@ -654,6 +683,7 @@ def add_method(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def containers(request):
     '''Containers view.'''
 
@@ -668,6 +698,7 @@ def containers(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def add_container(request):
     """Add container view."""
 
@@ -691,6 +722,7 @@ def add_container(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def parameters(request):
     '''Parameters view.'''
 
@@ -748,6 +780,7 @@ def parameters(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def add_parameter(request):
     """Add parameter view."""
 
@@ -782,6 +815,7 @@ def add_parameter(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def samples_type(request):
     """Samples type view."""
 
@@ -796,6 +830,7 @@ def samples_type(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def add_sample_type(request):
     """Add Standards of reference view."""
 
@@ -851,6 +886,7 @@ def add_sample_type(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def etfa(request):
     """ETFA view."""
 
@@ -865,6 +901,7 @@ def etfa(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def add_etfa(request):
     """Add ETFA view."""
 
@@ -884,8 +921,17 @@ def add_etfa(request):
     })
 
 
+@login_required
+@user_passes_test(is_manager, login_url='lims:index')
+def delete_etfa(request, parameter_id):
+    parameter = models.ParametroEspecifico.objects.get(id=parameter_id)
+    parameter.codigo_etfa = None
+    parameter.save()
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+    
 
 @login_required
+@user_passes_test(is_commercial_or_income, login_url='lims:index')
 def project(request, project_id):
     """Project view."""
 
@@ -910,6 +956,7 @@ def project(request, project_id):
 
 
 @login_required
+@user_passes_test(is_commercial_or_income, login_url='lims:index')
 def project_cot(request, project_id):
     """Project view."""
 
@@ -936,6 +983,7 @@ def project_cot(request, project_id):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:project')
 def add_service(request, project_id):
     """Add service view."""
 
@@ -1027,6 +1075,7 @@ def add_service(request, project_id):
 
 
 @login_required
+@user_passes_test(is_commercial, login_url='lims:project')
 def add_service_etfa(request, project_id):
     """Add service view."""
 
@@ -1118,6 +1167,7 @@ def add_service_etfa(request, project_id):
     })
 
 @login_required
+@user_passes_test(is_income, login_url='lims:project_cot')
 def add_service_cot(request, project_id):
     """Add service view."""
 
@@ -1215,6 +1265,7 @@ def add_service_cot(request, project_id):
 
 
 @login_required
+@user_passes_test(is_commercial and is_income, login_url='lims:index')
 def add_service_parameter(request, service_id):
     """Add service parameter view."""
 
@@ -1248,6 +1299,7 @@ def add_service_parameter(request, service_id):
 
 
 @login_required
+
 def add_service_parameter_etfa(request, service_id):
     """Add service parameter view."""
 
@@ -1281,10 +1333,12 @@ def add_service_parameter_etfa(request, service_id):
 
 
 @login_required
+@user_passes_test(is_lab, login_url='lims:index')
 def service(request, service_id):
     """Service view."""
 
     service = models.Servicio.objects.get(pk=service_id)
+    client = models.Cliente.objects.get(pk=service.cliente)
     parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
     queryset_parameters = models.ParametroDeMuestra.objects.filter(servicio_id=service_id).order_by('-created')
     paginator = Paginator(queryset_parameters, 10)
@@ -1293,13 +1347,17 @@ def service(request, service_id):
     rca = models.RCACliente.objects.get(pk=service.rCA)
     norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
     project = models.Proyecto.objects.get(pk=service.proyecto_id)
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
     return render(request, 'LIMS/service.html', {
         'service': service,
+        'client': client,
         'parametros': parametros,
         'parameters': parameters,
         'rca': rca,
         'norma': norma,
         'project': project,
+        'manager': manager,
     })
 
  
@@ -1328,6 +1386,7 @@ def edit_sample_parameter(request,parameter_id):
 
 
 @login_required
+@user_passes_test(is_analyst, login_url='lims:index')
 def service_parameters(request):
     """Service parameters view."""
 
@@ -1415,10 +1474,11 @@ def service_parameters(request):
 
 
 @login_required
+@user_passes_test(is_analyst, login_url='lims:index')
 def service_parameters_filter(request):
     """Service parameters for filter view."""
 
-    queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('servicio_id')
+    queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('-created')
     parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV')
     parameters = parametros
     
@@ -1497,6 +1557,122 @@ def service_parameters_filter(request):
         'parameters': parameters,
     })
 
+
+@login_required
+def service_parameter_dropped(request, parameter_id):
+    parameter = models.ParametroDeMuestra.objects.get(id = parameter_id)
+
+    models.ParametroDeMuestraDescartada.objects.create(
+        servicio = parameter.servicio,
+        batch = parameter.batch,
+        codigo_servicio = parameter.codigo_servicio,
+        parametro = parameter.parametro,
+        responsable_de_analisis= parameter.responsable_de_analisis,
+        fecha_de_inicio = parameter.fecha_de_inicio,
+        fecha_de_terminado = parameter.fecha_de_terminado,
+        resultado = parameter.resultado,
+        factor_de_dilucion = parameter.factor_de_dilucion,
+        resultado_final = parameter.resultado_final,
+        peso_inicial = parameter.peso_inicial,
+        peso_final = parameter.peso_final,
+        ensayo = parameter.ensayo,
+        created = parameter.created,
+        discarder = request.user.username,
+        creator_user = parameter.creator_user,
+        )
+
+    parameter.responsable_de_analisis = None
+    parameter.fecha_de_inicio = None
+    parameter.fecha_de_terminado = None
+    parameter.resultado = None
+    parameter.factor_de_dilucion = None
+    parameter.peso_inicial = None
+    parameter.peso_final = None
+    parameter.resultado_final = None
+    parameter.save()
+    
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+def discarded_service_parameters(request):
+    """Discarded service parameters view."""
+
+    queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.exclude(ensayo__icontains='GRV').order_by('-discarded')
+    parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV')
+    parameters = parametros
+
+    if request.method == 'POST':
+        if 'parametro' in request.POST.keys():
+            if request.POST['parametro'] == '':
+                pass
+            else:
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(parametro_id=request.POST['parametro'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-discarded')
+
+        elif 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                pass
+
+            elif request.POST['buscar'] == 'servicio':
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(codigo_servicio__contains=request.POST['search_text'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-discarded')
+
+            elif request.POST['buscar'] == 'ensayo':
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(ensayo__icontains=request.POST['search_text'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-discarded')
+
+            elif request.POST['buscar'] == 'inicio':
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
+                queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-discarded')
+
+    paginator = Paginator(queryset_service_parameters, 25)
+    page = request.GET.get('page')
+    service_parameters = paginator.get_page(page)
+    return render(request, 'LIMS/discarded_service_parameters.html',{
+        'service_parameters': service_parameters,
+        'parametros': parametros,
+        'parameters': parameters,
+    })
+
+
+@login_required
+def discarded_service_parameters_filter(request):
+    """Service parameters for filter view."""
+
+    queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(ensayo__icontains='GRV').order_by('-discarded')
+    parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV')
+    parameters = parametros
+    
+
+    if request.method == 'POST':
+        if 'parametro' in request.POST.keys():
+            if request.POST['parametro'] == '':
+                pass
+            else:
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(Q(ensayo__icontains='GRV') & Q(parametro_id=request.POST['parametro'])).order_by('-discarded')
+
+        elif 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                pass
+
+            elif request.POST['buscar'] == 'servicio':
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(Q(ensayo__icontains='GRV') & Q(codigo_servicio__contains=request.POST['search_text'])).order_by('-discarded')
+
+            elif request.POST['buscar'] == 'ensayo':
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(Q(ensayo__icontains='GRV') & Q(ensayo__icontains=request.POST['search_text'])).order_by('-discarded')
+
+            elif request.POST['buscar'] == 'inicio':
+                queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(Q(ensayo__icontains='GRV') & Q(fecha_de_inicio__contains=request.POST['search_text'])).order_by('-discarded')
+    
+    paginator = Paginator(queryset_service_parameters, 25)
+    page = request.GET.get('page')
+    service_parameters = paginator.get_page(page)
+    return render(request, 'LIMS/discarded_service_parameters_filter.html',{
+        'service_parameters': service_parameters,
+        'parametros': parametros,
+        'parameters': parameters,
+    })
 
 @login_required
 def projects(request):
@@ -1850,6 +2026,7 @@ def batches(request):
     services = models.ParametroDeMuestra.objects.select_related('batch').order_by('-created')
 
     if request.method == 'POST':
+        print(request.POST)
         text = request.POST['search_text']
         opcion = request.POST['opcion']
         if text=='' or opcion == '':
@@ -1938,8 +2115,30 @@ def batch(request, batch_id):
     parametros = models.ParametroDeMuestra.objects.filter(batch_id = lote).exclude(ensayo__icontains='GRV').order_by('servicio_id')
     service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('servicio_id')
 
+    if request.method == 'POST':            
+            parametro = models.ParametroDeMuestra.objects.get(id=request.POST['parametro_id'])
+            responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
+            parametro.responsable_de_analisis= responsable
+            fecha_inicio = request.POST['fecha_de_inicio']
+            if fecha_inicio.endswith(str(datetime.now().year)):
+                fecha_de_inicio = datetime.strptime(fecha_inicio, "%d-%m-%Y")
+                parametro.fecha_de_inicio = fecha_de_inicio.strftime("%Y-%m-%d")
+            else: parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
+            fecha_terminado = request.POST['fecha_de_terminado']
+            if fecha_terminado.endswith(str(datetime.now().year)):
+                fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
+                parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
+            else: parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
+            parametro.resultado = request.POST['resultado']
+            parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
+            parametro.resultado_final = request.POST['resultado_final']
+            parametro.save()
+
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
     return render(request, "LIMS/batch_service_parameters.html", {
         'lote': lote,
         'parametros': parametros,
         'service_parameter': service_parameters,
     })
+

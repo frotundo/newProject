@@ -130,3 +130,8 @@ sudo a2enmod wsgi
 sudo service apache2 restart
 
 Ten en cuenta que esta es solo una configuración básica y puede variar según tus necesidades específicas. También es importante asegurarte de que tienes permisos adecuados para acceder a los archivos y carpetas necesarios, y que los archivos de configuración estén correctamente escritos. Además, es recomendable monitorear los registros de Apache y mod_wsgi para detectar y solucionar problemas."""
+
+
+    # user = request.user
+    # groups = user.groups.all()
+    # print(groups)

@@ -187,6 +187,7 @@ class Batch(models.Model):
     def __str__(self):
         return self.codigo
 
+
 class ParametroDeMuestra(models.Model):
     """Sample paramenter model."""
 
@@ -203,7 +204,32 @@ class ParametroDeMuestra(models.Model):
     peso_inicial = models.FloatField(null=True, blank=True,)
     peso_final = models.FloatField(null=True, blank=True,)
     ensayo = models.CharField(max_length=50, null=True, blank=True,)
+    created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.codigo_servicio
+
+    
+class ParametroDeMuestraDescartada(models.Model):
+    """Sample paramenter model dropped."""
+
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.PROTECT, null=True, blank=True)
+    codigo_servicio = models.CharField(max_length=100)
+    parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
+    responsable_de_analisis = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
+    fecha_de_inicio = models.DateTimeField(null=True, blank=True,)
+    fecha_de_terminado = models.DateTimeField(null=True, blank=True,)
+    resultado = models.FloatField(null=True, blank=True,)
+    factor_de_dilucion = models.IntegerField(null=True, blank=True,)
+    resultado_final = models.FloatField(null=True, blank=True,)
+    peso_inicial = models.FloatField(null=True, blank=True,)
+    peso_final = models.FloatField(null=True, blank=True,)
+    ensayo = models.CharField(max_length=50, null=True, blank=True,)
     created = models.DateTimeField()
+    discarder = models.CharField(max_length=50, null=True, blank= True)
+    discarded = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
