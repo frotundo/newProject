@@ -26,7 +26,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Representantes Legales</h2>
-        <a class='link-add' href="{% url 'lims:client_add_legal_representative' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% url 'lims:client_add_legal_representative' cliente.id %}" title="Agregar representante legal"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
     
     {% if legal_representatives %}
@@ -69,7 +69,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Contactos</h2>
-        <a class='link-add' href="{% url 'lims:client_add_contact' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% url 'lims:client_add_contact' cliente.id %}" title="Agregar contacto"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
     
     {% if contacts %}
@@ -112,7 +112,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Puntos de Muestreo</h2>
-        <a class='link-add' href="{% url 'lims:client_add_sample_point' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% url 'lims:client_add_sample_point' cliente.id %}" title="Agregar punto de muestreo"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
         {% if sample_points %}
             <table>
@@ -152,7 +152,7 @@
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">RCA</h2>
-        <a class='link-add' href="{% url 'lims:client_add_rca' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a> 
+        <a class='link-add' href="{% url 'lims:client_add_rca' cliente.id %}" title="Agregar RCA"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>
         {% if rcas %}
             <table>
@@ -193,7 +193,7 @@
     <div class='subtitle_contain'>
         <h2 class="subtitle">Proyectos</h2>
         {% comment %} <a class='link-add' href="{% url 'lims:client_add_project' cliente.id %}"><i class="fa-solid fa-circle-plus"></i></a>  {% endcomment %}
-        <span class='btn_type_project'><i class="fa-solid fa-circle-plus"></i></span>
+        <span class='btn_type_project' title="Agregar proyecto"><i class="fa-solid fa-circle-plus"></i></span>
     </div>
         {% if projects %}
             <table>

@@ -6,8 +6,9 @@
 {% endblock %}
 
 {% block content %}
-<div class='title_contain'>
-    <h1 class="title">{{ service.codigo_muestra }} <a href="{% url 'lims:grafico' service.codigo_muestra %}"><i class="fa-solid fa-chart-column"></i></a></h1>
+<div class='title_contain' style="display: flex; justify-content: space-between;">
+    <h1 class="title">{{ service.codigo_muestra }} <a href="{% url 'lims:grafico' service.codigo_muestra %}" title="Progreso de los analisis"><i class="fa-solid fa-chart-column"></i></a></h1>
+    <a href="{% url 'lims:clone_service' service.codigo %}" title='Clonar servicio'><i class="fa-solid fa-copy"></i></a>
 </div>
 
 
@@ -42,11 +43,15 @@
 
 {% if manager == True %}
 <div>
-    <div class='subtitle_contain'>
-        <h2 class="subtitle">Parametros</h2>
-        <a class='link-add' href="{% if service.etfa == True  %} {% url 'lims:add_service_parameter_etfa' service.codigo %} {% else %} {% url 'lims:add_service_parameter' service.codigo %} {% endif %}"><i class="fa-solid fa-circle-plus"></i></a>
+    <div>
+        <div class='subtitle_contain'>
+            <h2 class="subtitle">Parametros</h2>
+            <a class='link-add' href="{% if service.etfa == True  %} {% url 'lims:add_service_parameter_etfa' service.codigo %} {% else %} {% url 'lims:add_service_parameter' service.codigo %} {% endif %}" title="Agregar nuevo parametro"><i class="fa-solid fa-circle-plus"></i></a>
+        </div>
         
+
     </div>
+    
 
     {% if parameters %}
         <table id='#table-service'>

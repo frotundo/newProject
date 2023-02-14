@@ -39,6 +39,9 @@ def is_commercial_or_income(user):
 def is_analyst(user):
     return user.groups.filter(name='analista').exists()
 
+def is_coordinador(user):
+    return user.groups.filter(name='coordinador').exists()
+
 def add_workdays(start_date, num_workdays):
     end_date = workday(start_date, num_workdays)
     return end_date
@@ -217,7 +220,7 @@ def client_add_legal_representative(request, id_cliente):
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.RepresentanteLegalCliente.objects.create(
                     nombre= contacto.title(), 
-                    rut=rut.replace('-',''), 
+                    rut=rut.replace('-','').replace('.','').replace(',',''), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -277,7 +280,7 @@ def client_add_contact(request, id_cliente):
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.ContactoCliente.objects.create(
                     nombre= contacto.title(), 
-                    rut=rut.replace('-',''), 
+                    rut=rut.replace('-','').replace('.','').replace(',',''), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -1166,6 +1169,97 @@ def add_service_etfa(request, project_id):
         'normas': normas,
     })
 
+
+@login_required
+@user_passes_test(is_commercial, login_url='lims:project_cot')
+def clone_service(request, service_id):
+    """Clone service view."""
+
+    service = models.Servicio.objects.get(pk = service_id)
+    proyectos = models.Proyecto.objects.filter(cliente_id = service.proyecto.cliente)
+    parameters = models.ParametroDeMuestra.objects.filter(codigo_servicio = service.codigo_muestra)
+    parameters = [p.parametro_id for p in parameters]
+    rcas = models.RCACliente.objects.filter(cliente_id = service.proyecto.cliente)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id= service.proyecto.cliente)
+    normas = models.NormaDeReferencia.objects.all()
+    tipos_de_muestras = models.TipoDeMuestra.objects.all()
+
+    if request.method == 'POST':
+        proyecto = request.POST['proyecto']
+        punto_de_muestreo = request.POST['punto_de_muestreo']
+        fecha_de_muestreo = request.POST['fecha_de_muestreo']
+        observacion = request.POST['observacion']
+        habiles = request.POST['habiles']
+        fecha_de_contenedores = request.POST['fecha_de_contenedores']
+        norma_de_referencia = request.POST['norma_de_referencia']
+        rCA = request.POST['rCA']
+        muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
+        creator_user = request.POST['creator_user']
+        
+        fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
+        fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
+        current_year = datetime.now().year
+        current_year = str(current_year)[2:]
+
+        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+
+        if models.Servicio.objects.exists()==False:
+            codigo_de_servicio = ('1').zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        
+        elif last_service.codigo_muestra[-2:] != current_year: 
+            codigo_central = ('1').zfill(5)
+            codigo_generado = f'{codigo_central}-{current_year}'
+        
+        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        
+        for sp in sample_points:
+            if int(punto_de_muestreo) == int(sp.id):   
+                models.Servicio.objects.create(
+                    codigo = codigo_de_servicio,
+                    codigo_muestra = codigo_generado, 
+                    proyecto_id = proyecto, 
+                    punto_de_muestreo = sp.nombre,
+                    tipo_de_muestra = service.tipo_de_muestra,
+                    fecha_de_muestreo = fecha_de_muestreo,
+                    observacion = observacion,
+                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                    fecha_de_contenedores = fecha_de_contenedores,
+                    norma_de_referencia = norma_de_referencia,
+                    rCA = rCA,
+                    etfa = service.etfa,
+                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+                    creator_user = creator_user,
+                    cliente = service.cliente,
+                    created = datetime.now()
+                    )                    
+
+        for pid in parameters:
+            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+            models.ParametroDeMuestra(
+                servicio_id = codigo_de_servicio, 
+                parametro_id= pid,
+                ensayo= ensayo.codigo, 
+                codigo_servicio= codigo_generado,
+                creator_user = creator_user,
+                created = datetime.now()
+                ).save()
+
+        return redirect('lims:project', service.proyecto_id)
+
+    return render(request, "LIMS/clone_service.html",{
+        'service': service,
+        'proyectos': proyectos,
+        'parameters': parameters,
+        'rcas': rcas,
+        'normas': normas,
+        'sample_points': sample_points,
+        'tipos_de_muestras': tipos_de_muestras,
+    })
+
+
 @login_required
 @user_passes_test(is_income, login_url='lims:project_cot')
 def add_service_cot(request, project_id):
@@ -1265,7 +1359,7 @@ def add_service_cot(request, project_id):
 
 
 @login_required
-@user_passes_test(is_commercial and is_income, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def add_service_parameter(request, service_id):
     """Add service parameter view."""
 
@@ -1299,7 +1393,7 @@ def add_service_parameter(request, service_id):
 
 
 @login_required
-
+@user_passes_test(is_commercial, login_url='lims:index')
 def add_service_parameter_etfa(request, service_id):
     """Add service parameter view."""
 
@@ -1333,7 +1427,7 @@ def add_service_parameter_etfa(request, service_id):
 
 
 @login_required
-@user_passes_test(is_lab, login_url='lims:index')
+@user_passes_test(is_lab, login_url='lims:index') #revisar*
 def service(request, service_id):
     """Service view."""
 
@@ -1362,6 +1456,7 @@ def service(request, service_id):
 
  
 @login_required 
+@user_passes_test(is_manager, login_url='lims:index')
 def edit_sample_parameter(request,parameter_id):
     """Edit sample parameter model."""
     
@@ -1463,7 +1558,7 @@ def service_parameters(request):
 
             return redirect('lims:service_parameters')
 
-    paginator = Paginator(queryset_service_parameters, 25)
+    paginator = Paginator(queryset_service_parameters, 35)
     page = request.GET.get('page')
     service_parameters = paginator.get_page(page)
     return render(request, 'LIMS/service_parameters.html',{
@@ -1548,7 +1643,7 @@ def service_parameters_filter(request):
 
             return redirect('lims:service_parameters_filter')
     
-    paginator = Paginator(queryset_service_parameters, 25)
+    paginator = Paginator(queryset_service_parameters, 35)
     page = request.GET.get('page')
     service_parameters = paginator.get_page(page)
     return render(request, 'LIMS/service_parameters_filter.html',{
@@ -1559,6 +1654,7 @@ def service_parameters_filter(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def service_parameter_dropped(request, parameter_id):
     parameter = models.ParametroDeMuestra.objects.get(id = parameter_id)
 
@@ -1595,6 +1691,7 @@ def service_parameter_dropped(request, parameter_id):
 
 
 @login_required
+@user_passes_test(is_manager, 'lims:index')
 def discarded_service_parameters(request):
     """Discarded service parameters view."""
 
@@ -1626,7 +1723,7 @@ def discarded_service_parameters(request):
                 queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(fecha_de_inicio__contains=request.POST['search_text'])
                 queryset_service_parameters = queryset_service_parameters.exclude(ensayo__icontains='GRV').order_by('-discarded')
 
-    paginator = Paginator(queryset_service_parameters, 25)
+    paginator = Paginator(queryset_service_parameters,35)
     page = request.GET.get('page')
     service_parameters = paginator.get_page(page)
     return render(request, 'LIMS/discarded_service_parameters.html',{
@@ -1637,6 +1734,7 @@ def discarded_service_parameters(request):
 
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def discarded_service_parameters_filter(request):
     """Service parameters for filter view."""
 
@@ -1665,7 +1763,7 @@ def discarded_service_parameters_filter(request):
             elif request.POST['buscar'] == 'inicio':
                 queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(Q(ensayo__icontains='GRV') & Q(fecha_de_inicio__contains=request.POST['search_text'])).order_by('-discarded')
     
-    paginator = Paginator(queryset_service_parameters, 25)
+    paginator = Paginator(queryset_service_parameters, 35)
     page = request.GET.get('page')
     service_parameters = paginator.get_page(page)
     return render(request, 'LIMS/discarded_service_parameters_filter.html',{
@@ -1675,59 +1773,35 @@ def discarded_service_parameters_filter(request):
     })
 
 @login_required
+@user_passes_test(is_manager, login_url='lims:index')
 def projects(request):
     """Projects view."""
 
     queryset_proyectos = models.Proyecto.objects.all().order_by('codigo')
     clientes = models.Cliente.objects.all().order_by('titular')
-    paginator = Paginator(queryset_proyectos, 25)
-    page = request.GET.get('page')
-    proyectos = paginator.get_page(page)
     if request.method == 'POST':
         if 'client' in request.POST.keys():
             if request.POST['client'] == '' :
-                return render(request, 'LIMS/projects.html',{
-                    'proyectos': proyectos,
-                    'clientes': clientes,
-                })
+                pass
             else:
                 queryset_proyectos = models.Proyecto.objects.filter(cliente_id=request.POST['client']).order_by('codigo')
-                paginator = Paginator(queryset_proyectos, 25)
-                page = request.GET.get('page')
-                proyectos = paginator.get_page(page)
-                return render(request, 'LIMS/projects.html',{
-                    'proyectos': proyectos,
-                    'clientes': clientes,
-                })
+
 
         if 'search_text' in request.POST.keys():
             
             if request.POST['search_text'] == '' or request.POST['opcion'] == '':
-                return render(request, 'LIMS/projects.html',{
-                    'proyectos': proyectos,
-                    'clientes': clientes,
-                })
+                pass
 
             if request.POST['opcion'] == 'codigo':
                 queryset_proyectos = models.Proyecto.objects.filter(codigo__contains=request.POST['search_text']).order_by('codigo')
-                paginator = Paginator(queryset_proyectos, 25)
-                page = request.GET.get('page')
-                proyectos = paginator.get_page(page)
-                return render(request, 'LIMS/projects.html',{
-                    'proyectos': proyectos,
-                    'clientes': clientes,
-                })
+
 
             if request.POST['opcion'] == 'nombre':
                 queryset_proyectos = models.Proyecto.objects.filter(nombre__icontains=request.POST['search_text']).order_by('codigo')
-                paginator = Paginator(queryset_proyectos, 25)
-                page = request.GET.get('page')
-                proyectos = paginator.get_page(page)
-                return render(request, 'LIMS/projects.html',{
-                    'proyectos': proyectos,
-                    'clientes': clientes,
-                })
 
+    paginator = Paginator(queryset_proyectos, 35)
+    page = request.GET.get('page')
+    proyectos = paginator.get_page(page)
     return render(request, 'LIMS/projects.html',{
         'proyectos': proyectos,
         'clientes': clientes,
@@ -1735,79 +1809,42 @@ def projects(request):
 
 
 @login_required
+@user_passes_test(is_income, login_url='lims:index')
 def services(request):
     """Services view."""
 
     queryset_servicios = models.Servicio.objects.all().order_by('-created')
     clientes = models.Cliente.objects.all().order_by('titular')
-    paginator = Paginator(queryset_servicios, 25)
-    page = request.GET.get('page')
-    servicios = paginator.get_page(page)
+
     if request.method == 'POST':
         if 'client' in request.POST.keys():
             if request.POST['client'] == '' :
-                return render(request, 'LIMS/services.html',{
-                    'servicios': servicios,
-                    'clientes': clientes,
-                })
+                pass
 
             else:
                 queryset_servicios = models.Servicio.objects.filter(cliente=request.POST['client']).order_by('-created')
-                paginator = Paginator(queryset_servicios, 25)
-                page = request.GET.get('page')
-                servicios = paginator.get_page(page)
-                return render(request, 'LIMS/services.html',{
-                    'servicios': servicios,
-                    'clientes': clientes,
-                })
+
 
         elif 'search_text' in request.POST.keys():
             
             if request.POST['search_text'] == '' or request.POST['opcion'] == '':
-                return render(request, 'LIMS/services.html',{
-                    'servicios': servicios,
-                    'clientes': clientes,
-                })
+                pass
 
             if request.POST['opcion'] == 'codigo':
                 queryset_servicios = models.Servicio.objects.filter(codigo_muestra__contains=request.POST['search_text']).order_by('-created')
-                paginator = Paginator(queryset_servicios, 25)
-                page = request.GET.get('page')
-                servicios = paginator.get_page(page)
-                return render(request, 'LIMS/services.html',{
-                    'servicios': servicios,
-                    'clientes': clientes,
-                })
+
 
             if request.POST['opcion'] == 'punto':
                 queryset_servicios = models.Servicio.objects.filter(punto_de_muestreo__icontains=request.POST['search_text']).order_by('-created')
-                paginator = Paginator(queryset_servicios, 25)
-                page = request.GET.get('page')
-                servicios = paginator.get_page(page)
-                return render(request, 'LIMS/services.html',{
-                    'servicios': servicios,
-                    'clientes': clientes,
-                })
+
 
             if request.POST['opcion'] == 'muestreo':
                 queryset_servicios = models.Servicio.objects.filter(fecha_de_muestreo__contains=request.POST['search_text']).order_by('-created')
-                paginator = Paginator(queryset_servicios, 25)
-                page = request.GET.get('page')
-                servicios = paginator.get_page(page)
-                return render(request, 'LIMS/services.html',{
-                    'servicios': servicios,
-                    'clientes': clientes,
-                })
+
             
             if request.POST['opcion'] == 'recepcion':
                 queryset_servicios = models.Servicio.objects.filter(fecha_de_recepcion__contains=request.POST['search_text']).order_by('-created')
-                paginator = Paginator(queryset_servicios, 25)
-                page = request.GET.get('page')
-                servicios = paginator.get_page(page)
-                return render(request, 'LIMS/services.html',{
-                    'servicios': servicios,
-                    'clientes': clientes,
-                })
+
 
         else:
             servicio = models.Servicio.objects.get(codigo_muestra=request.POST['servicio_id'])
@@ -1824,7 +1861,10 @@ def services(request):
             
            
             return redirect('lims:services')
-            
+
+    paginator = Paginator(queryset_servicios, 35)
+    page = request.GET.get('page')
+    servicios = paginator.get_page(page)            
     return render(request, 'LIMS/services.html',{
         'servicios': servicios,
         'clientes': clientes,
@@ -1832,6 +1872,7 @@ def services(request):
 
 
 @login_required
+@user_passes_test(is_income, login_url='lims:index')
 def edit_sample_code(request, service_id):
     """Edit sample code view."""
 
@@ -2019,11 +2060,14 @@ def grafico(request, service_id):
         })
 
 @login_required
+@user_passes_test(is_analyst, login_url='lims:index')
 def batches(request):
     """Batches view."""
     queryset_batches = models.Batch.objects.all().order_by("-created")
    
     services = models.ParametroDeMuestra.objects.select_related('batch').order_by('-created')
+    user = request.user
+    coordinador = user.groups.filter(name='coordinador').exists()
 
     if request.method == 'POST':
         print(request.POST)
@@ -2038,15 +2082,17 @@ def batches(request):
         elif opcion == 'parametro':
             queryset_batches = queryset_batches.filter(parametro__icontains= text)
     
-    paginator = Paginator(queryset_batches, 20)
+    paginator = Paginator(queryset_batches, 35)
     page = request.GET.get('page')
     lotes = paginator.get_page(page)
     return render(request, "LIMS/batches.html", {
         'lotes': lotes,
         'services': services,
+        'coordinador': coordinador,
     })
 
 @login_required
+@user_passes_test(is_coordinador, login_url='lims:index')
 def add_batch(request):
     """Add batch view."""
     parametros = models.ParametroEspecifico.objects.all().order_by('codigo')
@@ -2110,6 +2156,7 @@ def add_batch(request):
 
 
 @login_required
+@user_passes_test(is_analyst, login_url='lims:index')
 def batch(request, batch_id):
     lote = models.Batch.objects.get(codigo = batch_id)
     parametros = models.ParametroDeMuestra.objects.filter(batch_id = lote).exclude(ensayo__icontains='GRV').order_by('servicio_id')

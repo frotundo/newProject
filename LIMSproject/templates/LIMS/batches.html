@@ -23,7 +23,7 @@
 
 <div class='title_contain'>
     <h1 class="title">Lotes</h1>
-    <a class='link-add' href="{% url 'lims:add_batch' %}"><i class="fa-solid fa-circle-plus"></i></a>
+    {% if coordinador %}<a class='link-add' href="{% url 'lims:add_batch' %}" title="Agregar lote"><i class="fa-solid fa-circle-plus"></i></a>{% endif %}
 </div>
 
 {% if lotes %}

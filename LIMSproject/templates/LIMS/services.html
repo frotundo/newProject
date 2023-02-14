@@ -57,7 +57,7 @@
     
         {% for servicio in servicios %}
         <tr>
-            <td class='item-list-sp'><a  href="{% url 'lims:service' servicio.codigo %}" class='item-list-sp'>{{ servicio.codigo_muestra }}</a> {% if servicio.responsable == '' %}{% if  servicio.editor_sample_code == None %} <a href="{% url 'lims:edit_sample_code' servicio.codigo %}"><i class="fa-solid fa-pen"></i></a>{% endif %}{% endif %}</td>
+            <td class='item-list-sp'><a  href="{% url 'lims:service' servicio.codigo %}" class='item-list-sp'>{{ servicio.codigo_muestra }}</a> {% if servicio.responsable == '' %}{% if  servicio.editor_sample_code == None %} <a href="{% url 'lims:edit_sample_code' servicio.codigo %}" title="Editar código de servicio"><i class="fa-solid fa-pen"></i></a>{% endif %}{% endif %}</td>
             <td class='item-list'  style="text-align: center;">{{ servicio.punto_de_muestreo }}</td>
             <form action="" method='POST'>
                 {% csrf_token %} 
@@ -69,7 +69,7 @@
                 
                 <td style='display:none;' class='item-input'><input type='text' name="servicio_id" value='{{ servicio.codigo_muestra }}' readonly></td>
                 
-                <td>{% if servicio.responsable != '' %}{% else %}<button class='btn-upload-service' type="submit"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
+                <td>{% if servicio.responsable != '' %}{% else %}<button class='btn-upload-service' type="submit" title="Guardar servicio"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
             </form>
         </tr>
         {% endfor %}

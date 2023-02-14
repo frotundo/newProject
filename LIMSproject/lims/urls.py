@@ -36,6 +36,7 @@ urlpatterns = [
     path('project_cot/<str:project_id>/add_service', views.add_service_cot, name="add_service_cot"),
     path('project/<str:project_id>/add_service_etfa', views.add_service_etfa, name="add_service_etfa"),
     path('service/<str:service_id>/', views.service, name="service"),
+    path('service/<str:service_id>/clone_service', views.clone_service, name="clone_service"),
     path('service/<str:service_id>/add_service_parameter', views.add_service_parameter, name="add_service_parameter"),
     path('service/<str:service_id>/add_service_parameter_etfa', views.add_service_parameter_etfa, name="add_service_parameter_etfa"),
     path('service/<str:service_id>/edit_sample_code/', views.edit_sample_code, name='edit_sample_code'),

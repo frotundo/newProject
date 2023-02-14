@@ -91,7 +91,7 @@
                 
                 <td style='display:none;' class='item-input'><input type='text' name="parametro_id" value='{{ service_parameter.id }}' readonly></td>
                 
-                <td>{% if service_parameter.resultado_final != None  %} {% for g in user.groups.all %}{% if g.name == 'manager' %}<a href="{% url 'lims:service_parameter_dropped' service_parameter.id %}"><i class="fa-solid fa-x" style='color: red;'></i></a>{% endif %}{% endfor %}{% else %}<button type="submit"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
+                <td>{% if service_parameter.resultado_final != None  %} {% for g in user.groups.all %}{% if g.name == 'manager' %}<a href="{% url 'lims:service_parameter_dropped' service_parameter.id %}" title="Descartar análisis"><i class="fa-solid fa-x" style='color: red;'></i></a>{% endif %}{% endfor %}{% else %}<button type="submit" title="Guardar análisis"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
             </form>
             {% comment %} service_parameter.responsable_de_analisis_id != None {% endcomment %}
         </tr>

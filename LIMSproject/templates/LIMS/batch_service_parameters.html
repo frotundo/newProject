@@ -80,7 +80,7 @@
                 
                 <td style='display:none;' class='item-input'><input type='text' name="parametro_id" value='{{ service_parameter.id }}' readonly></td>
                 
-                <td>{% if service_parameter.resultado_final != None  %}{% else %}<button type="submit"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
+                <td>{% if service_parameter.resultado_final != None  %}{% else %}<button type="submit" title="Guardar análisis"><i class="fa-solid fa-cloud-arrow-up"></i></button>{% endif %}</td>
             </form>
         </tr>
         {% endfor %}

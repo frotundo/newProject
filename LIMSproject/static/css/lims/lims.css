@@ -205,7 +205,8 @@ input {
 .fa-cloud-arrow-up, 
 .fa-circle-xmark, 
 .fa-rotate-left, 
-.fa-chart-column {
+.fa-chart-column,
+.fa-copy {
     color: #0c7cbf;
     font-size: 2rem;
     cursor: pointer;
@@ -215,7 +216,8 @@ input {
 .fa-cloud-arrow-up:hover, 
 .fa-circle-xmark:hover, 
 .fa-rotate-left:hover,
-.fa-chart-column:hover {
+.fa-chart-column:hover,
+.fa-copy:hover {
     color: #acc835;
 }
 
