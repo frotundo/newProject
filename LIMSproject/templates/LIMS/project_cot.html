@@ -11,8 +11,7 @@
 </div>
 
 
-<h3>Codigo</h3>
-<p class='p-client'>{{ project.codigo }}</p>
+<p class="p-service"><strong>Código: </strong>{{ project.codigo }}</p>
 <p></p>
 
 {% if parametros_cotizados %}
@@ -38,7 +37,7 @@
             </tr>
         
             {% for service in services %}
-                <tr class='btn-service'>
+                <tr class='btn-service row'>
                     <td class='item-list-2'><a href="{% url 'lims:service' service.codigo %}">{{ service.codigo_muestra }}</a></td>
                     <td class='item-list-2'>{{ service.punto_de_muestreo }}</td>
                     <td class='item-list-2'>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</td>

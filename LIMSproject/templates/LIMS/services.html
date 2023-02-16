@@ -56,7 +56,7 @@
         </tr>
     
         {% for servicio in servicios %}
-        <tr>
+        <tr class='row'>
             <td class='item-list-sp'><a  href="{% url 'lims:service' servicio.codigo %}" class='item-list-sp'>{{ servicio.codigo_muestra }}</a> {% if servicio.responsable == '' %}{% if  servicio.editor_sample_code == None %} <a href="{% url 'lims:edit_sample_code' servicio.codigo %}" title="Editar código de servicio"><i class="fa-solid fa-pen"></i></a>{% endif %}{% endif %}</td>
             <td class='item-list'  style="text-align: center;">{{ servicio.punto_de_muestreo }}</td>
             <form action="" method='POST'>

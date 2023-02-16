@@ -28,3 +28,4 @@ function close_add_service() {
     add_service_type.classList.add('inactive');
     main.style.opacity = '100%';
 }
+

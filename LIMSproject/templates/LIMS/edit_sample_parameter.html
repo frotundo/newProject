@@ -28,6 +28,17 @@
             <td class='item-input'>{% if parameter.fecha_de_terminado != None %}<input type='text' name="fecha_de_terminado" value='{{ parameter.fecha_de_terminado }}'id="" placeholder="" >{% else %}<input type='date' name="fecha_de_terminado" id="" placeholder="" >{% endif %}</td>
         </tr>
 
+        {% if verify %}
+        <tr>
+            <td class='item-add'><Label>Peso inicial</Label></td>
+            <td class='item-input'>{% if parameter.peso_inicial != None %}<input type='text' name="peso_inicial" value='{{ parameter.peso_inicial }}'id="" placeholder="" >{% else %}<input type='text' name="peso_inicial" id="" placeholder="" >{% endif %}</td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Peso final</Label></td>
+            <td class='item-input'>{% if parameter.peso_final != None %}<input type='text' name="peso_final" value='{{ parameter.peso_final }}'id="" placeholder="" >{% else %}<input type='text' name="peso_final" id="" placeholder="" >{% endif %}</td>
+        </tr>
+        {% else %}
         <tr>
             <td class='item-add'><Label>Resultado de analisis</Label></td>
             <td class='item-input'>{% if parameter.resultado != None %}<input type='text' name="resultado" value='{{ parameter.resultado }}'id="" placeholder="" >{% else %}<input type='text' name="resultado" id="" placeholder="" >{% endif %}</td>
@@ -37,6 +48,8 @@
             <td class='item-add'><Label>Factor de dilución</Label></td>
             <td class='item-input'>{% if parameter.factor_de_dilucion != None %}<input type='text' name="factor_de_dilucion" value='{{ parameter.factor_de_dilucion }}'id="" placeholder="" >{% else %}<input type='text' name="factor_de_dilucion" id="" placeholder="" >{% endif %}</td>
         </tr>
+        {% endif %}
+        
 
         <tr>
             <td class='item-add'><Label>Resultado final</Label></td>

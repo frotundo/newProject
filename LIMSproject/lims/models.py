@@ -234,15 +234,3 @@ class ParametroDeMuestraDescartada(models.Model):
 
     def __str__(self):
         return self.codigo_servicio
-
-
-class ETFA(models.Model):
-    """ETFA model."""
-
-    codigo = models.CharField(max_length=20, primary_key=True)
-    parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    creator_user = models.CharField(max_length=100)
-    
-    def __str__(self):
-        return self.codigo

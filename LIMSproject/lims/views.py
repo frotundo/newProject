@@ -33,8 +33,11 @@ def is_commercial(user):
 def is_income(user):
     return user.groups.filter(name='ingreso').exists()
 
+def is_income_or_coordinador(user):
+    return user.groups.filter(name='ingreso').exists() or user.groups.filter(name='coordinador').exists()
+
 def is_commercial_or_income(user):
-    return user.groups.filter(name='comercial').exists() or user.groups.filter(name='ingreso').exists()
+    return user.groups.filter(name='comercial').exists() or user.groups.filter(name='ingreso').exists() or user.groups.filter(name='coordinador').exists()
 
 def is_analyst(user):
     return user.groups.filter(name='analista').exists()
@@ -1184,8 +1187,30 @@ def clone_service(request, service_id):
     normas = models.NormaDeReferencia.objects.all()
     tipos_de_muestras = models.TipoDeMuestra.objects.all()
 
+    context = {
+        'service': service,
+        'proyectos': proyectos,
+        'parameters': parameters,
+        'rcas': rcas,
+        'normas': normas,
+        'sample_points': sample_points,
+        'tipos_de_muestras': tipos_de_muestras,
+    }
+
     if request.method == 'POST':
         proyecto = request.POST['proyecto']
+        project = models.Proyecto.objects.get(pk = proyecto)
+
+        parameters_cot = project.parametros_cotizados.all()
+        parameters_cot = [p.id for p  in parameters_cot]
+
+        def comprobador_de_parametros(parameters=parameters, parameters_cot= parameters_cot):
+            for p in parameters:
+                if p not in parameters_cot:
+                    return False
+                else: continue
+            return True
+
         punto_de_muestreo = request.POST['punto_de_muestreo']
         fecha_de_muestreo = request.POST['fecha_de_muestreo']
         observacion = request.POST['observacion']
@@ -1214,50 +1239,49 @@ def clone_service(request, service_id):
         elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
             codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
-        for sp in sample_points:
-            if int(punto_de_muestreo) == int(sp.id):   
-                models.Servicio.objects.create(
-                    codigo = codigo_de_servicio,
-                    codigo_muestra = codigo_generado, 
-                    proyecto_id = proyecto, 
-                    punto_de_muestreo = sp.nombre,
-                    tipo_de_muestra = service.tipo_de_muestra,
-                    fecha_de_muestreo = fecha_de_muestreo,
-                    observacion = observacion,
-                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                    fecha_de_contenedores = fecha_de_contenedores,
-                    norma_de_referencia = norma_de_referencia,
-                    rCA = rCA,
-                    etfa = service.etfa,
-                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+
+ 
+        if len(parameters_cot)==0 or comprobador_de_parametros():
+            for sp in sample_points:
+                if int(punto_de_muestreo) == int(sp.id):   
+                    models.Servicio.objects.create(
+                        codigo = codigo_de_servicio,
+                        codigo_muestra = codigo_generado, 
+                        proyecto_id = proyecto, 
+                        punto_de_muestreo = sp.nombre,
+                        tipo_de_muestra = service.tipo_de_muestra,
+                        fecha_de_muestreo = fecha_de_muestreo,
+                        observacion = observacion,
+                        fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                        fecha_de_contenedores = fecha_de_contenedores,
+                        norma_de_referencia = norma_de_referencia,
+                        rCA = rCA,
+                        etfa = service.etfa,
+                        muestreado_por_algoritmo = muestreado_por_algoritmo,
+                        creator_user = creator_user,
+                        cliente = service.cliente,
+                        created = datetime.now()
+                        )                    
+
+            for pid in parameters:
+                ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+                models.ParametroDeMuestra(
+                    servicio_id = codigo_de_servicio, 
+                    parametro_id= pid,
+                    ensayo= ensayo.codigo, 
+                    codigo_servicio= codigo_generado,
                     creator_user = creator_user,
-                    cliente = service.cliente,
                     created = datetime.now()
-                    )                    
+                    ).save()
 
-        for pid in parameters:
-            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
-            models.ParametroDeMuestra(
-                servicio_id = codigo_de_servicio, 
-                parametro_id= pid,
-                ensayo= ensayo.codigo, 
-                codigo_servicio= codigo_generado,
-                creator_user = creator_user,
-                created = datetime.now()
-                ).save()
+            return redirect('lims:project', service.proyecto_id)
 
-        return redirect('lims:project', service.proyecto_id)
+        else:
+            error = 'No se pudo clonar el servicio debido a que algún parámetro no se encuentra entre los cotizados para el proyecto seleccionado.'
+            context['error'] = error
 
-    return render(request, "LIMS/clone_service.html",{
-        'service': service,
-        'proyectos': proyectos,
-        'parameters': parameters,
-        'rcas': rcas,
-        'normas': normas,
-        'sample_points': sample_points,
-        'tipos_de_muestras': tipos_de_muestras,
-    })
+
+    return render(request, "LIMS/clone_service.html", context)
 
 
 @login_required
@@ -1427,7 +1451,7 @@ def add_service_parameter_etfa(request, service_id):
 
 
 @login_required
-@user_passes_test(is_lab, login_url='lims:index') #revisar*
+@user_passes_test(is_commercial_or_income, login_url='lims:index')
 def service(request, service_id):
     """Service view."""
 
@@ -1443,6 +1467,18 @@ def service(request, service_id):
     project = models.Proyecto.objects.get(pk=service.proyecto_id)
     user = request.user
     manager = user.groups.filter(name='manager').exists()
+    comercial = user.groups.filter(name='comercial').exists()
+    
+    def prog():
+        progreso = 0
+        for p in queryset_parameters:
+            if p.resultado_final!=None: 
+                progreso+=1
+        analizado = progreso
+        return analizado, (progreso/len(queryset_parameters))*100
+
+    analizado, progreso  = prog()
+
     return render(request, 'LIMS/service.html', {
         'service': service,
         'client': client,
@@ -1452,6 +1488,10 @@ def service(request, service_id):
         'norma': norma,
         'project': project,
         'manager': manager,
+        'progreso': progreso,
+        'total': len(queryset_parameters),
+        'analizado': analizado,
+        'comercial': comercial,
     })
 
  
@@ -1461,14 +1501,21 @@ def edit_sample_parameter(request,parameter_id):
     """Edit sample parameter model."""
     
     parametro = models.ParametroDeMuestra.objects.get(id=parameter_id)   
+    verify = 'GRV' in parametro.ensayo
     if request.method == 'POST':
         responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
         parametro.responsable_de_analisis= responsable
         parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
         parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
-        parametro.resultado = request.POST['resultado']
-        parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
-        parametro.resultado_final = request.POST['resultado_final']
+        
+        if verify:
+            parametro.peso_inicial = float(request.POST['peso_inicial'].replace(',','.'))
+            parametro.peso_final = float(request.POST['peso_final'].replace(',','.'))
+        else:
+            parametro.resultado = float(request.POST['resultado'].replace(',','.'))
+            parametro.factor_de_dilucion = float(request.POST['factor_de_dilucion'].replace(',','.'))
+        
+        parametro.resultado_final = float(request.POST['resultado_final'].replace(',','.'))
         parametro.creator_user = request.POST['creator_user']
         parametro.save()
         
@@ -1477,6 +1524,7 @@ def edit_sample_parameter(request,parameter_id):
     
     return render(request, 'LIMS/edit_sample_parameter.html', {
        'parameter': parametro,
+       'verify': verify,
     })
 
 
@@ -1528,9 +1576,9 @@ def service_parameters(request):
                 fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
                 parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
             else: parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
-            parametro.resultado = request.POST['resultado']
-            parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
-            parametro.resultado_final = request.POST['resultado_final']
+            parametro.resultado = float(request.POST['resultado'].replace(',','.'))
+            parametro.factor_de_dilucion = float(request.POST['factor_de_dilucion'].replace(',','.'))
+            parametro.resultado_final = float(request.POST['resultado_final'].replace(',','.'))
             parametro.save()
 
             return redirect('lims:service_parameters')
@@ -1613,9 +1661,9 @@ def service_parameters_filter(request):
                 fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
                 parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
             else: parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
-            parametro.peso_inicial = request.POST['peso_inicial']
-            parametro.peso_final = request.POST['peso_final']
-            parametro.resultado_final = request.POST['resultado_final']
+            parametro.peso_inicial = float(request.POST['peso_inicial'].replace(',','.'))
+            parametro.peso_final = float(request.POST['peso_final'].replace(',','.'))
+            parametro.resultado_final = float(request.POST['resultado_final'].replace(',','.'))
             parametro.save()
            
             return redirect('lims:service_parameters_filter')
@@ -1809,7 +1857,7 @@ def projects(request):
 
 
 @login_required
-@user_passes_test(is_income, login_url='lims:index')
+@user_passes_test(is_income_or_coordinador, login_url='lims:index')
 def services(request):
     """Services view."""
 
@@ -2070,7 +2118,6 @@ def batches(request):
     coordinador = user.groups.filter(name='coordinador').exists()
 
     if request.method == 'POST':
-        print(request.POST)
         text = request.POST['search_text']
         opcion = request.POST['opcion']
         if text=='' or opcion == '':

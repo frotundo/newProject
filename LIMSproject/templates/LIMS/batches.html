@@ -35,7 +35,7 @@
         </tr>
     
         {% for lote in lotes %}
-        <tr>
+        <tr class='row'>
             <td class='item-list-sp'><a  href="{% url 'lims:batch' lote.codigo %}" class='item-list-sp'>{{ lote.codigo }}</a></td>
             <td class='item-list-sp'>{{ lote.responsable_asignado }}</td>
             <td class='item-list-sp'>{{ lote.parametro }}</td>
@@ -62,3 +62,7 @@
 {% endif %}
 
 {% endblock content %}
+
+{% block extrajs %}
+
+{% endblock extrajs %}

@@ -107,7 +107,8 @@
         </table>
 
     </table>
-        
+    
+    {% if error %}<p class="error_client">{{ error }}</p>{% endif %}
 
     <button class='button-save' type="submit">Guardar</button>
 </form>

@@ -7,9 +7,21 @@
 
 {% block content %}
 <div class='title_contain' style="display: flex; justify-content: space-between;">
-    <h1 class="title">{{ service.codigo_muestra }} <a href="{% url 'lims:grafico' service.codigo_muestra %}" title="Progreso de los analisis"><i class="fa-solid fa-chart-column"></i></a></h1>
+    <h1 style='display: flex; justify-content: space-between;' class="title">{{ service.codigo_muestra }} 
+        {% for g in user.groups.all %}
+            {% if g.name == 'coordinador' %}
+                <div class="progress-bar" title="Barra de progreso de parámetros análizados" style="margin: auto 10px;">
+                    <div class="progress"> <p>{{ analizado }}/{{ total }} Parametros</p></div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </h1>
+      {% comment %} <h1 class="title">{{ service.codigo_muestra }} <a href="{% url 'lims:grafico' service.codigo_muestra %}" title="Progreso de los analisis"><i class="fa-solid fa-chart-column"></i></a></h1> {% endcomment %}
+    {% if comercial %}
     <a href="{% url 'lims:clone_service' service.codigo %}" title='Clonar servicio'><i class="fa-solid fa-copy"></i></a>
+    {% endif %}
 </div>
+<input style='display: none;'type="text" class="porcentaje" value={{ progreso }}>    
 
 
 <p class="p-service"><strong>Servicio ETFA: </strong> {% if service.etfa == True  %} SI {% else %} NO {% endif %}</p>
@@ -66,7 +78,7 @@
             </tr>
         
             {% for p in parameters %}
-                <tr class='btn-service'>
+                <tr class='btn-service row'>
                     <td class='item-list-2'><a href="{% url 'lims:edit_sample_parameter' p.id%}">
                         {% for i in parametros %}
                             {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
@@ -115,7 +127,14 @@
 {% endblock content %}
 
 {% block extrajs %}
-    <script src="{% static 'js/lims.js' %}"></script>
+    <script>
+        const barraProgreso = document.querySelector('.progress-bar');
+        const elementoProgreso = document.querySelector('.progress');
+        // const ancho = `${progreso}%`;
+        const ancho = document.querySelector('.porcentaje');
+        elementoProgreso.style.width = ancho.value + '%';
+    </script>
+
 {% endblock  %}
 
 

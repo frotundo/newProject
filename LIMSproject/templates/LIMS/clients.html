@@ -33,7 +33,7 @@
         </tr>
 
         {% for c in clients %}
-        <tr>
+        <tr class='row'>
             <td><a href="{% url 'lims:client' c.id %}" class='item-list item-list-a' style='display: block;
                 width: 180px;'>{{ c.titular }}</a></td>
             <td class='item-list'>{{ c.rut }}</td>

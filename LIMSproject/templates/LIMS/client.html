@@ -203,7 +203,7 @@
                 </tr>
             
                 {% for project in projects %}
-                    <tr>
+                    <tr class='row'>
                         <td class='item-list-sp'><a href="{% if project.cotizado %}{% url 'lims:project_cot' project.codigo %}{% else %}{% url 'lims:project' project.codigo %}{% endif %}" class='item-list-sp'>{{ project.codigo }}</a></td>
                         <td class='item-list-sp'>{{ project.nombre }}</td>
                     </tr>

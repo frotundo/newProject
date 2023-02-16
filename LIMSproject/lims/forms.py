@@ -26,13 +26,6 @@ class ParameterForm(forms.ModelForm):
 
         fields = '__all__'
 
-class ETFAForm(forms.ModelForm):
-
-    class Meta:
-
-        model = models.ETFA
-
-        fields = '__all__'
 
 class ServiceForm(forms.ModelForm):
     
