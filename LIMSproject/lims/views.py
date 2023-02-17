@@ -1,7 +1,7 @@
 """LIMS views."""
 # Djnago module
 from django.urls import reverse
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator
@@ -552,6 +552,25 @@ def normas_ref(request):
     page = request.GET.get('page')
     normas = paginator.get_page(page)
 
+    if request.method == 'POST':
+        if 'excel_file' in request.POST.keys():
+            if request.POST['excel_file'] == '':
+                pass
+        
+        elif request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+            print(df)
+
+            responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
+            
+            for index, row in df.iterrows():
+                if   models.NormaDeReferencia.objects.filter(norma=row['Norma']).exists():
+                    continue
+                else:
+                    models.NormaDeReferencia.objects.create(norma = row['Norma'], descripcion= row['Descripción'],creator_user = responsable_de_analisis)
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+        
     return render(request, 'LIMS/normas_ref.html',{
         'normas': normas,
     })
@@ -733,52 +752,25 @@ def parameters(request):
     '''Parameters view.'''
 
     metodos = models.Metodo.objects.all()
-    queryset_parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
-    paginator = Paginator(queryset_parameters, 35)
-    page = request.GET.get('page')
-    parameters = paginator.get_page(page)
+    queryset_parameters = models.ParametroEspecifico.objects.all().order_by('ensayo', 'codigo')
+   
     if request.method == 'POST':
         if 'search_text' in request.POST.keys():
             if request.POST['search_text'] == '' or request.POST['buscar'] == '':
                 queryset_parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
-                paginator = Paginator(queryset_parameters, 25)
-                page = request.GET.get('page')
-                parameters = paginator.get_page(page)
-                return render(request, 'LIMS/parameters.html',{
-                    'parameters': parameters,
-                    'metodos': metodos,
-                })
 
             if request.POST['buscar'] == 'ensayo':
                 queryset_parameters = models.ParametroEspecifico.objects.filter(ensayo__icontains=request.POST['search_text']).order_by('ensayo')
-                paginator = Paginator(queryset_parameters, 25)
-                page = request.GET.get('page')
-                parameters = paginator.get_page(page)
-                return render(request, 'LIMS/parameters.html',{
-                    'parameters': parameters,
-                    'metodos': metodos,
-                    })
 
             if request.POST['buscar'] == 'codigo':
                 queryset_parameters = models.ParametroEspecifico.objects.filter(codigo__icontains=request.POST['search_text']).order_by('ensayo')
-                paginator = Paginator(queryset_parameters, 25)
-                page = request.GET.get('page')
-                parameters = paginator.get_page(page)
-                return render(request, 'LIMS/parameters.html',{
-                    'parameters': parameters,
-                    'metodos': metodos,
-                    })
 
             if request.POST['buscar'] == 'metodo':
                 queryset_parameters = models.ParametroEspecifico.objects.filter(metodo__icontains=request.POST['search_text']).order_by('ensayo')
-                paginator = Paginator(queryset_parameters, 25)
-                page = request.GET.get('page')
-                parameters = paginator.get_page(page)
-                return render(request, 'LIMS/parameters.html',{
-                    'parameters': parameters,
-                    'metodos': metodos,
-                    })
-    
+                
+    paginator = Paginator(queryset_parameters, 35)
+    page = request.GET.get('page')
+    parameters = paginator.get_page(page)
     return render(request, 'LIMS/parameters.html', {
         'parameters': parameters,
         'metodos': metodos,
@@ -826,7 +818,7 @@ def samples_type(request):
     """Samples type view."""
 
     queryset_samples_type = models.TipoDeMuestra.objects.all().order_by('nombre')
-    paginator = Paginator(queryset_samples_type, 20)
+    paginator = Paginator(queryset_samples_type, 35)
     page = request.GET.get('page')
     samples_type = paginator.get_page(page)
     
@@ -897,7 +889,7 @@ def etfa(request):
     """ETFA view."""
 
     queryset_services = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('codigo_etfa')
-    paginator = Paginator(queryset_services, 20)
+    paginator = Paginator(queryset_services, 35)
     page = request.GET.get('page')
     services = paginator.get_page(page)
     
@@ -914,9 +906,6 @@ def add_etfa(request):
     parameters = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
     
     if request.method == 'POST':
-        # form = forms.ETFAForm(request.POST)
-        # if form.is_valid():
-        #     form.save()
         parametro = models.ParametroEspecifico.objects.get(id=request.POST['parametro'])
         parametro.codigo_etfa = request.POST['codigo']
         parametro.save()
@@ -2236,3 +2225,60 @@ def batch(request, batch_id):
         'service_parameter': service_parameters,
     })
 
+
+@login_required
+@user_passes_test(is_manager, login_url='lims:index')
+def base_importation(request):
+    if request.method == 'POST':
+        if 'excel_file' in request.POST.keys():
+            if request.POST['excel_file'] == '':
+                pass
+        
+        elif request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+
+            responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
+            for index, row in df.iterrows():
+                if models.TipoDeMuestra.objects.filter(nombre=row['Matriz']).exists():
+                    continue
+                else:
+                    models.TipoDeMuestra.objects.create(nombre=row['Matriz'], creator_user = responsable_de_analisis)
+
+            for index, row in df.iterrows():
+                if   models.Metodo.objects.filter(nombre=row['Código de Metodología']).exists():
+                    continue
+                else:
+                    models.Metodo.objects.create(nombre = row['Código de Metodología'], descripcion= row['Metodología'],creator_user = responsable_de_analisis)
+            
+            for index, row in df.iterrows():
+                if   models.ParametroEspecifico.objects.filter(codigo=row['Código de Parámetro']).exists():
+                    continue
+                else:
+                    if row['LDM']>=0: ldm = row['LDM']
+                    else: ldm = '-'
+                    
+                    if row['LCM']>=0: lcm = row['LCM']
+                    else: lcm = '-'
+
+                    if ldm != '-' and lcm != '-':
+                        ldm_str = str(ldm)
+                        int_part, dec_part = ldm_str.split('.')
+                        lcm = round(lcm, len(dec_part))
+
+
+                    models.ParametroEspecifico.objects.create(
+                        ensayo = row['Parámetro'] , 
+                        codigo= row['Código de Parámetro'], 
+                        metodo = row['Código de Metodología'],
+                        LDM = ldm,
+                        LCM = lcm,
+                        unidad = row['Unidad'],
+                        tipo_de_muestra = row['Matriz'],
+                        codigo_etfa = row['Código Autorización ETFA'],
+                        acreditado = row['Acreditado'],
+                        creator_user = responsable_de_analisis)
+
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+    return render(request, 'LIMS/base_importation.html')

@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">Importación base</h1>
+</div>
+
+<div class='import'>
+    <form action="" method="post" enctype="multipart/form-data" class='import-form'>
+        {% csrf_token %}
+        <input type="file" name="excel_file" id="">
+        <input style='display:none;' type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly>
+        <button type="submit">Importar</button>
+    </form>
+</div>
+
+{% endblock content %}

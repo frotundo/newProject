@@ -41,11 +41,12 @@
 {% if project.cotizado %}
 {% else %}
 <h3>Envases</h3>
-<p class='p-service'>{{ service.envases }}</p>
+<p class='p-service'>{% if service.envases == None %}{% else %}{{ service.envases }}{% endif %}</p>
 {% endif %}
 
 <h3>Observación</h3>
 <p class='p-service'>{{ service.observacion }}</p>
+
 
 <h3>Norma de referencia</h3>
 <p class='p-service'>{{ norma.norma }}</p>

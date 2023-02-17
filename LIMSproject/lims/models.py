@@ -47,6 +47,7 @@ class NormaDeReferencia(models.Model):
     """Reference standard model."""
     
     norma = models.CharField(max_length=254, unique=True)
+    descripcion =models.CharField(max_length=254, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -112,8 +113,10 @@ class ParametroEspecifico(models.Model):
     unidad = models.CharField(max_length=20, null=True, blank=True)
     tipo_de_muestra = models.CharField(max_length=100)
     codigo_etfa = models.CharField(max_length=20, null=True, blank=True)
+    acreditado = models.CharField(max_length=20, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
+
 
     def __str__(self):
         return self.ensayo

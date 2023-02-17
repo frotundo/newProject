@@ -55,4 +55,5 @@ urlpatterns = [
     path('export_data_project/<str:project_id>/', views.export_data_project_to_excel, name='export_data_project'),
     path('project_client/<str:project_id>/', views.project_client, name="project_client"),
     path('grafico/<str:service_id>/', views.grafico, name='grafico'),
+    path('base_importation/', views.base_importation, name="base_importation"),
     ]

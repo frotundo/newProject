@@ -15,11 +15,13 @@
     <table>
         <tr>
             <td class='item-list title-item-list'>Norma</td>
+            <td class='item-list title-item-list'>Descripción</td>
         </tr>
     
         {% for norma in normas %}
         <tr>
             <td class='item-list'>{{ norma.norma }}</td>
+            <td class='item-list'>{{ norma.descripcion }}</td>
         </tr>
         {% endfor %}
     </table>
