@@ -59,7 +59,7 @@
         {% for service_parameter in service_parameters %}
         <tr class='row'>    
             <td class='item-list'>{{ service_parameter.codigo_servicio }}</td>
-            <td class='item-list'>{{ service_parameter.ensayo }}</td>
+            <td class='item-list'>{{ service_parameter.ensayo }} {% if service_parameter.analisis_externos == True %} <span style='color: red;'>(AE)</span> {% endif %}</td>
             <form action="" method='POST'>
                 {% csrf_token %}
                 {% if service_parameter.resultado_final != None %}

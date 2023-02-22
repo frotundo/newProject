@@ -70,6 +70,7 @@ class RCACliente(models.Model):
 class Envase(models.Model):
     """ Envase model."""
 
+    codigo = models.CharField(primary_key=True, max_length=15)
     nombre = models.CharField(max_length=100)
     volumen = models.CharField(max_length=10)
     material = models.CharField(max_length=100)
@@ -78,7 +79,21 @@ class Envase(models.Model):
     creator_user = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.nombre
+        return self.codigo
+
+# class Envase(models.Model):
+#     """ Envase model."""
+
+#     codigo = models.CharField(primary_key=True, max_length=15)
+#     nombre = models.CharField(max_length=100)
+#     volumen = models.CharField(max_length=10)
+#     material = models.CharField(max_length=100)
+#     preservante = models.CharField(max_length=254)
+#     created = models.DateTimeField(auto_now_add=True)
+#     creator_user = models.CharField(max_length=100)
+
+#     def __str__(self):
+#         return self.nombre
 
 
 class Metodo(models.Model):
@@ -114,6 +129,7 @@ class ParametroEspecifico(models.Model):
     tipo_de_muestra = models.CharField(max_length=100)
     codigo_etfa = models.CharField(max_length=20, null=True, blank=True)
     acreditado = models.CharField(max_length=20, null=True, blank=True)
+    envase = models.ForeignKey(Envase, on_delete=models.PROTECT, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -143,6 +159,7 @@ class Proyecto(models.Model):
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.PROTECT)
     parametros_cotizados = models.ManyToManyField(ParametroEspecifico)
     cotizado = models.BooleanField(null=True, blank=True,) 
+    tipo_de_muestra = models.CharField(max_length=100, null=True, blank=True)
     etfa = models.BooleanField(null=True, blank=True,) 
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
@@ -198,6 +215,7 @@ class ParametroDeMuestra(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.PROTECT, null=True, blank=True)
     codigo_servicio = models.CharField(max_length=100)
     parametro = models.ForeignKey(ParametroEspecifico, on_delete=models.CASCADE)
+    analisis_externos = models.BooleanField(default=False)
     responsable_de_analisis = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
     fecha_de_inicio = models.DateTimeField(null=True, blank=True,)
     fecha_de_terminado = models.DateTimeField(null=True, blank=True,)

@@ -135,3 +135,9 @@ Ten en cuenta que esta es solo una configuración básica y puede variar según 
     # user = request.user
     # groups = user.groups.all()
     # print(groups)
+print('Hola mundo')
+
+from math import ceil
+
+print(ceil(9.9))
+print(ceil(1.1))

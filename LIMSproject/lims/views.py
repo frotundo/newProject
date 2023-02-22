@@ -10,6 +10,7 @@ from django.db.models import Q
 from . import models, forms
 from datetime import datetime
 from workdays import workday
+from math import ceil
 
 # Pandas module
 import pandas as pd
@@ -82,19 +83,12 @@ def clients(request):
 
     if request.method == 'POST':
         if request.POST['search_text'] == '' or request.POST['opcion'] == '':
-            context = {
-                'clients': clients,
-                }
-            return render_view(request, template, context)
+            pass
         elif request.POST['opcion'] == 'titular':
             clientes = models.Cliente.objects.filter(titular__icontains = request.POST['search_text']).order_by('titular')
             paginator = Paginator(clientes, 25)
             page = request.GET.get('page')
             clients = paginator.get_page(page)
-            context = {
-                'clients': clients,
-                }
-            return render_view(request, template, context)
 
 
         elif request.POST['opcion'] == 'rut':
@@ -102,10 +96,6 @@ def clients(request):
             paginator = Paginator(clientes, 25)
             page = request.GET.get('page')
             clients = paginator.get_page(page)
-            context = {
-                'clients': clients,
-                }
-            return render_view(request, template, context)
     
     
     context = {
@@ -127,7 +117,7 @@ def add_client(request):
         try:
             models.Cliente.objects.create(
                 titular=titular, 
-                rut=rut, 
+                rut=rut.replace('-','').replace('.','').replace(',',''), 
                 direccion=direccion, 
                 actividad=actividad, 
                 creator_user=usuario
@@ -191,17 +181,18 @@ def client_add_legal_representative(request, id_cliente):
     """Client add legal representative view."""
 
     template = 'LIMS/client_add_legal_representative.html'
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
     if request.method == 'POST':
         if 'contact-number' in request.POST.keys():
             if request.POST['contact-number'] != None:
                 pm = [x for x in range(int(request.POST['contact-number']))]
                 len_pm = len(pm)
-                context = {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    }
                 if len_pm != 1:
-                    return render_view(request, template, context)
+                    context['pm'] = pm
+                    context['len_pm'] = len_pm
         else:
             todo = []
             for valor in request.POST.values():
@@ -232,18 +223,10 @@ def client_add_legal_representative(request, id_cliente):
                     error_duplicados = f'El RUT {duplicados[0]}, ya se encuentra en la base de datos.'
                 else:
                     error_duplicados = f'Los RUT: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
-                context = {
-                    'pm':[0],
-                    'len_pm': 1,
-                    'error_duplicados': error_duplicados,
-                }
-                return render_view(request, template, context)
+                context['error_duplicados'] = error_duplicados
             else:
                 return redirect('lims:client', id_cliente)
-    context = {
-        'pm':[0],
-        'len_pm': 1,
-    }
+    
     return render_view(request, template, context )
 
 
@@ -252,16 +235,19 @@ def client_add_legal_representative(request, id_cliente):
 def client_add_contact(request, id_cliente):
     """Client add contact view."""
 
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
+
     if request.method == 'POST':
         if 'contact-number' in request.POST.keys():
             if request.POST['contact-number'] != None:
                 pm = [x for x in range(int(request.POST['contact-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'LIMS/client_add_contact.html', {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    })
+                    context['pm'] = pm
+                    context['len_pm'] = len_pm
         else:
             todo = []
             for valor in request.POST.values():
@@ -293,17 +279,11 @@ def client_add_contact(request, id_cliente):
                 else:
                     error_duplicados = f'Los RUT: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
 
-                return render(request, 'LIMS/client_add_contact.html', {
-                    'pm':[0],
-                    'len_pm': 1,
-                    'error_duplicados': error_duplicados,
-                })
+                context[error_duplicados] = error_duplicados
+
             else:
                 return redirect('lims:client', id_cliente)
-    return render(request, 'LIMS/client_add_contact.html', {
-        'pm':[0],
-        'len_pm': 1,
-    })
+    return render(request, 'LIMS/client_add_contact.html', context)
 
 
 @login_required
@@ -311,16 +291,19 @@ def client_add_contact(request, id_cliente):
 def client_add_sample_point(request, id_cliente):
     '''Client add sample point view.'''
 
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
+
     if request.method == 'POST':
         if 'sp-number' in request.POST.keys():
             if request.POST['sp-number'] != None:
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'LIMS/client_add_sample_point.html', {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    })
+                    context['pm'] = pm
+                    context['len_pm'] = len_pm
         else:
             todo = []
             for valor in request.POST.values():
@@ -348,18 +331,13 @@ def client_add_sample_point(request, id_cliente):
                     error_duplicados = f'El punto de muestreo {duplicados[0]}, ya se encuentra en la base de datos.'
                 else:
                     error_duplicados = f'Los puntos de muestreo: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
-                return render(request, 'LIMS/client_add_sample_point.html', {
-                    'pm':[0],
-                    'len_pm': 1,
-                    'error_duplicados': error_duplicados,
-                })
+                
+                context['error_duplicados'] = error_duplicados
+
             else:        
                 return redirect('lims:client', id_cliente)
 
-    return render(request, 'LIMS/client_add_sample_point.html', {
-        'pm':[0],
-        'len_pm': 1,
-    })
+    return render(request, 'LIMS/client_add_sample_point.html', context)
 
 
 @login_required
@@ -367,16 +345,19 @@ def client_add_sample_point(request, id_cliente):
 def client_add_rca(request, id_cliente):
     '''Client add RCA view.'''
 
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
+
     if request.method == 'POST':
         if 'sp-number' in request.POST.keys():
             if request.POST['sp-number'] != None:
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'LIMS/client_add_rca.html', {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    })
+                    context['pm'] = pm
+                    context['len_pm']= len_pm
         else:
             todo = []
             for valor in request.POST.values():
@@ -404,18 +385,13 @@ def client_add_rca(request, id_cliente):
                     error_duplicados = f'El RCA {duplicados[0]}, ya se encuentra en la base de datos.'
                 else:
                     error_duplicados = f'Los RCA: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
-                return render(request, 'LIMS/add_normas_ref.html', {
-                    'pm':[0],
-                    'len_pm': 1,
-                    'error_duplicados': error_duplicados,
-                })
+                
+                context['error_duplicados'] = error_duplicados
+
             else:
                 return redirect('lims:client', id_cliente)
 
-    return render(request, 'LIMS/client_add_rca.html', {
-        'pm':[0],
-        'len_pm': 1,
-    })
+    return render(request, 'LIMS/client_add_rca.html', context)
 
 
 @login_required
@@ -429,6 +405,14 @@ def client_add_project(request, id_cliente):
     normas = models.NormaDeReferencia.objects.all()
     matrices = models.TipoDeMuestra.objects.all()
     
+    context = {
+        'sample_points' : sample_points,
+        'rcas': rcas,
+        'normas': normas,
+        'matrices': matrices,
+        'cliente': cliente,
+    }
+
     if request.method == 'POST':
         client = request.POST['cliente']
         codigo = request.POST['codigo']
@@ -443,23 +427,9 @@ def client_add_project(request, id_cliente):
 
             return redirect('lims:client', id_cliente)
         except:
-            error = "El Codigo de Proyecto ya existe."
-            return render(request, 'LIMS/client_add_project.html', {
-                'sample_points' : sample_points,
-                'rcas': rcas,
-                'normas': normas,
-                'matrices': matrices,
-                'cliente': cliente,
-                'error_client': error,
-            })
+            context['error'] = "El Codigo de Proyecto ya existe."
     
-    return render(request, 'LIMS/client_add_project.html', {
-        'sample_points' : sample_points,
-        'rcas': rcas,
-        'normas': normas,
-        'matrices': matrices,
-        'cliente': cliente,
-    })
+    return render(request, 'LIMS/client_add_project.html', context)
 
 
 @login_required
@@ -468,38 +438,50 @@ def client_add_project_cot(request, id_cliente):
     """Add Standards of reference view."""
 
     cliente = models.Cliente.objects.get(id=id_cliente)
-    parameters = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
+    parameters = models.ParametroEspecifico.objects.filter(Q(codigo_etfa = None)|Q(codigo_etfa = 'nan')).order_by('ensayo')
+    tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
+    tipo_muestra = ''
     
-    if request.method == 'POST':
-        client = request.POST['cliente']
-        codigo = request.POST['codigo']
-        nombre = request.POST['nombre']
-        creator_user = request.POST['creator_user']
-        parametros = request.POST.getlist('parameters')
-        
-        try:
-            project = models.Proyecto.objects.create(
-                codigo=codigo, 
-                nombre=nombre, 
-                creator_user=creator_user,
-                cliente_id=client, 
-                cotizado=True,
-                )
-            
-            project.parametros_cotizados.set(parametros)
-
-            return redirect('lims:client', id_cliente)
-        except:
-            error = "El Codigo de Proyecto ya existe."
-            return render(request, 'LIMS/client_add_project_cot.html', {
-                'cliente': cliente,
-                'parameters': parameters,
-                'error_client': error,
-            })
-    return render(request, 'LIMS/client_add_project_cot.html', {
+    context = {
         'cliente': cliente,
         'parameters': parameters,
-    })
+        'tipo_de_muestra': tipo_muestra,
+        'tipos_de_muestras': tipo_de_muestra,
+    }
+
+    if request.method == 'POST':
+        if 'tipo_muestra' in request.POST:
+            tipo_de_muestra = models.TipoDeMuestra.objects.filter(nombre= request.POST['tipo_muestra']).order_by('nombre')
+            tipo_muestra = request.POST['tipo_muestra']
+            parameters = parameters.filter(tipo_de_muestra= tipo_muestra).order_by('codigo')
+            context['tipos_de_muestras'] = tipo_de_muestra
+            context['tipo_de_muestra'] = tipo_muestra
+            context['parameters']= parameters
+        else:
+            client = request.POST['cliente']
+            codigo = request.POST['codigo']
+            nombre = request.POST['nombre']
+            tipodemuestra = request.POST['tipodemuestra']
+            creator_user = request.POST['creator_user']
+            parametros = request.POST.getlist('parameters')
+            
+            try:
+                project = models.Proyecto.objects.create(
+                    codigo=codigo, 
+                    nombre=nombre, 
+                    tipo_de_muestra = tipodemuestra,
+                    creator_user=creator_user,
+                    cliente_id=client, 
+                    cotizado=True,
+                    )
+                
+                project.parametros_cotizados.set(parametros)
+
+                return redirect('lims:client', id_cliente)
+            except:
+                context['error'] = "El Codigo de Proyecto ya existe."
+
+    return render(request, 'LIMS/client_add_project_cot.html', context)
 
 
 @login_required
@@ -508,38 +490,50 @@ def client_add_project_cot_etfa(request, id_cliente):
     """Add Standards of reference view."""
 
     cliente = models.Cliente.objects.get(id=id_cliente)
-    parameters = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
+    parameters = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa = None)|Q(codigo_etfa = 'nan')).order_by('ensayo')
+    tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
+    tipo_muestra = ''
     
-    if request.method == 'POST':
-        client = request.POST['cliente']
-        codigo = request.POST['codigo']
-        nombre = request.POST['nombre']
-        creator_user = request.POST['creator_user']
-        parametros = request.POST.getlist('parameters')
-        try:
-            project = models.Proyecto.objects.create(
-                codigo=codigo, 
-                nombre=nombre, 
-                creator_user=creator_user,
-                cliente_id=client, 
-                cotizado=True,
-                etfa=True
-                )
-            
-            project.parametros_cotizados.set(parametros)
-
-            return redirect('lims:client', id_cliente)
-        except:
-            error = "El Codigo de Proyecto ya existe."
-            return render(request, 'LIMS/client_add_project_cot_etfa.html', {
-                'cliente': cliente,
-                'parameters': parameters,
-                'error_client': error,
-            })
-    return render(request, 'LIMS/client_add_project_cot_etfa.html', {
+    context = {
         'cliente': cliente,
         'parameters': parameters,
-    })
+        'tipo_de_muestra': tipo_muestra,
+        'tipos_de_muestras': tipo_de_muestra,
+    }
+
+    if request.method == 'POST':
+        if 'tipo_muestra' in request.POST:
+            tipo_de_muestra = models.TipoDeMuestra.objects.filter(nombre= request.POST['tipo_muestra']).order_by('nombre')
+            tipo_muestra = request.POST['tipo_muestra']
+            parameters = parameters.filter(tipo_de_muestra= tipo_muestra).order_by('codigo')
+            context['tipos_de_muestras'] = tipo_de_muestra
+            context['tipo_de_muestra'] = tipo_muestra
+            context['parameters']= parameters
+        else:
+            client = request.POST['cliente']
+            codigo = request.POST['codigo']
+            nombre = request.POST['nombre']
+            tipodemuestra = request.POST['tipodemuestra']
+            creator_user = request.POST['creator_user']
+            parametros = request.POST.getlist('parameters')
+            try:
+                project = models.Proyecto.objects.create(
+                    codigo=codigo, 
+                    nombre=nombre, 
+                    creator_user=creator_user,
+                    tipo_de_muestra = tipodemuestra,
+                    cliente_id=client, 
+                    cotizado=True,
+                    etfa=True
+                    )
+                
+                project.parametros_cotizados.set(parametros)
+
+                return redirect('lims:client', id_cliente)
+            except:
+                context['error'] = "El Codigo de Proyecto ya existe."
+
+    return render(request, 'LIMS/client_add_project_cot_etfa.html', context)
 
 
 @login_required
@@ -581,16 +575,19 @@ def normas_ref(request):
 def add_normas_ref(request):
     """Add Standards of reference view."""
 
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
+
     if request.method == 'POST':
         if 'sp-number' in request.POST.keys():
             if request.POST['sp-number'] != None:
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'LIMS/add_normas_ref.html', {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    })
+                    context['pm'] = pm
+                    context['len_pm'] = len_pm
         else:
             todo = []
             for valor in request.POST.values():
@@ -617,18 +614,11 @@ def add_normas_ref(request):
                     error_duplicados = f'La norma {duplicados[0]}, ya se encuentra en la base de datos.'
                 else:
                     error_duplicados = f'Las normas: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
-                return render(request, 'LIMS/add_normas_ref.html', {
-                    'pm':[0],
-                    'len_pm': 1,
-                    'error_duplicados': error_duplicados,
-                })
+                context['error_duplicados'] = error_duplicados
             else:
                 return redirect('lims:normas_ref')
 
-    return render(request, 'LIMS/add_normas_ref.html', {
-        'pm':[0],
-        'len_pm': 1,
-    })
+    return render(request, 'LIMS/add_normas_ref.html', context)
 
 
 @login_required
@@ -651,16 +641,19 @@ def methods(request):
 def add_method(request):
     """Add method view."""
 
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
+
     if request.method == 'POST':
         if 'sp-number' in request.POST.keys():
             if request.POST['sp-number'] != None:
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'LIMS/add_method.html', {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    })
+                    context['pm'] = pm
+                    context['len_pm'] = len_pm
         else:
             todo = []
             for valor in request.POST.values():
@@ -692,19 +685,13 @@ def add_method(request):
                 else:
                     error_duplicados = f'Los métodos: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
 
-                return render(request, 'LIMS/add_method.html', {
-                    'pm':[0],
-                    'len_pm': 1,
-                    'error_duplicados': error_duplicados,
-                })
+                context['error_duplicados'] = error_duplicados
+
             else:
                 return redirect('lims:methods')
 
     
-    return render(request, 'LIMS/add_method.html', {
-        'pm':[0],
-        'len_pm': 1,
-    })
+    return render(request, 'LIMS/add_method.html', context)
 
 
 @login_required
@@ -717,6 +704,37 @@ def containers(request):
     page = request.GET.get('page')
     envases = paginator.get_page(page)
     
+    if request.method == 'POST':
+        if 'excel_file' in request.POST.keys():
+            if request.POST['excel_file'] == '':
+                pass
+        
+        elif request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+            print(df)
+
+            responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
+            
+            for index, row in df.iterrows():
+                if   models.Envase.objects.filter(codigo=row['Código Envase']).exists():
+                    continue
+                else:
+                    if type(row['Preservante']) == str: preservante = row['Preservante']
+                    else: preservante = '-'
+
+                    if type(row['Volumen']) == str: volumen = row['Volumen']
+                    else: volumen = '-'
+
+                    models.Envase.objects.create(
+                        codigo = row['Código Envase'], 
+                        nombre= row['Descripción'],
+                        volumen = volumen,
+                        material = row['Material'],
+                        preservante = preservante,
+                        creator_user = responsable_de_analisis)
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
     return render(request, 'LIMS/containers.html',{
         'envases': envases,
     })
@@ -784,6 +802,12 @@ def add_parameter(request):
 
     metodos = models.Metodo.objects.all()
     tipos_de_muestras = models.TipoDeMuestra.objects.all()
+    
+    context = {
+        'metodos': metodos,
+        'tipos_de_muestras': tipos_de_muestras,
+    }
+
     if request.method == 'POST':
         ensayo = request.POST['ensayo']
         codigo = request.POST['codigo']
@@ -799,16 +823,9 @@ def add_parameter(request):
             return redirect('lims:parameters')
         except:
             error = 'EL código del parametro ya existe.'
-            return render(request, 'LIMS/add_parameter.html',{
-                'metodos': metodos,
-                'tipos_de_muestras': tipos_de_muestras,
-                'error_parameter': error,
-            })
+            context['error'] = error
 
-    return render(request, 'LIMS/add_parameter.html',{
-        'metodos': metodos,
-        'tipos_de_muestras': tipos_de_muestras,
-    })
+    return render(request, 'LIMS/add_parameter.html', context)
     
 
 
@@ -832,16 +849,19 @@ def samples_type(request):
 def add_sample_type(request):
     """Add Standards of reference view."""
 
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
+
     if request.method == 'POST':
         if 'sp-number' in request.POST.keys():
             if request.POST['sp-number'] != None:
                 pm = [x for x in range(int(request.POST['sp-number']))]
                 len_pm = len(pm)
                 if len_pm != 1:
-                    return render(request, 'LIMS/add_sample_type.html', {
-                    'pm':pm,
-                    'len_pm': len_pm,
-                    })
+                    context['pm'] = pm
+                    context['len_pm']: len_pm
         else:
             todo = []
             for valor in request.POST.values():
@@ -869,18 +889,13 @@ def add_sample_type(request):
                     error_duplicados = f'El tipo de muestra {duplicados[0]}, ya se encuentra en la base de datos.'
                 else:
                     error_duplicados = f'Los tipos de muestra: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
-                return render(request, 'LIMS/add_sample_type.html', {
-                    'pm':[0],
-                    'len_pm': 1,
-                    'error_duplicados': error_duplicados,
-                })
+                
+                context['error_duplicados'] = error_duplicados
+            
             else:
                 return redirect('lims:samples_type')
 
-    return render(request, 'LIMS/add_sample_type.html', {
-        'pm':[0],
-        'len_pm': 1,
-    })
+    return render(request, 'LIMS/add_sample_type.html', context)
 
 
 @login_required
@@ -888,7 +903,7 @@ def add_sample_type(request):
 def etfa(request):
     """ETFA view."""
 
-    queryset_services = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('codigo_etfa')
+    queryset_services = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('codigo_etfa')
     paginator = Paginator(queryset_services, 35)
     page = request.GET.get('page')
     services = paginator.get_page(page)
@@ -987,84 +1002,685 @@ def add_service(request, project_id):
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
-    parametros = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
+    tipo_muestra = ''
+    parametros = models.ParametroEspecifico.objects.filter(Q(codigo_etfa = 'nan') | Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('ensayo')
+    parametros_externos = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa='Cálculo') | Q(codigo_etfa='Cálculo-E')).order_by('ensayo')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
     if request.method == 'POST':
-        proyecto = request.POST['proyecto']
-        cliente = request.POST['cliente']
-        punto_de_muestreo = request.POST['punto_de_muestreo']
-        tipo_de_muestra = request.POST['tipo_de_muestra']
-        fecha_de_muestreo = request.POST['fecha_de_muestreo']
-        observacion = request.POST['observacion']
-        habiles = request.POST['habiles']
-        fecha_de_contenedores = request.POST['fecha_de_contenedores']
-        norma_de_referencia = request.POST['norma_de_referencia']
-        rCA = request.POST['rCA']
-        etfa = False
-        muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
-        creator_user = request.POST['creator_user']
-        parameters = request.POST.getlist('parameters')
-        
-        fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
-        fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
-        current_year = datetime.now().year
-        current_year = str(current_year)[2:]
-        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
 
-        if models.Servicio.objects.exists()==False:
-            codigo_de_servicio = ('1').zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
-        elif last_service.codigo_muestra[-2:] != current_year: 
-            codigo_central = ('1').zfill(5)
-            codigo_generado = f'{codigo_central}-{current_year}'
-        
-        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
-        for sp in sample_points:
-            if int(punto_de_muestreo) == int(sp.id):   
-                models.Servicio.objects.create(
-                    codigo = codigo_de_servicio,
-                    codigo_muestra = codigo_generado, 
-                    proyecto_id = proyecto, 
-                    punto_de_muestreo = sp.nombre,
-                    tipo_de_muestra = tipo_de_muestra,
-                    fecha_de_muestreo = fecha_de_muestreo,
-                    observacion = observacion,
-                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                    fecha_de_contenedores = fecha_de_contenedores,
-                    norma_de_referencia = norma_de_referencia,
-                    rCA = rCA,
-                    etfa = etfa,
-                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+        if 'tipo_muestra' in request.POST:
+            tipo_de_muestra = models.TipoDeMuestra.objects.filter(nombre= request.POST['tipo_muestra']).order_by('nombre')
+            tipo_muestra = request.POST['tipo_muestra']
+            print(tipo_muestra)
+            parametros = parametros.filter(tipo_de_muestra= tipo_muestra)
+        else:
+            proyecto = request.POST['proyecto']
+            cliente = request.POST['cliente']
+            punto_de_muestreo = request.POST['punto_de_muestreo']
+            tipo_de_muestra = request.POST['tipo_de_muestra']
+            fecha_de_muestreo = request.POST['fecha_de_muestreo']
+            observacion = request.POST['observacion']
+            habiles = request.POST['habiles']
+            fecha_de_contenedores = request.POST['fecha_de_contenedores']
+            norma_de_referencia = request.POST['norma_de_referencia']
+            rCA = request.POST['rCA']
+            etfa = False
+            muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
+            creator_user = request.POST['creator_user']
+            parameters = request.POST.getlist('parameters')
+            parameters_analisis_externos = request.POST.getlist('analisis_externos')
+            
+            def anex_param(p):
+                if p not in parameters and p not in parameters_analisis_externos:
+                    parameters.append(p)
+                return parameters
+            
+            def anex_param_ext(p):
+                if p not in parameters and p not in parameters_analisis_externos:
+                    parameters_analisis_externos.append(p)
+                return parameters_analisis_externos
+
+            def anex_param2(p, p2):
+                if p not in parameters and p2 not in parameters and p not in parameters_analisis_externos and p2 not in parameters_analisis_externos:
+                            parameters.append(p)
+            
+            for p in parameters:
+                parametro = models.ParametroEspecifico.objects.get(pk= p).codigo
+                if 'HCT' in parametro:
+                    if 'AFI-HCT'==parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='AFI-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='AFI-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                        
+                    
+                    elif 'AP-HCT'==parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='AP-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='AP-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'AR-HCT' == parametro:
+                        HCF = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-NCH-GRV').id)
+                        HCF2 = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-GRV').id)
+                        HCV = models.ParametroEspecifico.objects.get(codigo='AR-HCV')
+                        anex_param2(p=HCF, p2=HCF2)
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'SUB-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='SUB-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='SUB-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'SUP-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='SUP-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='SUP-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                            print('interno')
+                        else: 
+                            anex_param_ext(str(HCV.id))
+                            print('externo')
+                        
+                    
+                    elif 'L-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='L-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='L-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'SD-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='SD-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='SD-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'S-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='S-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='S-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                
+                elif 'DDD+DDE+DDT' in parametro:
+                    if 'AP-DDD+DDE+DDT'==parametro:
+                        DDD = str(models.ParametroEspecifico.objects.get(codigo='AP-DDD-ME').id)
+                        DDE = str(models.ParametroEspecifico.objects.get(codigo='AP-DDE-ME').id)
+                        DDT = str(models.ParametroEspecifico.objects.get(codigo='AP-DDT-ME').id)
+                        anex_param(DDD)
+                        anex_param(DDE)
+                        anex_param(DDT)
+                    
+                    elif 'FC-DDD+DDE+DDT'==parametro:
+                        DDD = str(models.ParametroEspecifico.objects.get(codigo='FC-DDD-ME').id)
+                        DDE = str(models.ParametroEspecifico.objects.get(codigo='FC-DDE-ME').id)
+                        DDT = str(models.ParametroEspecifico.objects.get(codigo='FC-DDT-ME').id)
+                        anex_param(DDD)
+                        anex_param(DDE)
+                        anex_param(DDT)
+                    
+                elif 'THM' in parametro:
+                    if 'AFI-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AFI-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AFI-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AFI-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AFI-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'AP-THM-ME'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-ME').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-ME').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-ME').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-ME').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'AP-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'AR-THM-SM'==parametro:
+                        BROMODICL_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-BROMODICL-NCH').id)
+                        BROMODICL_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-BROMODICL-SM').id)
+                        DIBROMOCL_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-DIBROMOCL-NCH').id)
+                        DIBROMOCL_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-DIBROMOCL-SM').id)
+                        TRIBROM_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-NCH').id)
+                        TRIBROM_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AR-TRICLOR-SM').id)
+                        anex_param2(p=BROMODICL_SM, p2=BROMODICL_NCH)
+                        anex_param(p=DIBROMOCL_SM, p2=DIBROMOCL_NCH)
+                        anex_param(p=TRIBROM_SM, p2=TRIBROM_NCH)
+                        anex_param(TRICLOR)
+                    
+                    elif 'SUB-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='SUB-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='SUB-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='SUB-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='SUB-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'SUP-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='SUP-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='SUP-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='SUP-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='SUP-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'FC-THM-ME'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='FC-BROMODICL-ME').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='FC-DIBROMOCL-ME').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='FC-TRIBROM-ME').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='FC-TRICLOR-ME').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                
+                elif 'LANGELIER' in parametro:
+                    if 'SUP-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUP-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='SUP-PH-SM').id)                       
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='AFI-SDT-SM').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param(PH)
+                        anex_param(SDT)
+                    
+                    elif 'SUB-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUB-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='SUB-PH-SM').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='SUB-SDT-SM-GRV').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param(PH)
+                        anex_param(SDT)
+                    
+                    elif 'AR-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AR-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='AR-PH-SM').id)
+                        PH2 = str(models.ParametroEspecifico.objects.get(codigo='AR-PH-NCH').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='AR-SDT-GRV').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param2(p=PH, p2=PH2)
+                        anex_param(SDT)
+
+                    elif 'AP-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AP-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-SM').id)
+                        PH2 = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-ME').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-SM-GRV').id)
+                        SDT2 = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-ME-GRV').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param2(p=PH, p2=PH2)
+                        anex_param2(p=SDT, p2=SDT2)
+
+                    elif 'AFI-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AFI-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='AFI-PH-SM').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param(PH)
+                        anex_param(SDT)
+
+
+                elif 'NT' in parametro:
+                    if 'AFI-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='AFI-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='AFI-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='AFI-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                    
+                    elif 'AP-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='AP-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='AP-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='AP-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                    
+                    elif 'AR-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='AR-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='AR-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='AR-NKT-SM').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                    
+                    elif 'SUB-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='SUB-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='SUB-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='SUB-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'SUP-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='SUP-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='SUP-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='SUP-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'S-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='S-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='S-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='S-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'L-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='L-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='L-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='L-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'SD-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='SD-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='SD-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='SD-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                
+                elif 'RAS' in parametro:
+                    if 'AP-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                    elif 'AR-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                    elif 'SUB-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                    elif 'SUP-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                elif 'NA100' in parametro:
+                    if 'AP-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1').id)
+                        K = str(models.ParametroEspecifico.objects.get(codigo='AP-K-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                    elif 'AR-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1').id) 
+                        K = str(models.ParametroEspecifico.objects.get(codigo='AR-K-ICP1').id)                      
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                    elif 'SUB-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1').id)
+                        K = str(models.ParametroEspecifico.objects.get(codigo='SUB-K-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                    elif 'SUP-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1').id) 
+                        K = str(models.ParametroEspecifico.objects.get(codigo='SUP-K-ICP1').id)                      
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                elif 'DUREZA-T' in parametro:
+                    if 'AFI-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AFI-MG-AAS').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+                    
+                    elif 'AP-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+
+                    elif 'AR-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+                    
+                    elif 'SUB-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+
+                    elif 'SUP-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+
+            par_x_env = {}
+            P_1L_HNO3 = 0
+            P_1L_HNO3_F = 0 
+            P_1L_NAOH = 0 
+            P_1L_SP = 0
+            P_1L_SP1 = 0
+            P_1L_SP2 = 0
+            P_250_EST = 0
+            P_250_EST1 = 0
+            P_250_EST2 = 0 
+            P_500_H2SO4 = 0
+            P_500_NAOH = 0
+            V_1L_HCL = 0
+            V_1L_HCL_ASC = 0
+            V_1L_HCL_ASC1 = 0
+            V_1L_HCL_ASC2 = 0
+            V_500_H2SO4 = 0
+            V_500_SP = 0
+            VA_1L_TIOSUL1= 0
+            VA_1L_TIOSUL2= 0
+            VA_1L_TIOSUL = 0
+            VA_1L_SP = 0
+            B_PLAS = 0
+            P_1L_PEROX = 0
+            P_1L_BA_SP = 0
+
+            for p in parameters:
+                param = models.ParametroEspecifico.objects.get(pk=p).envase
+                if param == models.Envase.objects.get(codigo='V-1L-HCL'):
+                    V_1L_HCL +=1
+                elif param == models.Envase.objects.get(codigo='VA-1L-SP'):
+                    VA_1L_SP = 1
+                elif param == models.Envase.objects.get(codigo='B-PLAS'):
+                    B_PLAS = 1
+                elif param == models.Envase.objects.get(codigo='P-1L-NAOH'):
+                    P_1L_NAOH = 1
+                elif param == models.Envase.objects.get(codigo='P-500-H2SO4'):
+                    P_500_H2SO4 = 1
+                elif param == models.Envase.objects.get(codigo='V-500-SP'):
+                    V_500_SP = 1
+                elif param == models.Envase.objects.get(codigo='P-500-NAOH'):
+                    P_500_NAOH = 1
+                elif param == models.Envase.objects.get(codigo='V-500-H2SO4'):
+                    V_500_H2SO4 = 1
+                elif param == models.Envase.objects.get(codigo='VA-1L-TIOSUL'):
+                    if '2,4D' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'PENTACL' not in models.ParametroEspecifico.objects.get(pk=p).codigo :
+                        VA_1L_TIOSUL1 = 1
+                elif '2,4D' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'PENTACL' in models.ParametroEspecifico.objects.get(pk=p).codigo :
+                    VA_1L_TIOSUL2 = 1
+                elif param == models.Envase.objects.get(codigo='P-250-EST'):
+                    if 'HETEROT' not in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                        P_250_EST1 = 1
+                elif 'HETEROT' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_250_EST2 = 1
+                elif param == models.Envase.objects.get(codigo='P-1L-SP'):
+                    if 'SDT' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SF' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SSD' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SST' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'ST' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SV' not in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                        if 'BROMURO' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'PO4-CI' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'CL-CI' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'F-CI' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'NO3-CI' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'NO2-CI' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SO4-CI' not in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                            P_1L_SP1 = 1
+                        else: P_1L_SP2 = 1
+                elif 'SDT' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                elif 'SF' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                elif 'SSD' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 2
+                elif 'SST' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                elif 'ST' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                elif 'SV' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+
+                elif param == models.Envase.objects.get(codigo='P-1L-HNO3-F'):
+                    P_1L_HNO3_F += 0.1
+
+                elif param == models.Envase.objects.get(codigo='P-1L-HNO3'):
+                    P_1L_HNO3 += 0.1
+                
+                elif param == models.Envase.objects.get(codigo='V-1L-HCL+ASC'):
+                    if 'BENCE' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'ETILBEN' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'XILENO' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TOLUENO' in models.ParametroEspecifico.objects.get(pk=p).codigo:  
+                        V_1L_HCL_ASC1 = 1
+                    if 'BROMODICL' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'DIBROMOCL' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TETRACL' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TRIBROM' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TRICLOR' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'THM' in models.ParametroEspecifico.objects.get(pk=p).codigo:  
+                        V_1L_HCL_ASC2 = 1
+            
+            if P_1L_HNO3>0: 
+                par_x_env['P-1L-HNO3'] = str(ceil(P_1L_HNO3)) + (' Envases' if P_1L_HNO3>1 else ' Envase')  + ' de plástico - 1 L - HNO3 \n' 
+            
+            if P_1L_HNO3_F>0: 
+                par_x_env['P-1L-HNO3-F'] = str(ceil(P_1L_HNO3_F)) + (' Envases' if P_1L_HNO3_F>1 else ' Envase') + ' de plástico - 1 L - HNO3 - Filtrada \n'
+            
+            if P_1L_NAOH>0:
+                par_x_env['P-1L-NAOH'] = str(P_1L_NAOH) + ' Envase de plástico - 1 L - NaOH \n'
+            
+            P_1L_SP = P_1L_SP + P_1L_SP1 + P_1L_SP2
+            if P_1L_SP>0: 
+                par_x_env['P-1L-SP']  = str(P_1L_SP) + (' Envases' if P_1L_SP>1 else ' Envase') + ' de plástico - 1 L - S/P \n'
+            
+            P_250_EST = P_250_EST1 + P_250_EST2
+            if P_250_EST>0: 
+                par_x_env['P-250-EST'] = str(P_250_EST) + (' Envases' if P_250_EST>1 else 'Envase') + ' de plástico - 250 mL - Estéril - Na2S2O3 + EDTA \n'
+            
+            if P_500_H2SO4>0: 
+                par_x_env['P-500-H2SO4'] = str(P_500_H2SO4) + (' Envases' if P_500_H2SO4>1 else 'Envase') + ' de plástico - 500 mL - H2SO4 \n'
+            
+            if P_500_NAOH>0:
+                par_x_env['P-500-NAOH']= str(P_500_NAOH) + ' Envase de plástico - 500 mL - NaOH + ZnAc \n'
+
+            if V_1L_HCL>0: 
+                par_x_env['V-1L-HCL']= str(V_1L_HCL) + (' Envases' if V_1L_HCL>1 else ' Envase') + ' de vidrio - 1 L - HCl \n'
+            
+            V_1L_HCL_ASC = V_1L_HCL_ASC1 + V_1L_HCL_ASC2
+            if V_1L_HCL_ASC>0: 
+                par_x_env['V-1L-HCL+ASC']= str(V_1L_HCL_ASC) + (' Envases' if V_1L_HCL_ASC>1 else 'Envase') + ' de vidrio - 1 L - HCl + Ác. Ascórbico \n' 
+            
+            if V_500_H2SO4>0: 
+                par_x_env['V-500-SP']= str(V_500_H2SO4) + (' Envases' if V_500_H2SO4>1 else ' Envase') + ' de vidrio - 500 mL - H2SO4 \n' 
+            
+            if V_500_SP>0: 
+                par_x_env['V-500-SP']= str(V_500_SP) + (' Envases' if V_500_SP>1 else ' Envase') + ' de vidrio - 500 mL - S/P \n' 
+
+            VA_1L_TIOSUL = VA_1L_TIOSUL1 + VA_1L_TIOSUL2
+            if VA_1L_TIOSUL>0: 
+                par_x_env['VA-1L-TIOSUL'] = str(VA_1L_TIOSUL) + (' Envases' if VA_1L_TIOSUL>1 else ' Envase') + ' de vidrio ámbar - 1 L - Na2S2O3 \n'
+
+            if VA_1L_SP>0: 
+                par_x_env['VA-1L-SP'] = str(VA_1L_SP) + ' Envase de vidrio ámbar - 1 L \n'
+            
+            if B_PLAS>0: 
+                par_x_env['B-PLAS']= str(B_PLAS) + (' Bolsas' if B_PLAS>1 else ' Bolsa') + ' plástica'
+            
+            if P_1L_PEROX>0: 
+                par_x_env['P-1L-PEROX'] = P_1L_PEROX
+            
+            if P_1L_BA_SP>0: 
+                par_x_env['P-1L-BA-SP'] = str(P_1L_BA_SP) + (' Envases' if VA_1L_TIOSUL>1 else 'Envase') + ' de plástico boca ancha - 1 L - S/P'
+            
+            envases = ''
+            for envase in par_x_env.values():
+                envases += envase
+
+            fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
+            fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
+            current_year = datetime.now().year
+            current_year = str(current_year)[2:]
+
+            if models.Servicio.objects.exists()==False:
+                codigo_de_servicio = ('1').zfill(5)
+                codigo_generado = f'{codigo_de_servicio}-{current_year}'
+            if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+                last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+
+                if last_service.codigo_muestra[-2:] != current_year: 
+                    codigo_central = ('1').zfill(5)
+                    codigo_generado = f'{codigo_central}-{current_year}'
+                
+                elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+                    codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                    codigo_generado = f'{codigo_de_servicio}-{current_year}'
+            
+            for sp in sample_points:
+                if int(punto_de_muestreo) == int(sp.id):   
+                    models.Servicio.objects.create(
+                        codigo = codigo_de_servicio,
+                        codigo_muestra = codigo_generado, 
+                        proyecto_id = proyecto, 
+                        punto_de_muestreo = sp.nombre,
+                        tipo_de_muestra = tipo_de_muestra,
+                        fecha_de_muestreo = fecha_de_muestreo,
+                        observacion = observacion,
+                        fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                        fecha_de_contenedores = fecha_de_contenedores,
+                        norma_de_referencia = norma_de_referencia,
+                        rCA = rCA,
+                        etfa = etfa,
+                        envases = envases,
+                        muestreado_por_algoritmo = muestreado_por_algoritmo,
+                        creator_user = creator_user,
+                        cliente = cliente,
+                        created = datetime.now()
+                        )                    
+
+            for pid in parameters:
+                ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+                models.ParametroDeMuestra.objects.create(
+                    servicio_id = codigo_de_servicio, 
+                    parametro_id= pid,
+                    ensayo= ensayo.codigo, 
+                    codigo_servicio= codigo_generado,
                     creator_user = creator_user,
-                    cliente = cliente,
                     created = datetime.now()
-                    )                    
+                    )
 
-        for pid in parameters:
-            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
-            models.ParametroDeMuestra(
-                servicio_id = codigo_de_servicio, 
-                parametro_id= pid,
-                ensayo= ensayo.codigo, 
-                codigo_servicio= codigo_generado,
-                creator_user = creator_user,
-                created = datetime.now()
-                ).save()
-
-        return redirect('lims:project', project_id)
+            return redirect('lims:project', project_id)
         
     return render(request, 'LIMS/add_service.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
         'rcas': rcas,
+        'tipo_de_muestra': tipo_muestra,
         'tipos_de_muestras': tipo_de_muestra,
         'parameters': parametros,
+        'parameters_externos': parametros_externos,
         'normas': normas,
     })
 
@@ -1079,85 +1695,709 @@ def add_service_etfa(request, project_id):
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
-    parametros = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
+    tipo_muestra = ''
+    parametros = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa = 'nan') | Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('ensayo')
+    parametros_externos = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa='Cálculo') | Q(codigo_etfa='Cálculo-E')).order_by('ensayo')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
-    
+                        
+
     if request.method == 'POST':
-        proyecto = request.POST['proyecto']
-        cliente = request.POST['cliente']
-        punto_de_muestreo = request.POST['punto_de_muestreo']
-        tipo_de_muestra = request.POST['tipo_de_muestra']
-        fecha_de_muestreo = request.POST['fecha_de_muestreo']
-        observacion = request.POST['observacion']
-        habiles = request.POST['habiles']
-        fecha_de_contenedores = request.POST['fecha_de_contenedores']
-        norma_de_referencia = request.POST['norma_de_referencia']
-        rCA = request.POST['rCA']
-        etfa = True
-        muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
-        creator_user = request.POST['creator_user']
-        parameters = request.POST.getlist('parameters')
-        
-        fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
-        fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
-        current_year = datetime.now().year
-        current_year = str(current_year)[2:]
 
-        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+        if 'tipo_muestra' in request.POST:
+            tipo_de_muestra = models.TipoDeMuestra.objects.filter(nombre= request.POST['tipo_muestra']).order_by('nombre')
+            tipo_muestra = request.POST['tipo_muestra']
+            parametros = parametros.filter(tipo_de_muestra= tipo_muestra).order_by('codigo')
+            parametros_externos = parametros_externos.filter(tipo_de_muestra= tipo_muestra).order_by('codigo')
+        else:
+            proyecto = request.POST['proyecto']
+            cliente = request.POST['cliente']
+            punto_de_muestreo = request.POST['punto_de_muestreo']
+            tipo_de_muestra = request.POST['tipo_de_muestra']
+            fecha_de_muestreo = request.POST['fecha_de_muestreo']
+            observacion = request.POST['observacion']
+            habiles = request.POST['habiles']
+            fecha_de_contenedores = request.POST['fecha_de_contenedores']
+            norma_de_referencia = request.POST['norma_de_referencia']
+            rCA = request.POST['rCA']
+            etfa = True
+            muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
+            creator_user = request.POST['creator_user']
+            parameters = request.POST.getlist('parameters')
+            parameters_analisis_externos = request.POST.getlist('analisis_externos')
+            
+            def anex_param(p):
+                if p not in parameters and p not in parameters_analisis_externos:
+                    parameters.append(p)
+                return parameters
+            
+            def anex_param_ext(p):
+                if p not in parameters and p not in parameters_analisis_externos:
+                    parameters_analisis_externos.append(p)
+                return parameters_analisis_externos
+            
+            def anex_param2(p, p2):
+                if p not in parameters and p2 not in parameters and p not in parameters_analisis_externos and p2 not in parameters_analisis_externos:
+                            parameters.append(p)
+            
+            for p in parameters:
+                parametro = models.ParametroEspecifico.objects.get(pk= p).codigo
+                if 'HCT' in parametro:
+                    if 'AFI-HCT'==parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='AFI-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='AFI-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                        
+                    
+                    elif 'AP-HCT'==parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='AP-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='AP-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'AR-HCT' == parametro:
+                        HCF = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-NCH-GRV').id)
+                        HCF2 = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-GRV').id)
+                        HCV = models.ParametroEspecifico.objects.get(codigo='AR-HCV')
+                        anex_param2(p=HCF, p2=HCF2)
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'SUB-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='SUB-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='SUB-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'SUP-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='SUP-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='SUP-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                            print('interno')
+                        else: 
+                            anex_param_ext(str(HCV.id))
+                            print('externo')
+                        
+                    
+                    elif 'L-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='L-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='L-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'SD-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='SD-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='SD-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                    
+                    elif 'S-HCT' == parametro:
+                        HCF = models.ParametroEspecifico.objects.get(codigo='S-HCF-GRV')
+                        HCV = models.ParametroEspecifico.objects.get(codigo='S-HCV')
+                        if HCF.codigo_etfa!='nan' and HCF.codigo_etfa!=None:
+                            anex_param(str(HCF.id))
+                        else: anex_param_ext(str(HCF.id))
+                        if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
+                            anex_param(str(HCV.id))
+                        else: anex_param_ext(str(HCV.id))
+                
+                elif 'DDD+DDE+DDT' in parametro:
+                    if 'AP-DDD+DDE+DDT'==parametro:
+                        DDD = str(models.ParametroEspecifico.objects.get(codigo='AP-DDD-ME').id)
+                        DDE = str(models.ParametroEspecifico.objects.get(codigo='AP-DDE-ME').id)
+                        DDT = str(models.ParametroEspecifico.objects.get(codigo='AP-DDT-ME').id)
+                        anex_param(DDD)
+                        anex_param(DDE)
+                        anex_param(DDT)
+                    
+                    elif 'FC-DDD+DDE+DDT'==parametro:
+                        DDD = str(models.ParametroEspecifico.objects.get(codigo='FC-DDD-ME').id)
+                        DDE = str(models.ParametroEspecifico.objects.get(codigo='FC-DDE-ME').id)
+                        DDT = str(models.ParametroEspecifico.objects.get(codigo='FC-DDT-ME').id)
+                        anex_param(DDD)
+                        anex_param(DDE)
+                        anex_param(DDT)
+                    
+                elif 'THM' in parametro:
+                    if 'AFI-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AFI-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AFI-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AFI-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AFI-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'AP-THM-ME'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-ME').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-ME').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-ME').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-ME').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'AP-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'AR-THM-SM'==parametro:
+                        BROMODICL_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-BROMODICL-NCH').id)
+                        BROMODICL_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-BROMODICL-SM').id)
+                        DIBROMOCL_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-DIBROMOCL-NCH').id)
+                        DIBROMOCL_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-DIBROMOCL-SM').id)
+                        TRIBROM_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-NCH').id)
+                        TRIBROM_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AR-TRICLOR-SM').id)
+                        anex_param2(p=BROMODICL_SM, p2=BROMODICL_NCH)
+                        anex_param(p=DIBROMOCL_SM, p2=DIBROMOCL_NCH)
+                        anex_param(p=TRIBROM_SM, p2=TRIBROM_NCH)
+                        anex_param(TRICLOR)
+                    
+                    elif 'SUB-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='SUB-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='SUB-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='SUB-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='SUB-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'SUP-THM-SM'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='SUP-BROMODICL-SM').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='SUP-DIBROMOCL-SM').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='SUP-TRIBROM-SM').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='SUP-TRICLOR-SM').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                    
+                    elif 'FC-THM-ME'==parametro:
+                        BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='FC-BROMODICL-ME').id)
+                        DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='FC-DIBROMOCL-ME').id)
+                        TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='FC-TRIBROM-ME').id)
+                        TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='FC-TRICLOR-ME').id)
+                        anex_param(BROMODICL)
+                        anex_param(DIBROMOCL)
+                        anex_param(TRIBROM)
+                        anex_param(TRICLOR)
+                
+                elif 'LANGELIER' in parametro:
+                    if 'SUP-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUP-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='SUP-PH-SM').id)                       
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='AFI-SDT-SM').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param(PH)
+                        anex_param(SDT)
+                    
+                    elif 'SUB-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUB-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='SUB-PH-SM').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='SUB-SDT-SM-GRV').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param(PH)
+                        anex_param(SDT)
+                    
+                    elif 'AR-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AR-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='AR-PH-SM').id)
+                        PH2 = str(models.ParametroEspecifico.objects.get(codigo='AR-PH-NCH').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='AR-SDT-GRV').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param2(p=PH, p2=PH2)
+                        anex_param(SDT)
 
-        if models.Servicio.objects.exists()==False:
-            codigo_de_servicio = ('1').zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
-        elif last_service.codigo_muestra[-2:] != current_year: 
-            codigo_central = ('1').zfill(5)
-            codigo_generado = f'{codigo_central}-{current_year}'
-        
-        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
-        for sp in sample_points:
-            if int(punto_de_muestreo) == int(sp.id):   
-                models.Servicio.objects.create(
-                    codigo = codigo_de_servicio,
-                    codigo_muestra = codigo_generado, 
-                    proyecto_id = proyecto, 
-                    punto_de_muestreo = sp.nombre,
-                    tipo_de_muestra = tipo_de_muestra,
-                    fecha_de_muestreo = fecha_de_muestreo,
-                    observacion = observacion,
-                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                    fecha_de_contenedores = fecha_de_contenedores,
-                    norma_de_referencia = norma_de_referencia,
-                    rCA = rCA,
-                    etfa = etfa,
-                    muestreado_por_algoritmo = muestreado_por_algoritmo,
+                    elif 'AP-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AP-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-SM').id)
+                        PH2 = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-ME').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-SM-GRV').id)
+                        SDT2 = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-ME-GRV').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param2(p=PH, p2=PH2)
+                        anex_param2(p=SDT, p2=SDT2)
+
+                    elif 'AFI-LANGELIER'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS').id)
+                        ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AFI-ALCAL-T').id)
+                        DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA').id)
+                        PH = str(models.ParametroEspecifico.objects.get(codigo='AFI-PH-SM').id)
+                        SDT = str(models.ParametroEspecifico.objects.get(codigo='').id)
+                        anex_param(CA)
+                        anex_param(ALCAL)
+                        anex_param(DUREZA)
+                        anex_param(PH)
+                        anex_param(SDT)
+
+                elif 'NT' in parametro:
+                    if 'AFI-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='AFI-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='AFI-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='AFI-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                    
+                    elif 'AP-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='AP-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='AP-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='AP-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                    
+                    elif 'AR-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='AR-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='AR-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='AR-NKT-SM').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                    
+                    elif 'SUB-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='SUB-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='SUB-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='SUB-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'SUP-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='SUP-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='SUP-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='SUP-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'S-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='S-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='S-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='S-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'L-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='L-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='L-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='L-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+
+                    elif 'SD-NT'==parametro:
+                        NO3 = str(models.ParametroEspecifico.objects.get(codigo='SD-NO3-CI').id)
+                        NO2 = str(models.ParametroEspecifico.objects.get(codigo='SD-NO2-CI').id)
+                        NKT = str(models.ParametroEspecifico.objects.get(codigo='SD-NKT').id)                       
+                        anex_param(NO3)
+                        anex_param(NO2)
+                        anex_param(NKT)
+                
+                elif 'RAS' in parametro:
+                    if 'AP-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                    elif 'AR-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                    elif 'SUB-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                    elif 'SUP-RAS'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+
+                elif 'NA100' in parametro:
+                    if 'AP-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1').id)
+                        K = str(models.ParametroEspecifico.objects.get(codigo='AP-K-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                    elif 'AR-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1').id) 
+                        K = str(models.ParametroEspecifico.objects.get(codigo='AR-K-ICP1').id)                      
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                    elif 'SUB-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1').id)
+                        K = str(models.ParametroEspecifico.objects.get(codigo='SUB-K-ICP1').id)                       
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                    elif 'SUP-NA100'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
+                        NA = str(models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1').id) 
+                        K = str(models.ParametroEspecifico.objects.get(codigo='SUP-K-ICP1').id)                      
+                        anex_param(CA)
+                        anex_param(MG)
+                        anex_param(NA)
+                        anex_param(K)
+
+                elif 'DUREZA-T' in parametro:
+                    if 'AFI-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AFI-MG-AAS').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+                    
+                    elif 'AP-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+
+                    elif 'AR-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+                    
+                    elif 'SUB-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+
+                    elif 'SUP-DUREZA-T'==parametro:
+                        CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
+                        DCA = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA').id)
+                        MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
+                        DMG = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-MG').id)                      
+                        anex_param(CA)
+                        anex_param(DCA)
+                        anex_param(MG)
+                        anex_param(DMG)
+                    
+            print(parameters)
+            print(parameters_analisis_externos)
+            
+            par_x_env = {}
+            P_1L_HNO3 = 0
+            P_1L_HNO3_F = 0 
+            P_1L_NAOH = 0 
+            P_1L_SP = 0
+            P_1L_SP1 = 0
+            P_1L_SP2 = 0
+            P_250_EST = 0
+            P_250_EST1 = 0
+            P_250_EST2 = 0 
+            P_500_H2SO4 = 0
+            P_500_NAOH = 0
+            V_1L_HCL = 0
+            V_1L_HCL_ASC = 0
+            V_1L_HCL_ASC1 = 0
+            V_1L_HCL_ASC2 = 0
+            V_500_H2SO4 = 0
+            V_500_SP = 0
+            VA_1L_TIOSUL1= 0
+            VA_1L_TIOSUL2= 0
+            VA_1L_TIOSUL = 0
+            VA_1L_SP = 0
+            B_PLAS = 0
+            P_1L_PEROX = 0
+            P_1L_BA_SP = 0
+
+            for p in parameters:
+                param = models.ParametroEspecifico.objects.get(pk=p).envase
+                if param == models.Envase.objects.get(codigo='V-1L-HCL'):
+                    V_1L_HCL +=1
+                elif param == models.Envase.objects.get(codigo='VA-1L-SP'):
+                    VA_1L_SP = 1
+                elif param == models.Envase.objects.get(codigo='B-PLAS'):
+                    B_PLAS = 1
+                elif param == models.Envase.objects.get(codigo='P-1L-NAOH'):
+                    P_1L_NAOH = 1
+                elif param == models.Envase.objects.get(codigo='P-500-H2SO4'):
+                    P_500_H2SO4 = 1
+                elif param == models.Envase.objects.get(codigo='V-500-SP'):
+                    V_500_SP = 1
+                elif param == models.Envase.objects.get(codigo='P-500-NAOH'):
+                    P_500_NAOH = 1
+                elif param == models.Envase.objects.get(codigo='V-500-H2SO4'):
+                    V_500_H2SO4 = 1
+                elif param == models.Envase.objects.get(codigo='VA-1L-TIOSUL'):
+                    if '2,4D' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'PENTACL' not in models.ParametroEspecifico.objects.get(pk=p).codigo :
+                        VA_1L_TIOSUL1 = 1
+                elif '2,4D' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'PENTACL' in models.ParametroEspecifico.objects.get(pk=p).codigo :
+                    VA_1L_TIOSUL2 = 1
+                elif param == models.Envase.objects.get(codigo='P-250-EST'):
+                    if 'HETEROT' not in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                        P_250_EST1 = 1
+                elif 'HETEROT' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_250_EST2 = 1
+                
+                elif 'SDT' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                    print('SDT')
+                elif 'SF' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                elif 'SSD' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 2
+                elif 'SST' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                    print('SST')
+                elif 'ST' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                    print('ST')
+                elif 'SV' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                    P_1L_SP += 1
+                elif param == models.Envase.objects.get(codigo='P-1L-SP'):
+                    if 'SDT' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SF' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SSD' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SST' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'ST' not in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SV' not in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                        if 'BROMURO' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'PO4-CI' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'CL-CI' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'F-CI' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'NO3-CI' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'NO2-CI' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'SO4-CI' in models.ParametroEspecifico.objects.get(pk=p).codigo:
+                            P_1L_SP1 = 1 
+                            print('if')
+                        else: 
+                            P_1L_SP2 = 1
+                            print('else')
+                elif param == models.Envase.objects.get(codigo='P-1L-HNO3-F'):
+                    P_1L_HNO3_F += 0.1
+
+                elif param == models.Envase.objects.get(codigo='P-1L-HNO3'):
+                    P_1L_HNO3 += 0.1
+                
+                elif param == models.Envase.objects.get(codigo='V-1L-HCL+ASC'):
+                    if 'BENCE' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'ETILBEN' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'XILENO' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TOLUENO' in models.ParametroEspecifico.objects.get(pk=p).codigo:  
+                        V_1L_HCL_ASC1 = 1
+                    if 'BROMODICL' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'DIBROMOCL' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TETRACL' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TRIBROM' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'TRICLOR' in models.ParametroEspecifico.objects.get(pk=p).codigo or 'THM' in models.ParametroEspecifico.objects.get(pk=p).codigo:  
+                        V_1L_HCL_ASC2 = 1
+            
+            if P_1L_HNO3>0: 
+                par_x_env['P-1L-HNO3'] = str(ceil(P_1L_HNO3)) + (' Envases' if P_1L_HNO3>1 else ' Envase')  + ' de plástico - 1 L - HNO3 \n' 
+            
+            if P_1L_HNO3_F>0: 
+                par_x_env['P-1L-HNO3-F'] = str(ceil(P_1L_HNO3_F)) + (' Envases' if P_1L_HNO3_F>1 else ' Envase') + ' de plástico - 1 L - HNO3 - Filtrada \n'
+            
+            if P_1L_NAOH>0:
+                par_x_env['P-1L-NAOH'] = str(P_1L_NAOH) + ' Envase de plástico - 1 L - NaOH \n'
+            
+            P_1L_SP = P_1L_SP + P_1L_SP1 + P_1L_SP2
+            if P_1L_SP>0: 
+                par_x_env['P-1L-SP']  = str(P_1L_SP) + (' Envases' if P_1L_SP>1 else ' Envase') + ' de plástico - 1 L - S/P \n'
+            
+            P_250_EST = P_250_EST1 + P_250_EST2
+            if P_250_EST>0: 
+                par_x_env['P-250-EST'] = str(P_250_EST) + (' Envases' if P_250_EST>1 else 'Envase') + ' de plástico - 250 mL - Estéril - Na2S2O3 + EDTA \n'
+            
+            if P_500_H2SO4>0: 
+                par_x_env['P-500-H2SO4'] = str(P_500_H2SO4) + (' Envases' if P_500_H2SO4>1 else 'Envase') + ' de plástico - 500 mL - H2SO4 \n'
+            
+            if P_500_NAOH>0:
+                par_x_env['P-500-NAOH']= str(P_500_NAOH) + ' Envase de plástico - 500 mL - NaOH + ZnAc \n'
+
+            if V_1L_HCL>0: 
+                par_x_env['V-1L-HCL']= str(V_1L_HCL) + (' Envases' if V_1L_HCL>1 else ' Envase') + ' de vidrio - 1 L - HCl \n'
+            
+            V_1L_HCL_ASC = V_1L_HCL_ASC1 + V_1L_HCL_ASC2
+            if V_1L_HCL_ASC>0: 
+                par_x_env['V-1L-HCL+ASC']= str(V_1L_HCL_ASC) + (' Envases' if V_1L_HCL_ASC>1 else 'Envase') + ' de vidrio - 1 L - HCl + Ác. Ascórbico \n' 
+            
+            if V_500_H2SO4>0: 
+                par_x_env['V-500-SP']= str(V_500_H2SO4) + (' Envases' if V_500_H2SO4>1 else ' Envase') + ' de vidrio - 500 mL - H2SO4 \n' 
+            
+            if V_500_SP>0: 
+                par_x_env['V-500-SP']= str(V_500_SP) + (' Envases' if V_500_SP>1 else ' Envase') + ' de vidrio - 500 mL - S/P \n' 
+
+            VA_1L_TIOSUL = VA_1L_TIOSUL1 + VA_1L_TIOSUL2
+            if VA_1L_TIOSUL>0: 
+                par_x_env['VA-1L-TIOSUL'] = str(VA_1L_TIOSUL) + (' Envases' if VA_1L_TIOSUL>1 else ' Envase') + ' de vidrio ámbar - 1 L - Na2S2O3 \n'
+
+            if VA_1L_SP>0: 
+                par_x_env['VA-1L-SP'] = str(VA_1L_SP) + ' Envase de vidrio ámbar - 1 L \n'
+            
+            if B_PLAS>0: 
+                par_x_env['B-PLAS']= str(B_PLAS) + (' Bolsas' if B_PLAS>1 else ' Bolsa') + ' plástica'
+            
+            if P_1L_PEROX>0: 
+                par_x_env['P-1L-PEROX'] = P_1L_PEROX
+            
+            if P_1L_BA_SP>0: 
+                par_x_env['P-1L-BA-SP'] = str(P_1L_BA_SP) + (' Envases' if VA_1L_TIOSUL>1 else 'Envase') + ' de plástico boca ancha - 1 L - S/P'
+            
+            envases = ''
+            for envase in par_x_env.values():
+                envases += envase
+
+            fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
+            fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
+            current_year = datetime.now().year
+            current_year = str(current_year)[2:]
+
+
+            if models.Servicio.objects.exists()==False:
+                codigo_de_servicio = ('1').zfill(5)
+                codigo_generado = f'{codigo_de_servicio}-{current_year}'
+            
+            if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+                last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+
+                if last_service.codigo_muestra[-2:] != current_year: 
+                    codigo_central = ('1').zfill(5)
+                    codigo_generado = f'{codigo_central}-{current_year}'
+                
+                elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+                    codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                    codigo_generado = f'{codigo_de_servicio}-{current_year}'
+            
+            for sp in sample_points:
+                if int(punto_de_muestreo) == int(sp.id):   
+                    models.Servicio.objects.create(
+                        codigo = codigo_de_servicio,
+                        codigo_muestra = codigo_generado, 
+                        proyecto_id = proyecto, 
+                        punto_de_muestreo = sp.nombre,
+                        tipo_de_muestra = tipo_de_muestra,
+                        fecha_de_muestreo = fecha_de_muestreo,
+                        observacion = observacion,
+                        fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                        fecha_de_contenedores = fecha_de_contenedores,
+                        norma_de_referencia = norma_de_referencia,
+                        rCA = rCA,
+                        etfa = etfa,
+                        envases = envases,
+                        muestreado_por_algoritmo = muestreado_por_algoritmo,
+                        creator_user = creator_user,
+                        cliente = cliente,
+                        created = datetime.now()
+                        )                    
+
+            for pid in parameters:
+                ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+                models.ParametroDeMuestra.objects.create(
+                    servicio_id = codigo_de_servicio, 
+                    parametro_id= pid,
+                    ensayo= ensayo.codigo, 
+                    codigo_servicio= codigo_generado,
                     creator_user = creator_user,
-                    cliente = cliente,
                     created = datetime.now()
-                    )                    
+                    )
+            
+            if len(parameters_analisis_externos)>0:
+                for pid in parameters_analisis_externos:
+                    ensayo = models.ParametroEspecifico.objects.get(pk=pid)
+                    models.ParametroDeMuestra.objects.create(
+                        servicio_id = codigo_de_servicio, 
+                        parametro_id= pid,
+                        ensayo= ensayo.codigo, 
+                        codigo_servicio= codigo_generado,
+                        analisis_externos = True,
+                        creator_user = creator_user,
+                        created = datetime.now()
+                        )
 
-        for pid in parameters:
-            ensayo = models.ParametroEspecifico.objects.get(pk=pid)
-            models.ParametroDeMuestra(
-                servicio_id = codigo_de_servicio, 
-                parametro_id= pid,
-                ensayo= ensayo.codigo, 
-                codigo_servicio= codigo_generado,
-                creator_user = creator_user,
-                created = datetime.now()
-                ).save()
-
-        return redirect('lims:project', project_id)
+            return redirect('lims:project', project_id)
         
     return render(request, 'LIMS/add_service_etfa.html', {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
         'rcas': rcas,
+        'tipo_de_muestra': tipo_muestra,
         'tipos_de_muestras': tipo_de_muestra,
         'parameters': parametros,
+        'parameters_externos': parametros_externos,
         'normas': normas,
     })
 
@@ -1221,13 +2461,16 @@ def clone_service(request, service_id):
             codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-        elif last_service.codigo_muestra[-2:] != current_year: 
-            codigo_central = ('1').zfill(5)
-            codigo_generado = f'{codigo_central}-{current_year}'
-        
-        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+            last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+
+            if last_service.codigo_muestra[-2:] != current_year: 
+                codigo_central = ('1').zfill(5)
+                codigo_generado = f'{codigo_central}-{current_year}'
+            
+            elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+                codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                codigo_generado = f'{codigo_de_servicio}-{current_year}'
 
  
         if len(parameters_cot)==0 or comprobador_de_parametros():
@@ -1318,13 +2561,16 @@ def add_service_cot(request, project_id):
             codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-        elif last_service.codigo_muestra[-2:] != current_year: 
-            codigo_central = ('1').zfill(5)
-            codigo_generado = f'{codigo_central}-{current_year}'
-        
-        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-            codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+            last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+            
+            if last_service.codigo_muestra[-2:] != current_year: 
+                codigo_central = ('1').zfill(5)
+                codigo_generado = f'{codigo_central}-{current_year}'
+            
+            elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+                codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                codigo_generado = f'{codigo_de_servicio}-{current_year}'
 
         for sp in sample_points:
             if int(punto_de_muestreo) == int(sp.id):   
@@ -1378,7 +2624,7 @@ def add_service_parameter(request, service_id):
 
     servicio = models.Servicio.objects.get(pk=service_id)
     project = models.Proyecto.objects.get(pk = servicio.proyecto_id)
-    parametros = models.ParametroEspecifico.objects.filter(codigo_etfa = None).order_by('ensayo')
+    parametros = models.ParametroEspecifico.objects.filter(Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('ensayo').filter(tipo_de_muestra=servicio.tipo_de_muestra)
     parametros_muestra = models.ParametroDeMuestra.objects.filter(servicio_id = service_id)
     for pm in parametros_muestra:
         parametros = parametros.exclude(pk= pm.parametro_id)
@@ -1412,7 +2658,7 @@ def add_service_parameter_etfa(request, service_id):
 
     servicio = models.Servicio.objects.get(pk=service_id)
     project = models.Proyecto.objects.get(pk = servicio.proyecto_id)
-    parametros = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo')
+    parametros = models.ParametroEspecifico.objects.exclude(codigo_etfa = None).order_by('ensayo').filter(tipo_de_muestra=servicio.tipo_de_muestra)
     parametros_muestra = models.ParametroDeMuestra.objects.filter(servicio_id = service_id)
     for pm in parametros_muestra:
         parametros = parametros.exclude(pk= pm.parametro_id)
@@ -1447,7 +2693,7 @@ def service(request, service_id):
     service = models.Servicio.objects.get(pk=service_id)
     client = models.Cliente.objects.get(pk=service.cliente)
     parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
-    queryset_parameters = models.ParametroDeMuestra.objects.filter(servicio_id=service_id).order_by('-created')
+    queryset_parameters = models.ParametroDeMuestra.objects.filter(servicio_id=service_id).order_by('ensayo')
     paginator = Paginator(queryset_parameters, 10)
     page = request.GET.get('page')
     parameters = paginator.get_page(page)
@@ -1693,6 +2939,7 @@ def service_parameters_filter(request):
 @login_required
 @user_passes_test(is_manager, login_url='lims:index')
 def service_parameter_dropped(request, parameter_id):
+    """View to discard service parameter."""
     parameter = models.ParametroDeMuestra.objects.get(id = parameter_id)
 
     models.ParametroDeMuestraDescartada.objects.create(
@@ -1915,6 +3162,11 @@ def edit_sample_code(request, service_id):
 
     service = models.Servicio.objects.get(pk= service_id)
     parameters = models.ParametroDeMuestra.objects.filter(servicio_id = service_id)
+    
+    context = {
+        'service': service,
+    }
+
     try:
         if request.method == 'POST':
             codigo_muestra = request.POST['codigo_muestra']
@@ -1928,16 +3180,9 @@ def edit_sample_code(request, service_id):
 
             return redirect('lims:services')
     except:
-        error = 'El código de muestra ya existe.'
-        return render(request, 'LIMS/edit_service_code.html', {
-        'service': service,
-        'error': error,
-    })
+        context['error'] = 'El código de muestra ya existe.'
 
-
-    return render(request, 'LIMS/edit_service_code.html', {
-        'service': service,
-    })
+    return render(request, 'LIMS/edit_service_code.html', context )
 
 
 @login_required
@@ -2135,23 +3380,22 @@ def add_batch(request):
     servicios = models.ParametroDeMuestra.objects.select_related('parametro').filter(Q(resultado_final=None) & Q(batch_id=None)).order_by("-created")
     group = Group.objects.get(name='analista')
     analistas = User.objects.filter(groups = group).order_by('username')
+    context = {
+                    'servicios': servicios,
+                    'analistas': analistas,
+                    'parametros': parametros, 
+                }
     if request.method == 'POST':
         if 'parametro' in request.POST:
             if request.POST['parametro']=='':
-                return render(request, "LIMS/add_batch.html", {
-                    'servicios': servicios,
-                    'parametros': parametros,
-                    'analistas': analistas,
-                })
+                pass
 
-            servicios = models.ParametroDeMuestra.objects.select_related('parametro').filter(Q(resultado_final=None) & Q(batch_id=None)).order_by("-created")
-            servicios = servicios.filter(parametro__codigo = request.POST['parametro'])
-            return render(request, "LIMS/add_batch.html", {
-                    'servicios': servicios,
-                    'parametros': parametros,
-                    'analistas': analistas,
-                    'parametro': request.POST['parametro'],
-                })
+            else:
+                servicios = models.ParametroDeMuestra.objects.select_related('parametro').filter(Q(resultado_final=None) & Q(batch_id=None)).order_by("-created")
+                servicios = servicios.filter(parametro__codigo = request.POST['parametro'])
+                context['servicios']= servicios
+                context['parametro'] = request.POST['parametro']
+        
         else: 
             current_year = datetime.now().year
             current_year = str(current_year)[2:]
@@ -2184,11 +3428,7 @@ def add_batch(request):
             
             return redirect('lims:batches')
 
-    return render(request, "LIMS/add_batch.html", {
-        'servicios': servicios,
-        'parametros': parametros,
-        'analistas': analistas,
-    })
+    return render(request, "LIMS/add_batch.html", context)
 
 
 @login_required
@@ -2266,6 +3506,8 @@ def base_importation(request):
                         int_part, dec_part = ldm_str.split('.')
                         lcm = round(lcm, len(dec_part))
 
+                    if type(row['Envases']) == str: envase = models.Envase.objects.get(pk= row['Envases'])
+                    else: envase = None
 
                     models.ParametroEspecifico.objects.create(
                         ensayo = row['Parámetro'] , 
@@ -2277,6 +3519,7 @@ def base_importation(request):
                         tipo_de_muestra = row['Matriz'],
                         codigo_etfa = row['Código Autorización ETFA'],
                         acreditado = row['Acreditado'],
+                        envase = envase,
                         creator_user = responsable_de_analisis)
 
             return redirect(request.META.get('HTTP_REFERER', '/'))

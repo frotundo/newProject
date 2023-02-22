@@ -10,27 +10,50 @@
 
 <form action="" method='POST'>
     {% csrf_token %}
+    <table  class='client-select'>
+        <tr>
+            <td class='item-add'><label for="lang">Tipo de muestra</label></td>
+            <td class='item-input' style='display: flex;'>
+                <select class='select1' name="tipo_muestra" id="lang"  size='1'>
+                    <option value=""></option>
+                    {% for tipo in tipos_de_muestras %}
+                    <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
+                {% endfor %}
+                </select>
+                <button class='btn-filtrar' style='margin-left: 10px' type="submit">Filtrar</button>
+            </td>
+        </tr>
+        <p></p>
+        <p></p>
+    </table>
+    
+
+</form>
+
+<form class='form inactive' action="" method='POST'>
+    {% csrf_token %}
 
         <table>
             <tr style='display:none'>
                 <td class='item-add'><label for="">Cliente</label></td>
                 <td class='item-input'><input type='text' name="cliente" value={{cliente.id}} required></td>
             </tr>
+
+            <tr style='display:none;'>
+                <td class='item-add'><label for="">Tipo de muestra</label></td>
+                <td class='item-input'><input class='tipodemuestra' type='text' name="tipo_de_muestra" value='{{ tipo_de_muestra }}' readonly></td>
+            </tr>
+
             <tr>
                 <td class='item-add'><Label>Nombre</Label></td>
-                <td class='item-input'><input type="text" name="nombre" id="" placeholder="nombre" ></td>
+                <td class='item-input'><input type="text" name="nombre" id="" placeholder="nombre" required></td>
                 
             </tr>
             
             <tr>
                 <td class='item-add'><Label>Código</Label></td>
-                <td class='item-input'><input type="text" name="codigo" id="" placeholder="Código" ></td>
-            </tr>
-            
-            {% comment %} <tr>
-                <td class='item-add'><Label>Responsable de muestreo y/o medición</Label></td>
-                <td class='item-input'><input type="text" name="responsable_muestreo" id="" placeholder="Nombre del responsable" ></td>
-            </tr> {% endcomment %}
+                <td class='item-input'><input type="text" name="codigo" id="" placeholder="Código" required></td>
+            </tr>   
             
             <tr style='display:none'>
                 <td class='item-add'><label for="">Creador</label></td>
@@ -42,7 +65,7 @@
             <tr>
                 <td class='item-add'><label for="lang">Parametros cotizados</label></td>
                 <td class='item-input'>
-                    <select class='select1' name="parameters" id="lang"  multiple>
+                    <select class='select1' name="parameters" id="lang"  multiple required>
                         <option value=""></option>
                         {% for p in parameters %}
                         <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
@@ -53,62 +76,7 @@
             <p></p>
             <p></p>
         </table>
-        {% comment %} <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Puntos de muestreo</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="punto_de_muestreo" id="lang" multiple>
-                        <option value=""></option>
-                        {% for sp in sample_points %}
-                        <option value="{{ sp.id }}">{{ sp.nombre }}</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table>
-
-        <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Tipo de Muestra</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="tipo_de_muestra" id="lang" multiple>
-                        <option value=""></option>
-                        {% for matriz in matrices %}
-                        <option value="{{ matriz.id }}">{{ matriz.nombre }}</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table>
-
-        <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Norma de Referencia</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="norma_de_referencia" id="lang" multiple>
-                        <option value=""></option>
-                        {% for norma in normas %}
-                        <option value="{{ norma.id }}">{{ norma.norma }}</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table>
-
-        
-        <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">RCA</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="rCA" id="lang" multiple>
-                        <option value=""></option>
-                        {% for rca in rcas %}
-                        <option value="{{ rca.id }}">{{ rca.rca_asociada }}</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table> {% endcomment %}
+       
         {% if error_client %}<p class="error_client">{{ error_client }}</p>{% endif %}
 
         <button class='button-save' type="submit">Guardar</button>
@@ -116,3 +84,13 @@
 
 
 {% endblock content %}
+
+{% block extrajs %}
+    <script>
+        const tipodemuestra = document.querySelector('.tipodemuestra');
+        const form = document.querySelector('.form');
+        if (tipodemuestra.value!=''){
+            form.classList.remove('inactive');
+        }
+    </script>
+{% endblock extrajs %}

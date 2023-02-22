@@ -41,7 +41,7 @@
 {% if project.cotizado %}
 {% else %}
 <h3>Envases</h3>
-<p class='p-service'>{% if service.envases == None %}{% else %}{{ service.envases }}{% endif %}</p>
+<p class='p-service' style='padding-left: 10px;'>{% if service.envases == None %}{% else %}{{ service.envases|linebreaksbr }}{% endif %}</p>
 {% endif %}
 
 <h3>Observación</h3>
@@ -82,7 +82,7 @@
                 <tr class='btn-service row'>
                     <td class='item-list-2'><a href="{% url 'lims:edit_sample_parameter' p.id%}">
                         {% for i in parametros %}
-                            {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }}</strong> {% endif %}
+                            {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }} {% if p.analisis_externos == True %} <span style='color: red;'>(AE)</span> {% endif %}</strong> {% endif %}
                         {% endfor %}</a></td>
                     <td class='item-list-2 centrar'> {% if p.responsable_de_analisis == None %}{% else %}{{ p.responsable_de_analisis }}{% endif %}</td>
                     <td class='item-list-2 centrar'>{% if p.fecha_de_inicio == None %}{% else %}{{ p.fecha_de_inicio|date:"d-m-Y" }}{% endif %}</td>
@@ -119,7 +119,7 @@
     {% if parameters %}
     <h3>Parametros</h3>
     {% for p in parameters %}
-    <p style='margin-left: 20px'>{{ p.ensayo }} ({{ p.parametro.ensayo }})</p>
+    <p style='margin-left: 20px'>{{ p.ensayo }} ({{ p.parametro.ensayo }} {% if p.analisis_externos == True %} <span style='color: red;'>Analisis externo</span> {% endif %})</p>
     {% endfor %}
     {% endif %}
 {% endif %}
