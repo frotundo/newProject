@@ -56,4 +56,5 @@ urlpatterns = [
     path('project_client/<str:project_id>/', views.project_client, name="project_client"),
     path('grafico/<str:service_id>/', views.grafico, name='grafico'),
     path('base_importation/', views.base_importation, name="base_importation"),
+    path('service_simulator/', views.service_simulator, name='service_simulator'),
     ]

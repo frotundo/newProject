@@ -1,0 +1,115 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Simulador de Servicio</h1>
+<div style="font-size: 1.5rem;">
+{% if parametros %}
+    <p ><strong>Servicio ETFA: </strong>{{ etfa }}</p>
+    <p><br></p>
+    <p ><strong>Tipo de muestra: </strong>{{ tipo_de_muestra }}</p>
+    <p><br></p>
+    {% if parametros %}
+    <p><strong>Parametros</strong> </p>
+    {% for pc in parametros %}
+    <p  style='margin-left: 20px; padding: 5px 0; font-size:1.3rem;'>{{ pc.codigo }} ({{pc}} por el método: {{pc.metodo}})</p>
+    {% endfor %}
+    <p><br></p>
+    {% endif %}
+    {% if parametros_analisis_externos %}
+    <p><strong>Parametros (Analisis Externos)</strong></p>
+    {% for pc in parametros_analisis_externos %}
+        <p style='margin-left: 20px; padding: 5px 0; font-size:1.3rem;'>{{ pc.codigo }} ({{pc}} por el método: {{pc.metodo}})</p>
+    {% endfor %}
+    {% endif %}
+    
+{% else %}
+    {% if parameters %}
+    <form class='form'  action="" method='POST'>
+        {% csrf_token %}
+        
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">¿Servicio ETFA?</label></td>
+                <td class='item-input'>
+                    <input type="text" name='etfa' value="{{ etfa }}" readonly>
+                </td>
+            </tr>
+            <tr>
+                <td class='item-add'><label for="lang">Tipo de muestra</label></td>
+                <td class='item-input'>
+                    <input type="text" name="tipo_de_muestra" value="{{ tipo_de_muestra }}" readonly>
+                </td>
+            </tr>
+            <tr>
+                <td class='item-add'><label for="lang">Parametros</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="parameters" id="lang"  multiple>
+                        <option value=""></option>
+                        {% for p in parameters %}
+                        <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <button class='button-save' type="submit">Guardar</button>
+    </form>
+    {% else %}
+    <form action="" method='POST'>
+        {% csrf_token %}
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">¿Servicio ETFA?</label></td>
+                <td class='item-input'>
+                    <select class='select1' style='width: 60%' name="etfa" id="lang"  size='1' required>
+                        <option value=""></option>
+                        <option value="SI">Si</option>
+                        <option value="NO">No</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class='item-add'><label for="lang">Tipo de muestra</label></td>
+                <td class='item-input' style='display: flex;'>
+                    <select class='select1' name="tipo_muestra" id="lang"  size='1' required>
+                        <option value=""></option>
+                        {% for tipo in tipos_de_muestras %}
+                        <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                    <button class='btn-filtrar' style='margin-left: 10px' type="submit">Filtrar</button>                
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+        
+
+    </form>
+    {% endif %}
+{% endif %}
+
+</div>
+
+
+
+
+{% endblock content %}
+
+{% block extrajs %}
+    <script>
+        const tipodemuestra = document.querySelector('.tipodemuestra');
+        const form = document.querySelector('.form');
+        if (tipodemuestra.value!=''){
+            form.classList.remove('inactive');
+        }
+    </script>
+{% endblock extrajs %}

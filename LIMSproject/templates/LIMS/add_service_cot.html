@@ -13,14 +13,15 @@
 
     <table  class='client-select'>
         <tr>
-            <td class='item-add'><label for="lang">¿Servicio ETFA?</label></td>
+            <td class='item-add'><label for="lang">Servicio ETFA</label></td>
             <td class='item-input'>
                 <input type="text" name='etfa' value='{% if project.etfa %}SI{% else %}NO{% endif %} ' readonly>
-                {% comment %} <select class='select1' name="etfa" id="lang"  size='1'>
-                    <option value=""></option>
-                    <option value="True">SI</option>
-                    <option value="False">NO</option>
-                </select> {% endcomment %}
+            </td>
+        </tr>
+        <tr>
+            <td class='item-add'><label for="lang">Tipo de muestra</label></td>
+            <td class='item-input'>
+                <input type="text" name='etfa' value='{{ project.tipo_de_muestra }}' readonly>
             </td>
         </tr>
         <p></p>
@@ -116,6 +117,22 @@
                     <select class='select1' name="parameters" id="lang"  multiple>
                         <option value=""></option>
                         {% for p in parametros_cot %}
+                        <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Parametros (análisis externos)</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="analisis_externos" id="lang"  multiple>
+                        <option value=""></option>
+                        {% for p in parameters_externos %}
                         <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
                     {% endfor %}
                     </select>

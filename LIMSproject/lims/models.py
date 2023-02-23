@@ -158,6 +158,7 @@ class Proyecto(models.Model):
     nombre = models.CharField(max_length=254)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.PROTECT)
     parametros_cotizados = models.ManyToManyField(ParametroEspecifico)
+    parametros_externos = models.ManyToManyField(ParametroEspecifico, related_name='parametros_analisis_externos')
     cotizado = models.BooleanField(null=True, blank=True,) 
     tipo_de_muestra = models.CharField(max_length=100, null=True, blank=True)
     etfa = models.BooleanField(null=True, blank=True,) 
