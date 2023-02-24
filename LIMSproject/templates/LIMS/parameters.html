@@ -38,7 +38,9 @@
     
         {% for parameter in parameters %}
         <tr class='row'>
-            <td class='item-list'>{{ parameter.ensayo }}</td>
+            
+            <td class='item-list'>{% if parameter.acreditado != 'nan' %}<i style='color:green; margin-right:10px;'class="fa-solid fa-circle-check"></i>{% else %}<i style='color:red; margin-right:10px;'class="fa-solid fa-circle-check"></i>{% endif %}{{ parameter.ensayo }}</td>
+            
             <td class='item-list'>{{ parameter.codigo }}</td>
             <td class='item-list'>{{ parameter.metodo }}</td>
             <td class='item-list'>{{ parameter.LDM }}</td>

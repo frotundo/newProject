@@ -47,7 +47,7 @@
             <td class='item-input'>
                 <select class='select1' name="service" id="lang"  multiple required>
                     {% for s in servicios %}
-                    <option value="{{ s.id }}">{{ s.codigo_servicio }} {{ s.parametro.codigo }}</option>
+                    <option value="{{ s.id }}">{{ s.codigo_servicio }} {{ s.parametro.codigo }} ({{s.servicio.proyecto.cliente.titular}})</option>
                 {% endfor %}
                 </select>
             </td>

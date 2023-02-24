@@ -64,18 +64,23 @@ def render_view(request, template, context):
 
 
 def calc_param_etfa(parameters, parameters_analisis_externos):
+
+    """Esta función es para completar parametros faltantes en los servicio ETFA"""
     
     def anex_param(p):
+        """Esta función es para agregar a la lista parameters los parametros que no se encuentren en esta ni en la lista de parametros de analisis externos"""
         if p not in parameters and p not in parameters_analisis_externos:
             parameters.append(p)
         return parameters
     
     def anex_param_ext(p):
+        """Esta función es para agregar a la lista parameters de analisis externos los parametros que no se encuentren en esta ni en la lista de parametros"""
         if p not in parameters and p not in parameters_analisis_externos:
             parameters_analisis_externos.append(p)
         return parameters_analisis_externos
     
     def anex_param2(p, p2):
+        """Esta función es para agregar a la lista parameters los parametros que no se encuentren en esta ni en la lista de parametros de analisis externos"""
         if p not in parameters and p2 not in parameters and p not in parameters_analisis_externos and p2 not in parameters_analisis_externos:
                     parameters.append(p)
     for p in parameters:
@@ -164,51 +169,87 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
         
         elif 'DDD+DDE+DDT' in parametro:
             if 'AP-DDD+DDE+DDT'==parametro:
-                DDD = str(models.ParametroEspecifico.objects.get(codigo='AP-DDD-ME').id)
-                DDE = str(models.ParametroEspecifico.objects.get(codigo='AP-DDE-ME').id)
-                DDT = str(models.ParametroEspecifico.objects.get(codigo='AP-DDT-ME').id)
-                anex_param(DDD)
-                anex_param(DDE)
-                anex_param(DDT)
+                DDD = models.ParametroEspecifico.objects.get(codigo='AP-DDD-ME')
+                DDE = models.ParametroEspecifico.objects.get(codigo='AP-DDE-ME')
+                DDT = models.ParametroEspecifico.objects.get(codigo='AP-DDT-ME')
+                if DDD.codigo_etfa!='nan' and DDD.codigo_etfa!=None:
+                    anex_param(str(DDD.id))
+                else: anex_param_ext(str(DDD.id))
+                if DDE.codigo_etfa!='nan' and DDE.codigo_etfa!=None:
+                    anex_param(str(DDE.id))
+                else: anex_param_ext(str(DDE.id))
+                if DDT.codigo_etfa!='nan' and DDT.codigo_etfa!=None:
+                    anex_param(str(DDT.id))
+                else: anex_param_ext(str(DDT.id))
             
             elif 'FC-DDD+DDE+DDT'==parametro:
-                DDD = str(models.ParametroEspecifico.objects.get(codigo='FC-DDD-ME').id)
-                DDE = str(models.ParametroEspecifico.objects.get(codigo='FC-DDE-ME').id)
-                DDT = str(models.ParametroEspecifico.objects.get(codigo='FC-DDT-ME').id)
-                anex_param(DDD)
-                anex_param(DDE)
-                anex_param(DDT)
+                DDD = models.ParametroEspecifico.objects.get(codigo='FC-DDD-ME')
+                DDE = models.ParametroEspecifico.objects.get(codigo='FC-DDE-ME')
+                DDT = models.ParametroEspecifico.objects.get(codigo='FC-DDT-ME')
+                if DDD.codigo_etfa!='nan' and DDD.codigo_etfa!=None:
+                    anex_param(str(DDD.id))
+                else: anex_param_ext(str(DDD.id))
+                if DDE.codigo_etfa!='nan' and DDE.codigo_etfa!=None:
+                    anex_param(str(DDE.id))
+                else: anex_param_ext(str(DDE.id))
+                if DDT.codigo_etfa!='nan' and DDT.codigo_etfa!=None:
+                    anex_param(str(DDT.id))
+                else: anex_param_ext(str(DDT.id))
             
         elif 'THM' in parametro:
             if 'AFI-THM-SM'==parametro:
-                BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AFI-BROMODICL-SM').id)
-                DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AFI-DIBROMOCL-SM').id)
-                TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AFI-TRIBROM-SM').id)
-                TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AFI-TRICLOR-SM').id)
-                anex_param(BROMODICL)
-                anex_param(DIBROMOCL)
-                anex_param(TRIBROM)
-                anex_param(TRICLOR)
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='AFI-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='AFI-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='AFI-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AFI-TRICLOR-SM')
+                if BROMODICL.codigo_etfa!='nan' and BROMODICL.codigo_etfa!=None:
+                    anex_param(str(BROMODICL.id))
+                else: anex_param_ext(str(BROMODICL.id))
+                if DIBROMOCL.codigo_etfa!='nan' and DIBROMOCL.codigo_etfa!=None:
+                    anex_param(str(DIBROMOCL.id))
+                else: anex_param_ext(str(DIBROMOCL.id))
+                if TRIBROM.codigo_etfa!='nan' and TRIBROM.codigo_etfa!=None:
+                    anex_param(str(TRIBROM.id))
+                else: anex_param_ext(str(TRIBROM.id))
+                if TRICLOR.codigo_etfa!='nan' and TRICLOR.codigo_etfa!=None:
+                    anex_param(str(TRICLOR.id))
+                else: anex_param_ext(str(TRICLOR.id))
             
             elif 'AP-THM-ME'==parametro:
-                BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-ME').id)
-                DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-ME').id)
-                TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-ME').id)
-                TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-ME').id)
-                anex_param(BROMODICL)
-                anex_param(DIBROMOCL)
-                anex_param(TRIBROM)
-                anex_param(TRICLOR)
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-ME')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-ME')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-ME')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-ME')
+                if BROMODICL.codigo_etfa!='nan' and BROMODICL.codigo_etfa!=None:
+                    anex_param(str(BROMODICL.id))
+                else: anex_param_ext(str(BROMODICL.id))
+                if DIBROMOCL.codigo_etfa!='nan' and DIBROMOCL.codigo_etfa!=None:
+                    anex_param(str(DIBROMOCL.id))
+                else: anex_param_ext(str(DIBROMOCL.id))
+                if TRIBROM.codigo_etfa!='nan' and TRIBROM.codigo_etfa!=None:
+                    anex_param(str(TRIBROM.id))
+                else: anex_param_ext(str(TRIBROM.id))
+                if TRICLOR.codigo_etfa!='nan' and TRICLOR.codigo_etfa!=None:
+                    anex_param(str(TRICLOR.id))
+                else: anex_param_ext(str(TRICLOR.id))
             
             elif 'AP-THM-SM'==parametro:
-                BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-SM').id)
-                DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-SM').id)
-                TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-SM').id)
-                TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-SM').id)
-                anex_param(BROMODICL)
-                anex_param(DIBROMOCL)
-                anex_param(TRIBROM)
-                anex_param(TRICLOR)
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-SM')
+                if BROMODICL.codigo_etfa!='nan' and BROMODICL.codigo_etfa!=None:
+                    anex_param(str(BROMODICL.id))
+                else: anex_param_ext(str(BROMODICL.id))
+                if DIBROMOCL.codigo_etfa!='nan' and DIBROMOCL.codigo_etfa!=None:
+                    anex_param(str(DIBROMOCL.id))
+                else: anex_param_ext(str(DIBROMOCL.id))
+                if TRIBROM.codigo_etfa!='nan' and TRIBROM.codigo_etfa!=None:
+                    anex_param(str(TRIBROM.id))
+                else: anex_param_ext(str(TRIBROM.id))
+                if TRICLOR.codigo_etfa!='nan' and TRICLOR.codigo_etfa!=None:
+                    anex_param(str(TRICLOR.id))
+                else: anex_param_ext(str(TRICLOR.id))
             
             elif 'AR-THM-SM'==parametro:
                 BROMODICL_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-BROMODICL-NCH').id)
@@ -217,306 +258,526 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                 DIBROMOCL_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-DIBROMOCL-SM').id)
                 TRIBROM_NCH = str(models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-NCH').id)
                 TRIBROM_SM = str(models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-SM').id)
-                TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='AR-TRICLOR-SM').id)
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AR-TRICLOR-SM')
                 anex_param2(p=BROMODICL_SM, p2=BROMODICL_NCH)
                 anex_param(p=DIBROMOCL_SM, p2=DIBROMOCL_NCH)
                 anex_param(p=TRIBROM_SM, p2=TRIBROM_NCH)
-                anex_param(TRICLOR)
+                if TRICLOR.codigo_etfa!='nan' and TRICLOR.codigo_etfa!=None:
+                    anex_param(str(TRICLOR.id))
+                else: anex_param_ext(str(TRICLOR.id))
             
             elif 'SUB-THM-SM'==parametro:
-                BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='SUB-BROMODICL-SM').id)
-                DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='SUB-DIBROMOCL-SM').id)
-                TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='SUB-TRIBROM-SM').id)
-                TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='SUB-TRICLOR-SM').id)
-                anex_param(BROMODICL)
-                anex_param(DIBROMOCL)
-                anex_param(TRIBROM)
-                anex_param(TRICLOR)
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='SUB-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='SUB-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='SUB-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='SUB-TRICLOR-SM')
+                if BROMODICL.codigo_etfa!='nan' and BROMODICL.codigo_etfa!=None:
+                    anex_param(str(BROMODICL.id))
+                else: anex_param_ext(str(BROMODICL.id))
+                if DIBROMOCL.codigo_etfa!='nan' and DIBROMOCL.codigo_etfa!=None:
+                    anex_param(str(DIBROMOCL.id))
+                else: anex_param_ext(str(DIBROMOCL.id))
+                if TRIBROM.codigo_etfa!='nan' and TRIBROM.codigo_etfa!=None:
+                    anex_param(str(TRIBROM.id))
+                else: anex_param_ext(str(TRIBROM.id))
+                if TRICLOR.codigo_etfa!='nan' and TRICLOR.codigo_etfa!=None:
+                    anex_param(str(TRICLOR.id))
+                else: anex_param_ext(str(TRICLOR.id))
             
             elif 'SUP-THM-SM'==parametro:
-                BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='SUP-BROMODICL-SM').id)
-                DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='SUP-DIBROMOCL-SM').id)
-                TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='SUP-TRIBROM-SM').id)
-                TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='SUP-TRICLOR-SM').id)
-                anex_param(BROMODICL)
-                anex_param(DIBROMOCL)
-                anex_param(TRIBROM)
-                anex_param(TRICLOR)
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='SUP-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='SUP-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='SUP-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='SUP-TRICLOR-SM')
+                if BROMODICL.codigo_etfa!='nan' and BROMODICL.codigo_etfa!=None:
+                    anex_param(str(BROMODICL.id))
+                else: anex_param_ext(str(BROMODICL.id))
+                if DIBROMOCL.codigo_etfa!='nan' and DIBROMOCL.codigo_etfa!=None:
+                    anex_param(str(DIBROMOCL.id))
+                else: anex_param_ext(str(DIBROMOCL.id))
+                if TRIBROM.codigo_etfa!='nan' and TRIBROM.codigo_etfa!=None:
+                    anex_param(str(TRIBROM.id))
+                else: anex_param_ext(str(TRIBROM.id))
+                if TRICLOR.codigo_etfa!='nan' and TRICLOR.codigo_etfa!=None:
+                    anex_param(str(TRICLOR.id))
+                else: anex_param_ext(str(TRICLOR.id))
             
             elif 'FC-THM-ME'==parametro:
-                BROMODICL = str(models.ParametroEspecifico.objects.get(codigo='FC-BROMODICL-ME').id)
-                DIBROMOCL = str(models.ParametroEspecifico.objects.get(codigo='FC-DIBROMOCL-ME').id)
-                TRIBROM = str(models.ParametroEspecifico.objects.get(codigo='FC-TRIBROM-ME').id)
-                TRICLOR = str(models.ParametroEspecifico.objects.get(codigo='FC-TRICLOR-ME').id)
-                anex_param(BROMODICL)
-                anex_param(DIBROMOCL)
-                anex_param(TRIBROM)
-                anex_param(TRICLOR)
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='FC-BROMODICL-ME')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='FC-DIBROMOCL-ME')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='FC-TRIBROM-ME')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='FC-TRICLOR-ME')
+                if BROMODICL.codigo_etfa!='nan' and BROMODICL.codigo_etfa!=None:
+                    anex_param(str(BROMODICL.id))
+                else: anex_param_ext(str(BROMODICL.id))
+                if DIBROMOCL.codigo_etfa!='nan' and DIBROMOCL.codigo_etfa!=None:
+                    anex_param(str(DIBROMOCL.id))
+                else: anex_param_ext(str(DIBROMOCL.id))
+                if TRIBROM.codigo_etfa!='nan' and TRIBROM.codigo_etfa!=None:
+                    anex_param(str(TRIBROM.id))
+                else: anex_param_ext(str(TRIBROM.id))
+                if TRICLOR.codigo_etfa!='nan' and TRICLOR.codigo_etfa!=None:
+                    anex_param(str(TRICLOR.id))
+                else: anex_param_ext(str(TRICLOR.id))
         
         elif 'LANGELIER' in parametro:
             if 'SUP-LANGELIER'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
-                ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUP-ALCAL-T').id)
-                DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA').id)
-                PH = str(models.ParametroEspecifico.objects.get(codigo='SUP-PH-SM').id)                       
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='AFI-SDT-SM').id)
-                anex_param(CA)
-                anex_param(ALCAL)
-                anex_param(DUREZA)
-                anex_param(PH)
-                anex_param(SDT)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='SUP-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='SUP-PH-SM')                
+                SDT = models.ParametroEspecifico.objects.get(codigo='AFI-SDT-SM')
+                
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if ALCAL.codigo_etfa!='nan' and ALCAL.codigo_etfa!=None:
+                    anex_param(str(ALCAL.id))
+                else: anex_param_ext(str(ALCAL.id))
+                if DUREZA.codigo_etfa!='nan' and DUREZA.codigo_etfa!=None:
+                    anex_param(str(DUREZA.id))
+                else: anex_param_ext(str(DUREZA.id))
+                if PH.codigo_etfa!='nan' and PH.codigo_etfa!=None:
+                    anex_param(str(PH.id))
+                else: anex_param_ext(str(PH.id))
+                if SDT.codigo_etfa!='nan' and SDT.codigo_etfa!=None:
+                    anex_param(str(SDT.id))
+                else: anex_param_ext(str(SDT.id))
+
             
             elif 'SUB-LANGELIER'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
-                ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUB-ALCAL-T').id)
-                DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA').id)
-                PH = str(models.ParametroEspecifico.objects.get(codigo='SUB-PH-SM').id)
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='SUB-SDT-SM-GRV').id)
-                anex_param(CA)
-                anex_param(ALCAL)
-                anex_param(DUREZA)
-                anex_param(PH)
-                anex_param(SDT)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='SUB-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='SUB-PH-SM')
+                SDT = models.ParametroEspecifico.objects.get(codigo='SUB-SDT-SM-GRV')
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if ALCAL.codigo_etfa!='nan' and ALCAL.codigo_etfa!=None:
+                    anex_param(str(ALCAL.id))
+                else: anex_param_ext(str(ALCAL.id))
+                if DUREZA.codigo_etfa!='nan' and DUREZA.codigo_etfa!=None:
+                    anex_param(str(DUREZA.id))
+                else: anex_param_ext(str(DUREZA.id))
+                if PH.codigo_etfa!='nan' and PH.codigo_etfa!=None:
+                    anex_param(str(PH.id))
+                else: anex_param_ext(str(PH.id))
+                if SDT.codigo_etfa!='nan' and SDT.codigo_etfa!=None:
+                    anex_param(str(SDT.id))
+                else: anex_param_ext(str(SDT.id))
             
             elif 'AR-LANGELIER'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
-                ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AR-ALCAL-T').id)
-                DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA').id)
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='AR-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA')
                 PH = str(models.ParametroEspecifico.objects.get(codigo='AR-PH-SM').id)
                 PH2 = str(models.ParametroEspecifico.objects.get(codigo='AR-PH-NCH').id)
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='AR-SDT-GRV').id)
-                anex_param(CA)
-                anex_param(ALCAL)
-                anex_param(DUREZA)
+                SDT = models.ParametroEspecifico.objects.get(codigo='AR-SDT-GRV')
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if ALCAL.codigo_etfa!='nan' and ALCAL.codigo_etfa!=None:
+                    anex_param(str(ALCAL.id))
+                else: anex_param_ext(str(ALCAL.id))
+                if DUREZA.codigo_etfa!='nan' and DUREZA.codigo_etfa!=None:
+                    anex_param(str(DUREZA.id))
+                else: anex_param_ext(str(DUREZA.id))
+                if SDT.codigo_etfa!='nan' and SDT.codigo_etfa!=None:
+                    anex_param(str(SDT.id))
+                else: anex_param_ext(str(SDT.id))
                 anex_param2(p=PH, p2=PH2)
-                anex_param(SDT)
+
 
             elif 'AP-LANGELIER'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
-                ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AP-ALCAL-T').id)
-                DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA').id)
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='AP-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA')
                 PH = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-SM').id)
                 PH2 = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-ME').id)
                 SDT = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-SM-GRV').id)
                 SDT2 = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-ME-GRV').id)
-                anex_param(CA)
-                anex_param(ALCAL)
-                anex_param(DUREZA)
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if ALCAL.codigo_etfa!='nan' and ALCAL.codigo_etfa!=None:
+                    anex_param(str(ALCAL.id))
+                else: anex_param_ext(str(ALCAL.id))
+                if DUREZA.codigo_etfa!='nan' and DUREZA.codigo_etfa!=None:
+                    anex_param(str(DUREZA.id))
+                else: anex_param_ext(str(DUREZA.id))
                 anex_param2(p=PH, p2=PH2)
                 anex_param2(p=SDT, p2=SDT2)
 
             elif 'AFI-LANGELIER'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS').id)
-                ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AFI-ALCAL-T').id)
-                DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA').id)
-                PH = str(models.ParametroEspecifico.objects.get(codigo='AFI-PH-SM').id)
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='').id)
-                anex_param(CA)
-                anex_param(ALCAL)
-                anex_param(DUREZA)
-                anex_param(PH)
-                anex_param(SDT)
+                CA = models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='AFI-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='AFI-PH-SM')
+                SDT = models.ParametroEspecifico.objects.get(codigo='')
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if ALCAL.codigo_etfa!='nan' and ALCAL.codigo_etfa!=None:
+                    anex_param(str(ALCAL.id))
+                else: anex_param_ext(str(ALCAL.id))
+                if DUREZA.codigo_etfa!='nan' and DUREZA.codigo_etfa!=None:
+                    anex_param(str(DUREZA.id))
+                else: anex_param_ext(str(DUREZA.id))
+                if PH.codigo_etfa!='nan' and PH.codigo_etfa!=None:
+                    anex_param(str(PH.id))
+                else: anex_param_ext(str(PH.id))
+                if SDT.codigo_etfa!='nan' and SDT.codigo_etfa!=None:
+                    anex_param(str(SDT.id))
+                else: anex_param_ext(str(SDT.id))
 
         elif 'NT' in parametro:
             if 'AFI-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='AFI-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='AFI-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='AFI-NKT').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='AFI-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='AFI-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='AFI-NKT')  
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
             
             elif 'AP-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='AP-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='AP-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='AP-NKT').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='AP-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='AP-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='AP-NKT')                       
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
             
             elif 'AR-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='AR-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='AR-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='AR-NKT-SM').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='AR-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='AR-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='AR-NKT-SM')                       
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
             
             elif 'SUB-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='SUB-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='SUB-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='SUB-NKT').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='SUB-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='SUB-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='SUB-NKT')                       
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
 
             elif 'SUP-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='SUP-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='SUP-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='SUP-NKT').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='SUP-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='SUP-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='SUP-NKT')                       
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
 
             elif 'S-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='S-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='S-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='S-NKT').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='S-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='S-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='S-NKT')                       
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
 
             elif 'L-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='L-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='L-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='L-NKT').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='L-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='L-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='L-NKT')                       
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
 
             elif 'SD-NT'==parametro:
-                NO3 = str(models.ParametroEspecifico.objects.get(codigo='SD-NO3-CI').id)
-                NO2 = str(models.ParametroEspecifico.objects.get(codigo='SD-NO2-CI').id)
-                NKT = str(models.ParametroEspecifico.objects.get(codigo='SD-NKT').id)                       
-                anex_param(NO3)
-                anex_param(NO2)
-                anex_param(NKT)
+                NO3 = models.ParametroEspecifico.objects.get(codigo='SD-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='SD-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='SD-NKT')                       
+                if NO3.codigo_etfa!='nan' and NO3.codigo_etfa!=None:
+                    anex_param(str(NO3.id))
+                else: anex_param_ext(str(NO3.id))
+                if NO2.codigo_etfa!='nan' and NO2.codigo_etfa!=None:
+                    anex_param(str(NO2.id))
+                else: anex_param_ext(str(NO2.id))
+                if NKT.codigo_etfa!='nan' and NKT.codigo_etfa!=None:
+                    anex_param(str(NKT.id))
+                else: anex_param_ext(str(NKT.id))
         
         elif 'RAS' in parametro:
             if 'AP-RAS'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1').id)                       
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1')                       
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
 
             elif 'AR-RAS'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1').id)                       
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1')                       
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
 
             elif 'SUB-RAS'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1').id)                       
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1')                       
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
 
             elif 'SUP-RAS'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1').id)                       
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1')                       
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
 
         elif 'NA100' in parametro:
             if 'AP-NA100'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1').id)
-                K = str(models.ParametroEspecifico.objects.get(codigo='AP-K-ICP1').id)                       
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
-                anex_param(K)
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1')
+                K = models.ParametroEspecifico.objects.get(codigo='AP-K-ICP1')                       
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
+                if K.codigo_etfa!='nan' and K.codigo_etfa!=None:
+                    anex_param(str(K.id))
+                else: anex_param_ext(str(K.id))
 
             elif 'AR-NA100'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1').id) 
-                K = str(models.ParametroEspecifico.objects.get(codigo='AR-K-ICP1').id)                      
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
-                anex_param(K)
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1') 
+                K = models.ParametroEspecifico.objects.get(codigo='AR-K-ICP1')                      
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
+                if K.codigo_etfa!='nan' and K.codigo_etfa!=None:
+                    anex_param(str(K.id))
+                else: anex_param_ext(str(K.id))
 
             elif 'SUB-NA100'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1').id)
-                K = str(models.ParametroEspecifico.objects.get(codigo='SUB-K-ICP1').id)                       
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
-                anex_param(K)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1')
+                K = models.ParametroEspecifico.objects.get(codigo='SUB-K-ICP1')                       
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
+                if K.codigo_etfa!='nan' and K.codigo_etfa!=None:
+                    anex_param(str(K.id))
+                else: anex_param_ext(str(K.id))
 
             elif 'SUP-NA100'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
-                NA = str(models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1').id) 
-                K = str(models.ParametroEspecifico.objects.get(codigo='SUP-K-ICP1').id)                      
-                anex_param(CA)
-                anex_param(MG)
-                anex_param(NA)
-                anex_param(K)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1') 
+                K = models.ParametroEspecifico.objects.get(codigo='SUP-K-ICP1')                      
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if NA.codigo_etfa!='nan' and NA.codigo_etfa!=None:
+                    anex_param(str(NA.id))
+                else: anex_param_ext(str(NA.id))
+                if K.codigo_etfa!='nan' and K.codigo_etfa!=None:
+                    anex_param(str(K.id))
+                else: anex_param_ext(str(K.id))
 
         elif 'DUREZA-T' in parametro:
             if 'AFI-DUREZA-T'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS').id)
-                DCA = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='AFI-MG-AAS').id)
-                DMG = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-MG').id)                      
-                anex_param(CA)
-                anex_param(DCA)
-                anex_param(MG)
-                anex_param(DMG)
+                CA = models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS')
+                DCA = models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='AFI-MG-AAS')
+                DMG = models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-MG')                      
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if DCA.codigo_etfa!='nan' and DCA.codigo_etfa!=None:
+                    anex_param(str(DCA.id))
+                else: anex_param_ext(str(DCA.id))
+                if DMG.codigo_etfa!='nan' and DMG.codigo_etfa!=None:
+                    anex_param(str(DMG.id))
+                else: anex_param_ext(str(DMG.id))
             
             elif 'AP-DUREZA-T'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1').id)
-                DCA = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1').id)
-                DMG = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-MG').id)                      
-                anex_param(CA)
-                anex_param(DCA)
-                anex_param(MG)
-                anex_param(DMG)
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-MG')                      
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if DCA.codigo_etfa!='nan' and DCA.codigo_etfa!=None:
+                    anex_param(str(DCA.id))
+                else: anex_param_ext(str(DCA.id))
+                if DMG.codigo_etfa!='nan' and DMG.codigo_etfa!=None:
+                    anex_param(str(DMG.id))
+                else: anex_param_ext(str(DMG.id))
 
             elif 'AR-DUREZA-T'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1').id)
-                DCA = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1').id)
-                DMG = str(models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-MG').id)                      
-                anex_param(CA)
-                anex_param(DCA)
-                anex_param(MG)
-                anex_param(DMG)
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-MG')                      
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if DCA.codigo_etfa!='nan' and DCA.codigo_etfa!=None:
+                    anex_param(str(DCA.id))
+                else: anex_param_ext(str(DCA.id))
+                if DMG.codigo_etfa!='nan' and DMG.codigo_etfa!=None:
+                    anex_param(str(DMG.id))
+                else: anex_param_ext(str(DMG.id))
             
             elif 'SUB-DUREZA-T'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1').id)
-                DCA = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1').id)
-                DMG = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-MG').id)                      
-                anex_param(CA)
-                anex_param(DCA)
-                anex_param(MG)
-                anex_param(DMG)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-MG')                      
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if DCA.codigo_etfa!='nan' and DCA.codigo_etfa!=None:
+                    anex_param(str(DCA.id))
+                else: anex_param_ext(str(DCA.id))
+                if DMG.codigo_etfa!='nan' and DMG.codigo_etfa!=None:
+                    anex_param(str(DMG.id))
+                else: anex_param_ext(str(DMG.id))
 
             elif 'SUP-DUREZA-T'==parametro:
-                CA = str(models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1').id)
-                DCA = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA').id)
-                MG = str(models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1').id)
-                DMG = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-MG').id)                      
-                anex_param(CA)
-                anex_param(DCA)
-                anex_param(MG)
-                anex_param(DMG)
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-MG')                      
+                if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
+                    anex_param(str(CA.id))
+                else: anex_param_ext(str(CA.id))
+                if MG.codigo_etfa!='nan' and MG.codigo_etfa!=None:
+                    anex_param(str(MG.id))
+                else: anex_param_ext(str(MG.id))
+                if DCA.codigo_etfa!='nan' and DCA.codigo_etfa!=None:
+                    anex_param(str(DCA.id))
+                else: anex_param_ext(str(DCA.id))
+                if DMG.codigo_etfa!='nan' and DMG.codigo_etfa!=None:
+                    anex_param(str(DMG.id))
+                else: anex_param_ext(str(DMG.id))
     
     return parameters, parameters_analisis_externos
 
 
 def calc_param_no_etfa(parameters, parameters_analisis_externos):
+    """Esta función es para completar parametros faltantes en los servicio NO ETFA"""
     def anex_param(p):
+        """Esta función es para agregar a la lista parameters los parametros que no se encuentren en esta ni en la lista de parametros de analisis externos"""
         if p not in parameters and p not in parameters_analisis_externos:
             parameters.append(p)
         return parameters
 
     def anex_param2(p, p2):
+        """Esta función es para agregar a la lista parameters los parametros que no se encuentren en esta ni en la lista de parametros de analisis externos"""
         if p not in parameters and p2 not in parameters and p not in parameters_analisis_externos and p2 not in parameters_analisis_externos:
                     parameters.append(p)
 
@@ -924,6 +1185,7 @@ def calc_param_no_etfa(parameters, parameters_analisis_externos):
 
 
 def calc_envases(parameters):
+    """Esta función cálcula los envases necesarios en un servicio, tomado en cuenta el atributo envase de cada parametro dentro de la lista parameters"""
     par_x_env = {}
     P_1L_HNO3 = 0
     P_1L_HNO3_F = 0 
@@ -1826,6 +2088,7 @@ def add_parameter(request):
         ensayo = request.POST['ensayo']
         codigo = request.POST['codigo']
         metodo = request.POST['metodo']
+        acreditado = request.POST['acreditado']
         ldm = request.POST['LDM']
         if ldm=='': ldm = '-'
         lcm = request.POST['LCM']
@@ -1838,7 +2101,7 @@ def add_parameter(request):
         creator_user = request.POST['creator_user']
 
         try:
-            models.ParametroEspecifico.objects.create(ensayo=ensayo, codigo= codigo, metodo= metodo, LDM= ldm, LCM= lcm, unidad=unidad, tipo_de_muestra= tipo_de_muestra, envase_id=envase, creator_user= creator_user)
+            models.ParametroEspecifico.objects.create(ensayo=ensayo, codigo= codigo, metodo= metodo, LDM= ldm, LCM= lcm, unidad=unidad, tipo_de_muestra= tipo_de_muestra, envase_id=envase, acreditado=acreditado, creator_user= creator_user)
             return redirect('lims:parameters')
         except:
             error = 'EL código del parametro ya existe.'
@@ -3247,8 +3510,10 @@ def batches(request):
 @user_passes_test(is_coordinador, login_url='lims:index')
 def add_batch(request):
     """Add batch view."""
-    parametros = models.ParametroEspecifico.objects.all().order_by('codigo')
-    servicios = models.ParametroDeMuestra.objects.select_related('parametro').filter(Q(resultado_final=None) & Q(batch_id=None)).order_by("-created")
+
+    servicios = models.ParametroDeMuestra.objects.select_related('parametro').filter(Q(resultado_final=None) & Q(batch_id=None)).filter(analisis_externos=False ).order_by("-created")
+    set_parametros = set([servicio.parametro.id  for servicio in servicios])
+    parametros = models.ParametroEspecifico.objects.filter(id__in=set_parametros).order_by('codigo')
     group = Group.objects.get(name='analista')
     analistas = User.objects.filter(groups = group).order_by('username')
     context = {
@@ -3400,13 +3665,13 @@ def base_importation(request):
 @login_required
 @user_passes_test(is_commercial, login_url='lims:index')
 def service_simulator(request):
+    """Vista para simular un servicio."""
 
     tipos_de_muestras = models.TipoDeMuestra.objects.all().order_by('nombre')
     context = {
         'tipos_de_muestras': tipos_de_muestras,
     }
     if request.method == 'POST':
-        print(request.POST)
 
         if 'parameters' not in request.POST:
             etfa = request.POST['etfa']
@@ -3423,7 +3688,6 @@ def service_simulator(request):
             context['tipo_de_muestra'] = tipo_de_muestra
         
         else:
-            print(request.POST)
             etfa = request.POST['etfa']
             tipo_de_muestra = request.POST['tipo_de_muestra']
             context['etfa'] = etfa
