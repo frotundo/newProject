@@ -111,6 +111,46 @@
 
 <div>
     <div class='subtitle_contain'>
+        <h2 class="subtitle">Área o lugar de monitoreo</h2>
+        <a class='link-add' href="{% url 'lims:client_add_monitoring_place' cliente.id %}" title="Agregar área o lugar de monitoreo"><i class="fa-solid fa-circle-plus"></i></a> 
+    </div>
+        {% if monitoring_places %}
+            <table>
+                <tr>
+                    <td class='item-list-sp title-item-list'>Nombre</td>
+                </tr>
+            
+                {% for p in monitoring_places %}
+                    <tr>
+                        <td class='item-list-sp'>{{ p.nombre }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        
+            <div class="pagination">
+                <span class="page-links">
+                    {% if monitoring_places.has_previous %}
+                        <a href="?page_sp={{ monitoring_places.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="page-current">
+                        Pagina {{ monitoring_places.number }} de {{ monitoring_places.paginator.num_pages }}
+                    </span>
+            
+                    {% if monitoring_places.has_next %}
+                        <a href="?page_sp={{ monitoring_places.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+
+        {% else  %}
+            No hay registro de lugares de monitoreo.
+        {% endif %}
+    
+</div>
+
+<div>
+    <div class='subtitle_contain'>
         <h2 class="subtitle">Puntos de Muestreo</h2>
         <a class='link-add' href="{% url 'lims:client_add_sample_point' cliente.id %}" title="Agregar punto de muestreo"><i class="fa-solid fa-circle-plus"></i></a> 
     </div>

@@ -95,6 +95,22 @@
             <td class='item-add'><label for="">Tipo de muestra</label></td>
             <td class='item-input'><input class='tipodemuestra' type='text' name="tipo_de_muestra" value='{{ tipo_de_muestra }}' readonly></td>
         </tr>
+        
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Lugar de monitoreo</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="area" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for sp in monitoring_places %}
+                        <option value="{{ sp.nombre }}">{{ sp.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
 
         <table  class='client-select'>
             <tr>
@@ -103,7 +119,7 @@
                     <select class='select1' name="punto_de_muestreo" id="lang"  size='1'>
                         <option value=""></option>
                         {% for sp in sample_points %}
-                        <option value="{{ sp.id }}">{{ sp.nombre }}</option>
+                        <option value="{{ sp.nombre }}">{{ sp.nombre }}</option>
                     {% endfor %}
                     </select>
                 </td>

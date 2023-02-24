@@ -41,6 +41,17 @@ class PuntoDeMuestreo(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class LugarDeMonitoreo(models.Model):
+    """Monitoring place model."""
+    
+    nombre = models.CharField(max_length=200, unique=True)
+    cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
 
 
 class NormaDeReferencia(models.Model):
@@ -176,6 +187,7 @@ class Servicio(models.Model):
     codigo_muestra = models.CharField(max_length=50, unique=True)
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
     cliente = models.CharField(max_length=5)
+    area = models.CharField(max_length=200, null=True, blank=True,)
     punto_de_muestreo = models.CharField(max_length=200)
     tipo_de_muestra = models.CharField(max_length=200)
     fecha_de_muestreo = models.DateField(null=True, blank=True,)

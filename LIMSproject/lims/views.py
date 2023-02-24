@@ -1210,7 +1210,7 @@ def calc_envases(parameters):
     VA_1L_SP = 0
     B_PLAS = 0
     P_1L_PEROX = 0
-    P_1L_BA_SP = 0
+    # P_1L_BA_SP = 0
 
     for p in parameters:
         param = models.ParametroEspecifico.objects.get(pk=p).envase
@@ -1218,7 +1218,7 @@ def calc_envases(parameters):
             V_1L_HCL +=1
         elif param == models.Envase.objects.get(codigo='VA-1L-SP'):
             VA_1L_SP = 1
-        elif param == models.Envase.objects.get(codigo='B-PLAS'):
+        elif param == models.Envase.objects.get(codigo='B-PLAS') or param == models.Envase.objects.get(codigo='P-1L-BA-SP'):
             B_PLAS = 1
         elif param == models.Envase.objects.get(codigo='P-1L-NAOH'):
             P_1L_NAOH = 1
@@ -1286,10 +1286,10 @@ def calc_envases(parameters):
     
     P_250_EST = P_250_EST1 + P_250_EST2
     if P_250_EST>0: 
-        par_x_env['P-250-EST'] = str(P_250_EST) + (' Envases' if P_250_EST>1 else 'Envase') + ' de plástico - 250 mL - Estéril - Na2S2O3 + EDTA \n'
+        par_x_env['P-250-EST'] = str(P_250_EST) + (' Envases' if P_250_EST>1 else ' Envase') + ' de plástico - 250 mL - Estéril - Na2S2O3 + EDTA \n'
     
     if P_500_H2SO4>0: 
-        par_x_env['P-500-H2SO4'] = str(P_500_H2SO4) + (' Envases' if P_500_H2SO4>1 else 'Envase') + ' de plástico - 500 mL - H2SO4 \n'
+        par_x_env['P-500-H2SO4'] = str(P_500_H2SO4) + (' Envases' if P_500_H2SO4>1 else ' Envase') + ' de plástico - 500 mL - H2SO4 \n'
     
     if P_500_NAOH>0:
         par_x_env['P-500-NAOH']= str(P_500_NAOH) + ' Envase de plástico - 500 mL - NaOH + ZnAc \n'
@@ -1299,7 +1299,7 @@ def calc_envases(parameters):
     
     V_1L_HCL_ASC = V_1L_HCL_ASC1 + V_1L_HCL_ASC2
     if V_1L_HCL_ASC>0: 
-        par_x_env['V-1L-HCL+ASC']= str(V_1L_HCL_ASC) + (' Envases' if V_1L_HCL_ASC>1 else 'Envase') + ' de vidrio - 1 L - HCl + Ác. Ascórbico \n' 
+        par_x_env['V-1L-HCL+ASC']= str(V_1L_HCL_ASC) + (' Envases' if V_1L_HCL_ASC>1 else ' Envase') + ' de vidrio - 1 L - HCl + Ác. Ascórbico \n' 
     
     if V_500_H2SO4>0: 
         par_x_env['V-500-SP']= str(V_500_H2SO4) + (' Envases' if V_500_H2SO4>1 else ' Envase') + ' de vidrio - 500 mL - H2SO4 \n' 
@@ -1315,13 +1315,13 @@ def calc_envases(parameters):
         par_x_env['VA-1L-SP'] = str(VA_1L_SP) + ' Envase de vidrio ámbar - 1 L \n'
     
     if B_PLAS>0: 
-        par_x_env['B-PLAS']= str(B_PLAS) + (' Bolsas' if B_PLAS>1 else ' Bolsa') + ' plástica'
+        par_x_env['B-PLAS']= str(B_PLAS) + ' Bolsa plástica ó envase plastico de boca ancha - 1L -S/P'
     
     if P_1L_PEROX>0: 
         par_x_env['P-1L-PEROX'] = P_1L_PEROX
     
-    if P_1L_BA_SP>0: 
-        par_x_env['P-1L-BA-SP'] = str(P_1L_BA_SP) + (' Envases' if VA_1L_TIOSUL>1 else 'Envase') + ' de plástico boca ancha - 1 L - S/P'
+    # if P_1L_BA_SP>0: 
+    #     par_x_env['P-1L-BA-SP'] = str(P_1L_BA_SP) + (' Envases' if VA_1L_TIOSUL>1 else ' Envase') + ' de plástico boca ancha - 1 L - S/P'
     
     envases = ''
     for envase in par_x_env.values():
@@ -1412,6 +1412,11 @@ def client(request, id_cliente):
     page_contact = request.GET.get('page_contact')
     contacts = paginator_contact.get_page(page_contact)
 
+    queryset_monitoring_place = models.LugarDeMonitoreo.objects.filter(cliente_id = id_cliente).order_by('nombre')
+    paginator_sp = Paginator(queryset_monitoring_place, 5)
+    page_sp = request.GET.get('page_sp')
+    monitoring_place = paginator_sp.get_page(page_sp)
+
     queryset_sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id = id_cliente).order_by('nombre')
     paginator_sp = Paginator(queryset_sample_points, 5)
     page_sp = request.GET.get('page_sp')
@@ -1435,6 +1440,7 @@ def client(request, id_cliente):
     context = {
         'cliente':cliente,
         'contacts': contacts,
+        'monitoring_places': monitoring_place,
         'sample_points':sample_points,
         'legal_representatives': legal_representatives,
         'rcas': rcas,
@@ -1610,6 +1616,60 @@ def client_add_sample_point(request, id_cliente):
 
 @login_required
 @user_passes_test(is_commercial, login_url='lims:index')
+def client_add_monitoring_place(request, id_cliente):
+    '''Client add monitoring place view.'''
+
+    context = {
+        'pm':[0],
+        'len_pm': 1,
+    }
+
+    if request.method == 'POST':
+        if 'sp-number' in request.POST.keys():
+            if request.POST['sp-number'] != None:
+                pm = [x for x in range(int(request.POST['sp-number']))]
+                len_pm = len(pm)
+                if len_pm != 1:
+                    context['pm'] = pm
+                    context['len_pm'] = len_pm
+        else:
+            todo = []
+            for valor in request.POST.values():
+                todo.append(valor)
+            puntos = todo[1::2]
+            usuarios = todo[2::2]
+            duplicados = []
+            for punto in puntos:
+                try:
+                    if punto == models.LugarDeMonitoreo.objects.get(nombre=punto).nombre:
+                            duplicados.append(punto) 
+                            duplicado =  puntos.index(punto)
+                            usuarios.pop(duplicado)
+                            puntos.pop(duplicado)
+                except:
+                    continue
+            for punto, usuario in zip(puntos, usuarios):
+                models.LugarDeMonitoreo.objects.create(
+                    nombre= punto, 
+                    cliente_id= id_cliente, 
+                    creator_user= usuario
+                    ) 
+            if duplicados != []:
+                if len(duplicados)==1:
+                    error_duplicados = f'El lugar de monitoreo {duplicados[0]}, ya se encuentra en la base de datos.'
+                else:
+                    error_duplicados = f'Los lugares de monitoreos: {list_to_string(duplicados)}, ya se encuentran en la base de datos.'
+                
+                context['error_duplicados'] = error_duplicados
+
+            else:        
+                return redirect('lims:client', id_cliente)
+
+    return render(request, 'LIMS/client_add_monitoring_place.html', context)
+
+
+@login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def client_add_rca(request, id_cliente):
     '''Client add RCA view.'''
 
@@ -1706,7 +1766,7 @@ def client_add_project_cot(request, id_cliente):
     """Add Standards of reference view."""
 
     cliente = models.Cliente.objects.get(id=id_cliente)
-    parameters = models.ParametroEspecifico.objects.filter(Q(codigo_etfa = None)|Q(codigo_etfa = 'nan')|Q(codigo_etfa = 'Cálculo')).order_by('ensayo')
+    parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
     
@@ -2283,10 +2343,11 @@ def add_service(request, project_id):
     project = models.Proyecto.objects.get(pk = project_id)
     cliente = models.Cliente.objects.get(pk=project.cliente_id)
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
-    parametros = models.ParametroEspecifico.objects.filter(Q(codigo_etfa = 'nan') | Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('ensayo')
+    parametros = models.ParametroEspecifico.objects.all().order_by('codigo')
     parametros_externos = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa='Cálculo') | Q(codigo_etfa='Cálculo-E')).order_by('ensayo')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
@@ -2300,6 +2361,7 @@ def add_service(request, project_id):
             proyecto = request.POST['proyecto']
             cliente = request.POST['cliente']
             punto_de_muestreo = request.POST['punto_de_muestreo']
+            area = request.POST['area']
             tipo_de_muestra = request.POST['tipo_de_muestra']
             fecha_de_muestreo = request.POST['fecha_de_muestreo']
             observacion = request.POST['observacion']
@@ -2335,28 +2397,27 @@ def add_service(request, project_id):
                 elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
                     codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
                     codigo_generado = f'{codigo_de_servicio}-{current_year}'
-            
-            for sp in sample_points:
-                if int(punto_de_muestreo) == int(sp.id):   
-                    models.Servicio.objects.create(
-                        codigo = codigo_de_servicio,
-                        codigo_muestra = codigo_generado, 
-                        proyecto_id = proyecto, 
-                        punto_de_muestreo = sp.nombre,
-                        tipo_de_muestra = tipo_de_muestra,
-                        fecha_de_muestreo = fecha_de_muestreo,
-                        observacion = observacion,
-                        fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                        fecha_de_contenedores = fecha_de_contenedores,
-                        norma_de_referencia = norma_de_referencia,
-                        rCA = rCA,
-                        etfa = etfa,
-                        envases = envases,
-                        muestreado_por_algoritmo = muestreado_por_algoritmo,
-                        creator_user = creator_user,
-                        cliente = cliente,
-                        created = datetime.now()
-                        )                    
+             
+            models.Servicio.objects.create(
+                codigo = codigo_de_servicio,
+                codigo_muestra = codigo_generado, 
+                proyecto_id = proyecto, 
+                area = area,
+                punto_de_muestreo = punto_de_muestreo,
+                tipo_de_muestra = tipo_de_muestra,
+                fecha_de_muestreo = fecha_de_muestreo,
+                observacion = observacion,
+                fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                fecha_de_contenedores = fecha_de_contenedores,
+                norma_de_referencia = norma_de_referencia,
+                rCA = rCA,
+                etfa = etfa,
+                envases = envases,
+                muestreado_por_algoritmo = muestreado_por_algoritmo,
+                creator_user = creator_user,
+                cliente = cliente,
+                created = datetime.now()
+                )                    
 
             for pid in parameters:
                 ensayo = models.ParametroEspecifico.objects.get(pk=pid)
@@ -2375,6 +2436,7 @@ def add_service(request, project_id):
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
+        'monitoring_places': monitoring_places,
         'rcas': rcas,
         'tipo_de_muestra': tipo_muestra,
         'tipos_de_muestras': tipo_de_muestra,
@@ -2392,6 +2454,7 @@ def add_service_etfa(request, project_id):
     project = models.Proyecto.objects.get(pk = project_id)
     cliente = models.Cliente.objects.get(pk=project.cliente_id)
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
@@ -2412,6 +2475,7 @@ def add_service_etfa(request, project_id):
             cliente = request.POST['cliente']
             punto_de_muestreo = request.POST['punto_de_muestreo']
             tipo_de_muestra = request.POST['tipo_de_muestra']
+            area = request.POST['area']
             fecha_de_muestreo = request.POST['fecha_de_muestreo']
             observacion = request.POST['observacion']
             habiles = request.POST['habiles']
@@ -2450,27 +2514,26 @@ def add_service_etfa(request, project_id):
                     codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
                     codigo_generado = f'{codigo_de_servicio}-{current_year}'
             
-            for sp in sample_points:
-                if int(punto_de_muestreo) == int(sp.id):   
-                    models.Servicio.objects.create(
-                        codigo = codigo_de_servicio,
-                        codigo_muestra = codigo_generado, 
-                        proyecto_id = proyecto, 
-                        punto_de_muestreo = sp.nombre,
-                        tipo_de_muestra = tipo_de_muestra,
-                        fecha_de_muestreo = fecha_de_muestreo,
-                        observacion = observacion,
-                        fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                        fecha_de_contenedores = fecha_de_contenedores,
-                        norma_de_referencia = norma_de_referencia,
-                        rCA = rCA,
-                        etfa = etfa,
-                        envases = envases,
-                        muestreado_por_algoritmo = muestreado_por_algoritmo,
-                        creator_user = creator_user,
-                        cliente = cliente,
-                        created = datetime.now()
-                        )                    
+            models.Servicio.objects.create(
+                codigo = codigo_de_servicio,
+                codigo_muestra = codigo_generado, 
+                proyecto_id = proyecto, 
+                punto_de_muestreo = punto_de_muestreo,
+                area= area,
+                tipo_de_muestra = tipo_de_muestra,
+                fecha_de_muestreo = fecha_de_muestreo,
+                observacion = observacion,
+                fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                fecha_de_contenedores = fecha_de_contenedores,
+                norma_de_referencia = norma_de_referencia,
+                rCA = rCA,
+                etfa = etfa,
+                envases = envases,
+                muestreado_por_algoritmo = muestreado_por_algoritmo,
+                creator_user = creator_user,
+                cliente = cliente,
+                created = datetime.now()
+                )                    
 
             for pid in parameters:
                 ensayo = models.ParametroEspecifico.objects.get(pk=pid)
@@ -2502,6 +2565,7 @@ def add_service_etfa(request, project_id):
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
+        'monitoring_places': monitoring_places,
         'rcas': rcas,
         'tipo_de_muestra': tipo_muestra,
         'tipos_de_muestras': tipo_de_muestra,
@@ -2635,6 +2699,7 @@ def add_service_cot(request, project_id):
     parameters_externos = project.parametros_externos.all()
     cliente = models.Cliente.objects.get(pk=project.cliente_id)
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
@@ -2643,6 +2708,7 @@ def add_service_cot(request, project_id):
         proyecto = request.POST['proyecto']
         cliente = request.POST['cliente']
         punto_de_muestreo = request.POST['punto_de_muestreo']
+        area = request.POST['area']
         tipo_de_muestra = request.POST['tipo_de_muestra']
         fecha_de_muestreo = request.POST['fecha_de_muestreo']
         fecha_de_recepcion = request.POST['fecha_de_recepcion']
@@ -2683,26 +2749,26 @@ def add_service_cot(request, project_id):
                 codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
                 codigo_generado = f'{codigo_de_servicio}-{current_year}'
 
-        for sp in sample_points:
-            if int(punto_de_muestreo) == int(sp.id):   
-                models.Servicio.objects.create(
-                    codigo = codigo_de_servicio,
-                    codigo_muestra = codigo_generado, 
-                    proyecto_id = proyecto, 
-                    punto_de_muestreo = sp.nombre,
-                    tipo_de_muestra = tipo_de_muestra,
-                    fecha_de_muestreo = fecha_de_muestreo,
-                    fecha_de_recepcion = fecha_de_recepcion,
-                    observacion = observacion,
-                    fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                    norma_de_referencia = norma_de_referencia,
-                    rCA = rCA,
-                    etfa = etfa,
-                    muestreado_por_algoritmo = muestreado_por_algoritmo,
-                    creator_user = creator_user,
-                    cliente = cliente,
-                    created = datetime.now()
-                    )                    
+           
+        models.Servicio.objects.create(
+            codigo = codigo_de_servicio,
+            codigo_muestra = codigo_generado, 
+            proyecto_id = proyecto, 
+            punto_de_muestreo = punto_de_muestreo,
+            area = area,
+            tipo_de_muestra = tipo_de_muestra,
+            fecha_de_muestreo = fecha_de_muestreo,
+            fecha_de_recepcion = fecha_de_recepcion,
+            observacion = observacion,
+            fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+            norma_de_referencia = norma_de_referencia,
+            rCA = rCA,
+            etfa = etfa,
+            muestreado_por_algoritmo = muestreado_por_algoritmo,
+            creator_user = creator_user,
+            cliente = cliente,
+            created = datetime.now()
+            )                    
 
         for pid in parameters:
             ensayo = models.ParametroEspecifico.objects.get(pk=pid)
@@ -2734,6 +2800,7 @@ def add_service_cot(request, project_id):
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
+        'monitoring_places': monitoring_places,
         'rcas': rcas,
         'tipos_de_muestras': tipo_de_muestra,
         'normas': normas,
@@ -3682,7 +3749,7 @@ def service_simulator(request):
                 parameters = parameters.exclude(Q(codigo_etfa = 'nan') | Q(codigo_etfa = None) | Q(codigo_etfa= 'Cálculo'))
             elif etfa == 'NO':
                 print('NO')
-                parameters = parameters.filter(Q(codigo_etfa = 'nan') | Q(codigo_etfa = None) | Q(codigo_etfa= 'Cálculo'))
+                parameters = parameters.all()
             context['parameters'] = parameters
             context['etfa'] = etfa
             context['tipo_de_muestra'] = tipo_de_muestra
@@ -3706,9 +3773,5 @@ def service_simulator(request):
             if len(parameters_analisis_externos)>0: 
                 parametros_analisis_externos = [models.ParametroEspecifico.objects.get(id=p) for p in parameters_analisis_externos]
                 context['parametros_analisis_externos'] = parametros_analisis_externos
-
-            
-            
-
-
+                
     return render(request, 'LIMS/service_simulator.html', context)
