@@ -92,20 +92,16 @@ class Envase(models.Model):
     def __str__(self):
         return self.codigo
 
-# class Envase(models.Model):
-#     """ Envase model."""
+class Filtro(models.Model):
+    """ Envase model."""
 
-#     codigo = models.CharField(primary_key=True, max_length=15)
-#     nombre = models.CharField(max_length=100)
-#     volumen = models.CharField(max_length=10)
-#     material = models.CharField(max_length=100)
-#     preservante = models.CharField(max_length=254)
-#     created = models.DateTimeField(auto_now_add=True)
-#     creator_user = models.CharField(max_length=100)
+    codigo = models.CharField(primary_key=True, max_length=15)
+    descripcion = models.CharField(max_length=100)
+    created = models.DateTimeField(auto_now_add=True)
+    creator_user = models.CharField(max_length=100)
 
-#     def __str__(self):
-#         return self.nombre
-
+    def __str__(self):
+        return self.descripcion
 
 class Metodo(models.Model):
     """Method model."""
@@ -180,6 +176,30 @@ class Proyecto(models.Model):
         return self.nombre
 
 
+class ModeloDeServicioDeFiltro(models.Model):
+    """Service model."""
+
+    codigo_modelo = models.CharField(max_length=200, unique=True)
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
+    parametros = models.ManyToManyField(ParametroEspecifico)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    area = models.CharField(max_length=200, null=True, blank=True,)
+    punto_de_muestreo = models.CharField(max_length=200)
+    tipo_de_muestra = models.CharField(max_length=200)
+    observacion = models.TextField(null=True, blank=True,)
+    filtro = models.ForeignKey(Filtro, on_delete=models.PROTECT)
+    norma_de_referencia = models.ForeignKey(NormaDeReferencia, on_delete=models.PROTECT)
+    responsable = models.CharField(max_length=200)
+    rCA = models.ForeignKey(RCACliente, on_delete=models.PROTECT)
+    etfa = models.BooleanField() 
+    muestreado_por_algoritmo = models.CharField(max_length=254)
+    created = models.DateTimeField()
+    creator_user = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.codigo_muestra
+    
+
 class Servicio(models.Model):
     """Service model."""
 
@@ -192,14 +212,16 @@ class Servicio(models.Model):
     tipo_de_muestra = models.CharField(max_length=200)
     fecha_de_muestreo = models.DateField(null=True, blank=True,)
     envases = models.TextField(null=True, blank=True,)
+    filtros = models.ForeignKey(Filtro, on_delete=models.PROTECT,null=True, blank=True)
     observacion = models.TextField(null=True, blank=True,)
     fecha_de_recepcion = models.DateField(null=True, blank=True,)
     fecha_de_entrega_cliente = models.DateField(null=True, blank=True,)
-    fecha_de_contenedores = models.DateField(null=True, blank=True,)
+    fecha_de_contenedores_o_filtros = models.DateField(null=True, blank=True,)
     norma_de_referencia = models.CharField(max_length=254)
     responsable = models.CharField(max_length=200)
     rCA = models.CharField(max_length=254)
-    etfa = models.BooleanField() 
+    etfa = models.BooleanField(default=False) 
+    modelo = models.ForeignKey(ModeloDeServicioDeFiltro, on_delete=models.PROTECT, null=True, blank=True)
     muestreado_por_algoritmo = models.CharField(max_length=254)
     created = models.DateTimeField()
     creator_user = models.CharField(max_length=100)
@@ -207,6 +229,7 @@ class Servicio(models.Model):
 
     def __str__(self):
         return self.codigo_muestra
+    
 
 class Batch(models.Model):
     "Batch model."

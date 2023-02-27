@@ -1,0 +1,45 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain' style="display: flex; justify-content: space-between;">
+    <h1 style='display: flex; justify-content: space-between;' class="title">{{ modelo.codigo_modelo }} 
+    </h1>
+
+    <a href="{% url 'lims:generate_service' modelo.codigo_modelo %}" title='Generar servicio'><i class="fa-solid fa-copy"></i></a>
+</div>
+
+<p class="p-service"><strong>Cliente: </strong>{{ modelo.cliente.titular }}</p>
+<p class="p-service"><strong>Proyecto: </strong>{{ modelo.proyecto.nombre }}</p>
+<p class="p-service"><strong>Lugar de monitoreo: </strong>{{ modelo.area }}</p>
+<p class="p-service"><strong>Punto de muestreo: </strong>{{ modelo.punto_de_muestreo }}</p>
+<p class='p-service'><strong>Tipo de muestra: </strong>{{ modelo.tipo_de_muestra }}</p>
+
+<h3>Observación</h3>
+<p class='p-service'>{{ modelo.observacion }}</p>
+
+
+<h3>Norma de referencia</h3>
+<p class='p-service'>{{ modelo.norma_de_referencia.norma }}</p>
+
+<h3>RCA</h3>
+<p class='p-service'>{{ modelo.rCA.rca_asociada }}</p>
+
+
+{% if parameters %}
+<h3>Parametros</h3>
+{% for p in parameters %}
+<p style='margin-left: 20px'>{{ p.codigo }} ({{ p.ensayo }})</p>
+{% endfor %}
+{% endif %}
+
+
+
+{% endblock content %}
+
+
+

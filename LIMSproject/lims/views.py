@@ -1878,28 +1878,40 @@ def normas_ref(request):
     """Normas de referencias view."""
 
     queryset_normas = models.NormaDeReferencia.objects.all().order_by('norma')
-    paginator = Paginator(queryset_normas, 25)
-    page = request.GET.get('page')
-    normas = paginator.get_page(page)
 
     if request.method == 'POST':
-        if 'excel_file' in request.POST.keys():
-            if request.POST['excel_file'] == '':
-                pass
-        
-        elif request.FILES['excel_file']:
-            excel_file = request.FILES['excel_file']
-            df = pd.read_excel(excel_file)
 
-            responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
-            
-            for index, row in df.iterrows():
-                if   models.NormaDeReferencia.objects.filter(norma=row['Norma']).exists():
-                    continue
-                else:
-                    models.NormaDeReferencia.objects.create(norma = row['Norma'], descripcion= row['Descripción'],creator_user = responsable_de_analisis)
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        if 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                pass
+
+            elif request.POST['buscar'] == 'norma':
+                queryset_normas = queryset_normas.filter(norma__contains=request.POST['search_text'])
+
+            elif request.POST['buscar'] == 'descripcion':
+                queryset_normas = queryset_normas.filter(descripcion__contains=request.POST['search_text'])
         
+        else:
+            if 'excel_file' in request.POST.keys():
+                if request.POST['excel_file'] == '':
+                    pass
+            
+            elif request.FILES['excel_file']:
+                excel_file = request.FILES['excel_file']
+                df = pd.read_excel(excel_file)
+
+                responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
+                
+                for index, row in df.iterrows():
+                    if   models.NormaDeReferencia.objects.filter(norma=row['Norma']).exists():
+                        continue
+                    else:
+                        models.NormaDeReferencia.objects.create(norma = row['Norma'], descripcion= row['Descripción'],creator_user = responsable_de_analisis)
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+    
+    paginator = Paginator(queryset_normas, 35)
+    page = request.GET.get('page')
+    normas = paginator.get_page(page)
     return render(request, 'LIMS/normas_ref.html',{
         'normas': normas,
     })
@@ -1962,10 +1974,21 @@ def methods(request):
     """Normas de referencias view."""
 
     queryset_metodos = models.Metodo.objects.all().order_by('nombre')
-    paginator = Paginator(queryset_metodos, 25)
+    
+    if request.method == 'POST':
+        if 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                pass
+
+            elif request.POST['buscar'] == 'nombre':
+                queryset_metodos = queryset_metodos.filter(nombre__contains=request.POST['search_text'])
+
+            elif request.POST['buscar'] == 'descripcion':
+                queryset_metodos = queryset_metodos.filter(descripcion__contains=request.POST['search_text'])
+
+    paginator = Paginator(queryset_metodos, 35)
     page = request.GET.get('page')
     metodos = paginator.get_page(page)
-
     return render(request, 'LIMS/methods.html',{
         'metodos': metodos,
     })
@@ -2080,12 +2103,14 @@ def add_container(request):
     """Add container view."""
 
     if request.method == 'POST':
+        codigo = request.POST['codigo']
         nombre = request.POST['nombre']
         volumen = request.POST['volumen']
         material = request.POST['material']
         preservante = request.POST['preservante']
         usuario = request.POST['creador']
         models.Envase.objects.create(
+            codigo= codigo,
             nombre=nombre, 
             volumen=volumen, 
             material=material, 
@@ -2096,6 +2121,66 @@ def add_container(request):
         return redirect('lims:containers')
 
     return render(request, 'LIMS/add_containers.html')
+
+
+@login_required
+@user_passes_test(is_manager, login_url='lims:index')
+def filters(request):
+    '''Filters view.'''
+
+    queryset_filters = models.Filtro.objects.all().order_by('codigo')
+    paginator = Paginator(queryset_filters, 35)
+    page = request.GET.get('page')
+    filtros = paginator.get_page(page)
+    
+    if request.method == 'POST':
+        if 'excel_file' in request.POST.keys():
+            if request.POST['excel_file'] == '':
+                pass
+        
+        elif request.FILES['excel_file']:
+            excel_file = request.FILES['excel_file']
+            df = pd.read_excel(excel_file)
+
+            responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable_de_analisis'])
+            
+            for index, row in df.iterrows():
+                if   models.Filtro.objects.filter(codigo=row['Código Filtro']).exists():
+                    continue
+                else:
+
+                    models.Filtro.objects.create(
+                        codigo = row['Código Filtro'], 
+                        descripcion = row['Descripción'],
+                        creator_user = responsable_de_analisis)
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+    return render(request, 'LIMS/filters.html',{
+        'filtros': filtros,
+    })
+
+
+@login_required
+@user_passes_test(is_manager, login_url='lims:index')
+def add_filter(request):
+    """Add filter view."""
+
+    if request.method == 'POST':
+        codigo = request.POST['codigo']
+        nombre = request.POST['nombre']
+        volumen = request.POST['volumen']
+        material = request.POST['material']
+        preservante = request.POST['preservante']
+        usuario = request.POST['creador']
+        models.Envase.objects.create(
+            codigo = codigo,
+            nombre=nombre, 
+            creator_user=usuario
+            )
+
+        return redirect('lims:filters')
+
+    return render(request, 'LIMS/add_filters.html')
 
 
 @login_required
@@ -2246,10 +2331,29 @@ def etfa(request):
     """ETFA view."""
 
     queryset_services = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('codigo_etfa')
+
+    if request.method == 'POST':
+        if 'search_text' in request.POST.keys():
+            if request.POST['search_text'] == '' or request.POST['buscar'] == '':
+                pass
+
+            elif request.POST['buscar'] == 'autorizacion':
+                queryset_services = queryset_services.filter(codigo_etfa__contains=request.POST['search_text'])
+
+            elif request.POST['buscar'] == 'ensayo':
+                queryset_services = queryset_services.filter(ensayo__contains=request.POST['search_text'])
+
+            elif request.POST['buscar'] == 'codigo':
+                queryset_services = queryset_services.filter(codigo__icontains=request.POST['search_text'])
+
+
+            elif request.POST['buscar'] == 'metodo':
+                queryset_services = queryset_services.filter(metodo__contains=request.POST['search_text'])
+
+
     paginator = Paginator(queryset_services, 35)
     page = request.GET.get('page')
     services = paginator.get_page(page)
-    
     return render(request, 'LIMS/etfa.html',{
         'services':services,
     })
@@ -2295,6 +2399,10 @@ def project(request, project_id):
     paginator = Paginator(queryset_services, 20)
     page = request.GET.get('page')
     services = paginator.get_page(page)
+    queryset_models = models.ModeloDeServicioDeFiltro.objects.filter(proyecto_id=project_id).order_by('-created', 'codigo_modelo')
+    paginator = Paginator(queryset_models, 20)
+    page = request.GET.get('page')
+    modelos = paginator.get_page(page)
     parameters_service = models.ParametroDeMuestra.objects.all()
     
     return render(request, 'LIMS/project.html', {
@@ -2303,6 +2411,7 @@ def project(request, project_id):
         'sample_points': sample_points,
         'rcas': rcas,
         'services': services,
+        'modelos': modelos,
         'parameters': parameters_service,
     })
 
@@ -2408,7 +2517,7 @@ def add_service(request, project_id):
                 fecha_de_muestreo = fecha_de_muestreo,
                 observacion = observacion,
                 fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                fecha_de_contenedores = fecha_de_contenedores,
+                fecha_de_contenedores_o_filtros = fecha_de_contenedores,
                 norma_de_referencia = norma_de_referencia,
                 rCA = rCA,
                 etfa = etfa,
@@ -2524,7 +2633,7 @@ def add_service_etfa(request, project_id):
                 fecha_de_muestreo = fecha_de_muestreo,
                 observacion = observacion,
                 fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                fecha_de_contenedores = fecha_de_contenedores,
+                fecha_de_contenedores_o_filtros = fecha_de_contenedores,
                 norma_de_referencia = norma_de_referencia,
                 rCA = rCA,
                 etfa = etfa,
@@ -2574,6 +2683,183 @@ def add_service_etfa(request, project_id):
         'normas': normas,
     })
 
+
+@login_required
+@user_passes_test(is_commercial, login_url='lims:project')
+def add_model_service(request, project_id):
+    """Add service view."""
+
+    project = models.Proyecto.objects.get(pk = project_id)
+    cliente = models.Cliente.objects.get(pk=project.cliente_id)
+    sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
+    tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
+    tipo_muestra = ''
+    parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
+    normas = models.NormaDeReferencia.objects.all().order_by('norma')
+    filtros = models.Filtro.objects.all().order_by('codigo')         
+
+    if request.method == 'POST':
+
+        if 'tipo_muestra' in request.POST:
+            tipo_de_muestra = models.TipoDeMuestra.objects.filter(nombre= request.POST['tipo_muestra']).order_by('nombre')
+            tipo_muestra = request.POST['tipo_muestra']
+            parametros = parametros.filter(tipo_de_muestra= tipo_muestra).order_by('codigo')
+        else:
+            proyecto = request.POST['proyecto']
+            cliente = request.POST['cliente']
+            punto_de_muestreo = request.POST['punto_de_muestreo']
+            tipo_de_muestra = request.POST['tipo_de_muestra']
+            filtro = request.POST['filtro']
+            area = request.POST['area']
+            observacion = request.POST['observacion']
+            norma_de_referencia = request.POST['norma_de_referencia']
+            rCA = request.POST['rCA']
+            muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
+            creator_user = request.POST['creator_user']
+            parameters = request.POST.getlist('parameters')
+
+            print(request.POST)
+
+            current_year = datetime.now().year
+            current_year = str(current_year)[2:]
+
+
+            if models.ModeloDeServicioDeFiltro.objects.exists()==False:
+                codigo_de_modelo = ('1').zfill(5)
+                codigo_generado = f'M-{codigo_de_modelo}-{current_year}'
+
+            if models.ModeloDeServicioDeFiltro.objects.filter(codigo_modelo__endswith = '-'+current_year).exists()!=False:
+                last_service = models.ModeloDeServicioDeFiltro.objects.filter(codigo_modelo__endswith = '-'+current_year).latest('codigo_modelo')
+
+                if last_service.codigo_modelo[-2:] != current_year: 
+                    codigo_central = ('1').zfill(5)
+                    codigo_generado = f'M-{codigo_central}-{current_year}'
+                
+                elif models.ModeloDeServicioDeFiltro.objects.exists()==True and last_service.codigo_modelo[-2:] == current_year:
+                    codigo_de_modelo = str(int(last_service.codigo_modelo[-7:-3]) +1).zfill(5)
+                    codigo_generado = f'M-{codigo_de_modelo}-{current_year}'  
+            
+
+            modelo = models.ModeloDeServicioDeFiltro.objects.create(
+                codigo_modelo =codigo_generado ,
+                proyecto_id = proyecto, 
+                punto_de_muestreo = punto_de_muestreo,
+                area= area,
+                tipo_de_muestra = tipo_de_muestra,
+                filtro = models.Filtro.objects.get(codigo = filtro),
+                observacion = observacion,
+                norma_de_referencia = norma_de_referencia,
+                rCA = rCA,
+                muestreado_por_algoritmo = muestreado_por_algoritmo,
+                creator_user = creator_user,
+                cliente = cliente,
+                created = datetime.now()
+                )  
+
+            modelo.parametros.set(parameters)            
+
+            return redirect('lims:project', project_id)
+        
+    return render(request, 'LIMS/add_model_service.html', {
+        'project': project, 
+        'cliente': cliente,
+        'sample_points': sample_points,
+        'monitoring_places': monitoring_places,
+        'rcas': rcas,
+        'tipo_de_muestra': tipo_muestra,
+        'tipos_de_muestras': tipo_de_muestra,
+        'parameters': parametros,
+        'normas': normas,
+        'filtros': filtros,
+    })
+
+
+@login_required
+@user_passes_test(is_commercial_or_income, login_url='lims:index')
+def modelo(request, model_id):
+    modelo = models.ModeloDeServicioDeFiltro.objects.get(codigo_modelo = model_id)
+    parameters = modelo.parametros.all()
+
+    context = {
+        'modelo': modelo,
+        'parameters': parameters,
+    }
+    return render(request, 'LIMS/modelo.html', context)
+
+
+@login_required
+@user_passes_test(is_income, login_url='lims:modelo')
+def generate_service(request, model_id):
+
+    modelo = models.ModeloDeServicioDeFiltro.objects.get(codigo_modelo = model_id)
+    parameters = modelo.parametros.all()
+
+    if request.method == 'POST':
+
+        fecha_de_muestreo = request.POST['fecha_de_muestreo']
+        habiles = request.POST['habiles']
+        observacion = request.POST['observacion']
+        creator_user = request.POST['creator_user']
+        fecha_de_envio = request.POST['fecha_de_envio']
+
+        fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
+        fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
+        current_year = datetime.now().year
+        current_year = str(current_year)[2:]
+
+
+        if models.Servicio.objects.exists()==False:
+            codigo_de_servicio = ('1').zfill(5)
+            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        
+        if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+            last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+
+            if last_service.codigo_muestra[-2:] != current_year: 
+                codigo_central = ('1').zfill(5)
+                codigo_generado = f'{codigo_central}-{current_year}'
+            
+            elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+                codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                codigo_generado = f'{codigo_de_servicio}-{current_year}'
+            
+            models.Servicio.objects.create(
+                codigo = codigo_de_servicio,
+                codigo_muestra = codigo_generado, 
+                proyecto_id = modelo.proyecto.codigo, 
+                punto_de_muestreo = modelo.punto_de_muestreo,
+                area= modelo.area,
+                tipo_de_muestra = modelo.tipo_de_muestra,
+                fecha_de_muestreo = fecha_de_muestreo,
+                observacion = observacion,
+                fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+                fecha_de_contenedores_o_filtros = fecha_de_envio,
+                filtros = modelo.filtro,
+                norma_de_referencia = modelo.norma_de_referencia.id,
+                rCA = modelo.rCA.id,
+                muestreado_por_algoritmo = modelo.muestreado_por_algoritmo,
+                creator_user = creator_user,
+                cliente = modelo.cliente.id,
+                created = datetime.now()
+                )                    
+
+            for p in parameters:
+                models.ParametroDeMuestra.objects.create(
+                    servicio_id = codigo_de_servicio, 
+                    parametro_id= p.id,
+                    ensayo= p.codigo, 
+                    codigo_servicio= codigo_generado,
+                    creator_user = creator_user,
+                    created = datetime.now()
+                    )
+
+            return redirect('lims:project', modelo.proyecto.codigo)
+        
+        
+
+    return render(request, 'LIMS/generate_service_filter.html')
 
 @login_required
 @user_passes_test(is_commercial, login_url='lims:project_cot')
@@ -2658,7 +2944,7 @@ def clone_service(request, service_id):
                         fecha_de_muestreo = fecha_de_muestreo,
                         observacion = observacion,
                         fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                        fecha_de_contenedores = fecha_de_contenedores,
+                        fecha_de_contenedores_o_filtros = fecha_de_contenedores,
                         norma_de_referencia = norma_de_referencia,
                         rCA = rCA,
                         etfa = service.etfa,

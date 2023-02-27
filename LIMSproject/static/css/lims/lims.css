@@ -210,7 +210,8 @@ input {
 .fa-circle-xmark, 
 .fa-rotate-left, 
 .fa-chart-column,
-.fa-copy {
+.fa-copy,
+.fa-file-circle-plus {
     color: #0c7cbf;
     font-size: 2rem;
     cursor: pointer;
@@ -221,7 +222,8 @@ input {
 .fa-circle-xmark:hover, 
 .fa-rotate-left:hover,
 .fa-chart-column:hover,
-.fa-copy:hover {
+.fa-copy:hover,
+.fa-file-circle-plus:hover {
     color: #acc835;
 }
 
@@ -360,6 +362,7 @@ input {
 }
 
 .add_service_type, 
+.add_model_service_type,
 .add_project_type1,
 .add_project_type2 {
     color: rgb(97, 95, 95);
@@ -373,9 +376,14 @@ input {
     z-index: +2;
 }
 
-.add_service_type{
+.add_service_type {
     left: calc(50% - 200px);
 } 
+
+.add_model_service_type {
+    left: calc(50% - 293px);
+} 
+
 .add_project_type1,
 .add_project_type2 {
     width: 630px;
@@ -383,12 +391,14 @@ input {
     text-align: center;
 }
 .add_service_type h2, 
+.add_model_service_type h2,
 .add_project_type1 h2,
 .add_project_type2 h2 {
     margin-bottom: 20px;
 }
 
-.add_service_type div, 
+.add_service_type div,
+.add_model_service_type div, 
 .add_project_type1 div,
 .add_project_type2 div {
     display: flex;
@@ -396,6 +406,7 @@ input {
 }
 
 .add_service_type a, 
+.add_model_service_type a,
 .add_project_type1 a,
 .add_project_type1 span,
 .add_project_type2 a,
@@ -408,6 +419,7 @@ input {
     border-radius: 5px;
 }
 .add_service_type a:hover, 
+.add_model_service_type a:hover,
 .add_project_type1 a:hover,
 .add_project_type1 span:hover,
 .add_project_type2 a:hover,
@@ -422,6 +434,7 @@ input {
 }
 
 .btn_add_service, 
+.btn_add_model,
 .btn_type_project,
 .btn_type_project2 {
     margin-left: 10px;
@@ -431,6 +444,7 @@ input {
 }
 
 .service_exit, 
+.model_exit,
 .project_exit {
     width: 100%;
     margin: 10px;

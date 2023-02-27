@@ -1,0 +1,48 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Generar Servicio</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}
+
+    <table>
+
+        <tr>
+            <td class='item-add'><Label>Fecha de muestreo</Label></td>
+            <td class='item-input'><input type='date' name="fecha_de_muestreo" id="" placeholder="" required></td>
+        </tr>
+        
+        <tr>
+            <td class='item-add'><Label>Fecha para envío de filtros</Label></td>
+            <td class='item-input'><input type='date' name="fecha_de_envio" id="" placeholder="" required></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Días habiles para entrega al cliente</Label></td>
+            <td class='item-input'><input type='number' name="habiles" id="" placeholder="numero de días habiles" required></td>
+        </tr>
+
+        <tr style='display:none'>
+            <td class='item-add'><label for="">Creador</label></td>
+            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+        </tr>
+
+        <tr>
+            <td class='item-add'><Label>Observación</Label></td>
+            <td class='item-input'><input type="text" name="observacion" id="" placeholder="Información adicional"></td>
+        </tr>
+
+    </table>
+        
+
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

@@ -36,6 +36,7 @@ urlpatterns = [
     path('project/<str:project_id>/add_service', views.add_service, name="add_service"),
     path('project_cot/<str:project_id>/add_service', views.add_service_cot, name="add_service_cot"),
     path('project/<str:project_id>/add_service_etfa', views.add_service_etfa, name="add_service_etfa"),
+    path('project/<str:project_id>/add_model_service', views.add_model_service, name="add_model_service"),
     path('service/<str:service_id>/', views.service, name="service"),
     path('service/<str:service_id>/clone_service', views.clone_service, name="clone_service"),
     path('service/<str:service_id>/add_service_parameter', views.add_service_parameter, name="add_service_parameter"),
@@ -58,4 +59,8 @@ urlpatterns = [
     path('grafico/<str:service_id>/', views.grafico, name='grafico'),
     path('base_importation/', views.base_importation, name="base_importation"),
     path('service_simulator/', views.service_simulator, name='service_simulator'),
+    path('filters/', views.filters, name="filters"),
+    path('filters/add_filter/', views.add_filter, name="add_filters"),
+    path('model/<str:model_id>/', views.modelo, name='modelo'),
+    path('model/<str:model_id>/generate_service/', views.generate_service, name='generate_service'),
     ]

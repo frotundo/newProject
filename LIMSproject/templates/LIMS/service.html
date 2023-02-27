@@ -33,7 +33,7 @@
 <p class='p-service'><strong>Fecha de entrega al cliente: </strong>{{ service.fecha_de_entrega_cliente|date:"d-m-Y" }}</p>
 {% if project.cotizado %}
 {% else %}
-<p class='p-service'><strong>Fecha de entrega de envase para enviar a terreno: </strong>{{ service.fecha_de_contenedores|date:"d-m-Y" }}</p>
+<p class='p-service'><strong>Fecha de entrega de envase para enviar a terreno: </strong>{{ service.fecha_de_contenedores_o_filtros|date:"d-m-Y" }}</p>
 {% endif %}
 
 <p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepcion|date:"d-m-Y" }}</p>

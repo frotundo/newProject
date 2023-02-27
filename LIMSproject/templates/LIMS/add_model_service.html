@@ -6,27 +6,33 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="title">Agregar Servicio</h1>
+<h1 class="title">Agregar Modelo de Servicio</h1>
 
 <form action="" method='POST'>
     {% csrf_token %}
-
     <table  class='client-select'>
         <tr>
-            <td class='item-add'><label for="lang">Servicio ETFA</label></td>
-            <td class='item-input'>
-                <input type="text" name='etfa' value='{% if project.etfa %}SI{% else %}NO{% endif %} ' readonly>
-            </td>
-        </tr>
-        <tr>
             <td class='item-add'><label for="lang">Tipo de muestra</label></td>
-            <td class='item-input'>
-                <input type="text" name='etfa' value='{{ project.tipo_de_muestra }}' readonly>
+            <td class='item-input' style='display: flex;'>
+                <select class='select1' name="tipo_muestra" id="lang"  size='1'>
+                    <option value=""></option>
+                    {% for tipo in tipos_de_muestras %}
+                    <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
+                {% endfor %}
+                </select>
+                <button class='btn-filtrar' style='margin-left: 10px' type="submit">Filtrar</button>
             </td>
         </tr>
         <p></p>
         <p></p>
     </table>
+    
+
+</form>
+
+<form class='form inactive' action="" method='POST'>
+    {% csrf_token %}
+
     <table>
         <tr style='display:none;'>
             <td class='item-add'><Label>Proyecto</Label></td>
@@ -36,31 +42,6 @@
         <tr style='display:none;'>
             <td class='item-add'><Label>Cliente</Label></td>
             <td class='item-input'><input type="text" name="cliente" id="" placeholder="" value='{{ project.cliente_id }}'></td>
-        </tr>
-        
-        {% comment %} <tr>
-            <td class='item-add'><Label>Codigo de muestra</Label></td>
-            <td class='item-input'><input type="text" name="codigo_muestra" id="" placeholder="codigo"></td>
-        </tr> {% endcomment %}
-
-        <tr>
-            <td class='item-add'><Label>Fecha de muestreo</Label></td>
-            <td class='item-input'><input type='date' name="fecha_de_muestreo" id="" placeholder="" required></td>
-        </tr>
-        
-        {% comment %} <tr>
-            <td class='item-add'><Label>Fecha para entrega de envases o filtros</Label></td>
-            <td class='item-input'><input type='date' name="fecha_de_contenedores" id="" placeholder="" required></td>
-        </tr> {% endcomment %}
-
-        <tr>
-            <td class='item-add'><Label>Fecha de recepción</Label></td>
-            <td class='item-input'><input type='date' name="fecha_de_recepcion" id="" placeholder="" required></td>
-        </tr>
-
-        <tr>
-            <td class='item-add'><Label>Días habiles para entrega al cliente</Label></td>
-            <td class='item-input'><input type='number' name="habiles" id="" placeholder="numero de días habiles" required></td>
         </tr>
 
         <tr style='display:none'>
@@ -78,6 +59,27 @@
             <td class='item-input'><input type="text" name="observacion" id="" placeholder="Información adicional"></td>
         </tr>
 
+        <tr style='display:none;'>
+            <td class='item-add'><label for="">Tipo de muestra</label></td>
+            <td class='item-input'><input class='tipodemuestra' type='text' name="tipo_de_muestra" value='{{ tipo_de_muestra }}' readonly></td>
+        </tr>
+        
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Tipo de filtro</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="filtro" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for filtro in filtros %}
+                        <option value="{{ filtro.codigo }}">{{ filtro.descripcion }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
         <table  class='client-select'>
             <tr>
                 <td class='item-add'><label for="lang">Lugar de monitoreo</label></td>
@@ -93,7 +95,7 @@
             <p></p>
             <p></p>
         </table>
-        
+
         <table  class='client-select'>
             <tr>
                 <td class='item-add'><label for="lang">Punto de muestreo</label></td>
@@ -101,23 +103,7 @@
                     <select class='select1' name="punto_de_muestreo" id="lang"  size='1'>
                         <option value=""></option>
                         {% for sp in sample_points %}
-                        <option value="{{ sp.id }}">{{ sp.nombre }}</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-            <p></p>
-            <p></p>
-        </table>
-
-        <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Tipo de muestra</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="tipo_de_muestra" id="lang"  size='1'>
-                        <option value=""></option>
-                        {% for tipo in tipos_de_muestras %}
-                        <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
+                        <option value="{{ sp.nombre }}">{{ sp.nombre }}</option>
                     {% endfor %}
                     </select>
                 </td>
@@ -132,8 +118,8 @@
                 <td class='item-input'>
                     <select class='select1' name="parameters" id="lang"  multiple>
                         <option value=""></option>
-                        {% for p in parametros_cot %}
-                        <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %} >{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                        {% for p in parameters %}
+                        <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %}>{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
                     {% endfor %}
                     </select>
                 </td>
@@ -142,21 +128,6 @@
             <p></p>
         </table>
 
-        <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Parametros (análisis externos)</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="analisis_externos" id="lang"  multiple>
-                        <option value=""></option>
-                        {% for p in parameters_externos %}
-                        <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-            <p></p>
-            <p></p>
-        </table>
 
         <table  class='client-select'>
             <tr>
@@ -198,3 +169,13 @@
 
 
 {% endblock content %}
+
+{% block extrajs %}
+    <script>
+        const tipodemuestra = document.querySelector('.tipodemuestra');
+        const form = document.querySelector('.form');
+        if (tipodemuestra.value!=''){
+            form.classList.remove('inactive');
+        }
+    </script>
+{% endblock extrajs %}

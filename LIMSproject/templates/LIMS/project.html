@@ -13,6 +13,56 @@
 <p class="p-service"><strong>Código: </strong>{{ project.codigo }}</p>
 <p></p>
 
+
+<div>
+    <div class='subtitle_contain'>
+        <h2 class="subtitle" style='margin-right: 10px;'>Modelos de servicios de filtros</h2>
+        <a class='link-add' href="{% url 'lims:add_model_service' project.codigo %}"><i class="fa-solid fa-circle-plus"></i></a>
+        {% comment %} <span class='btn_add_model' title="Agregar modelo de servicio de filtro"><i class="fa-solid fa-file-circle-plus"></i></span> {% endcomment %}
+        
+    </div>
+    
+    {% if modelos %}
+        <table id='#table-service'>
+            <tr>
+                <td class='item-list-2 title-item-list'>Codigo de modelo</td>
+                <td class='item-list-2 title-item-list'>Filtro</td>
+                <td class='item-list-2 title-item-list'>Lugar de monitoreo</td>
+                <td class='item-list-2 title-item-list'>Punto de muestreo</td>       
+            </tr>
+        
+            {% for model in modelos %}
+                <tr class='btn-service row'>
+                    <td class='item-list-2'><a href="{% url 'lims:modelo' model.codigo_modelo %}">{{ model.codigo_modelo }}</a></td>
+                    <td class='item-list-2'>{{ model.filtro }}</td>
+                    <td class='item-list-2'>{{ model.area }}</td>
+                    <td class='item-list-2'>{{ model.punto_de_muestreo }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <div class="pagination">
+            <span class="page-links">
+                {% if modelos.has_previous %}
+                    <a href="?page={{ modelos.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="page-current">
+                    Pagina {{ modelos.number }} de {{ modelos.paginator.num_pages }}
+                </span>
+        
+                {% if modelos.has_next %}
+                    <a href="?page={{ modelos.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+        
+    {% else  %}
+        No hay registro de modelos para servicios de filtros.
+    {% endif %}
+    
+</div>
+
 <div>
     <div class='subtitle_contain'>
         <h2 class="subtitle">Servicios</h2>
@@ -58,19 +108,27 @@
     {% else  %}
         No hay registro de servicios.
     {% endif %}
-
+    
 </div>
 
 {% endblock content %}
 
 {% block extrajs %}
     <div class='add_service_type inactive'>
-        <div class="service_exit" style='justify-content: end;'><i class="fa-solid fa-circle-xmark"></i></div>
+        <div class="service_exit" style='justify-content: end;'><i class="fa-solid fa-circle-xmark exit-service"></i></div>
         <h2>¿El servicio es ETFA?</h2>
         <div>
             <a href="{% url 'lims:add_service_etfa' project.codigo %}">SI</a>
             <a href="{% url 'lims:add_service' project.codigo %}">NO</a>
         </div>
     </div>
+    {% comment %} <div class='add_model_service_type inactive'>
+        <div class="model_service_exit" style='justify-content: end;'><i class="fa-solid fa-circle-xmark exit-model"></i></div>
+        <h2>¿El modelo de servicio es ETFA?</h2>
+        <div>
+            <a href="{% url 'lims:add_model_service_etfa' project.codigo %}">SI</a>
+            <a href="{% url 'lims:add_service' project.codigo %}">NO</a>
+        </div>
+    </div> {% endcomment %}
     <script src="{% static 'js/lims.js' %}"></script>
 {% endblock  %}

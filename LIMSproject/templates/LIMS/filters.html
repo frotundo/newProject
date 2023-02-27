@@ -1,0 +1,57 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class='title_contain'>
+    <h1 class="title">Filtros</h1>
+    <a class='link-add' href="{% url 'lims:add_filters' %}" title="Agregar filtro"><i class="fa-solid fa-circle-plus"></i></a> 
+</div>
+
+{% if filtros %}
+    <table>
+        <tr>
+            <td class='item-list title-item-list'>Código</td>
+            <td class='item-list title-item-list'>Descripción</td>
+        </tr>
+    
+        {% for envase in filtros %}
+        <tr class='row'>
+            <td class='item-list'>{{ envase.codigo }}</td>
+            <td class='item-list'>{{ envase.descripcion }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <div class="pagination">
+        <span class="page-links">
+            {% if filtros.has_previous %}
+                <a href="?page={{ filtros.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="page-current">
+                Pagina {{ filtros.number }} de {{ filtros.paginator.num_pages }}
+            </span>
+    
+            {% if filtros.has_next %}
+                <a href="?page={{ filtros.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+{% else %}
+    <p style='margin: 0 0 15px'>No hay registro de filtros.</p> 
+{% endif %}
+
+<div class='import'>
+    <form action="" method="post" enctype="multipart/form-data" class='import-form'>
+        {% csrf_token %}
+        <input type="file" name="excel_file" id="">
+        <input style='display:none;' type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly>
+        <button type="submit">Importar</button>
+    </form>
+</div>
+
+{% endblock content %}
