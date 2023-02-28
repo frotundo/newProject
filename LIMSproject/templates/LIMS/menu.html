@@ -39,9 +39,12 @@
             <a class='link-menu' href="{% url 'lims:services' %}">
                 <i class="fa-solid fa-vial-virus"></i>
                 <div>SERVICIOS</div> </a>
-                <a class='link-menu' href="{% url 'lims:batches' %}">
-                    <i class="fa-solid fa-vials"></i>
-                    <div>LOTES</div> </a>
+            <a class='link-menu' href="{% url 'lims:service_simulator' %}">
+                <i class="fa-solid fa-vial-virus"></i>
+                <div>SIMULADOR DE SERV.</div> </a>
+            <a class='link-menu' href="{% url 'lims:batches' %}">
+                <i class="fa-solid fa-vials"></i>
+                <div>LOTES</div> </a>
             <a class='link-menu' href="{% url 'lims:service_parameters' %}">
                 <i class="fa-solid fa-chart-simple"></i>
                 <div>PARAMETROS DE SERV.</div></a>
@@ -69,6 +72,9 @@
             <a class='link-menu' href="{% url 'lims:normas_ref' %}">
                 <i class="fa-solid fa-ruler-combined"></i>
                 <div>NORMAS DE REF</div> </a>
+            <a class='link-menu' href="{% url 'lims:base_importation' %}">
+                <i class="fa-solid fa-database"></i>
+                <div>DATA IMPORT.</div> </a>
         </div>
     </main>    
 

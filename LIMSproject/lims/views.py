@@ -2720,8 +2720,6 @@ def add_model_service(request, project_id):
             creator_user = request.POST['creator_user']
             parameters = request.POST.getlist('parameters')
 
-            print(request.POST)
-
             current_year = datetime.now().year
             current_year = str(current_year)[2:]
 
@@ -4031,10 +4029,8 @@ def service_simulator(request):
             tipo_de_muestra = request.POST['tipo_muestra']
             parameters = models.ParametroEspecifico.objects.filter(tipo_de_muestra = tipo_de_muestra).order_by('codigo')
             if etfa == 'SI':
-                print('SI')
                 parameters = parameters.exclude(Q(codigo_etfa = 'nan') | Q(codigo_etfa = None) | Q(codigo_etfa= 'Cálculo'))
             elif etfa == 'NO':
-                print('NO')
                 parameters = parameters.all()
             context['parameters'] = parameters
             context['etfa'] = etfa
