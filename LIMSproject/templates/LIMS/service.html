@@ -40,8 +40,16 @@
 
 {% if project.cotizado %}
 {% else %}
+{% if service.envases == None %}
+{% if service.filtros != None %}
+<h3>Filtro</h3>
+<p class='p-service'>{{ service.filtros.descripcion }}</p>
+{% endif %}
+{% else %}
 <h3>Envases</h3>
-<p class='p-service' style='padding-left: 10px;'>{% if service.envases == None %}{% else %}{{ service.envases|linebreaksbr }}{% endif %}</p>
+<p class='p-service' style='padding-left: 10px;'>{{ service.envases|linebreaksbr }}</p>
+{% endif %}
+
 {% endif %}
 
 <h3>Observación</h3>

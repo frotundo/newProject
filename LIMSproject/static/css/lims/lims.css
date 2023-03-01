@@ -231,7 +231,8 @@ input {
     margin-left: 10px;
 }
 
-.service_parameter_contain button,.btn-upload-service {
+.service_parameter_contain button,
+.btn-upload-service {
     border: none;
     background: none;
 }

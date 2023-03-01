@@ -13,8 +13,8 @@
         <select name="buscar" id="">
             <option value=""></option>
             <option value="ensayo">Ensayo</option>
-            <option value="codigo">Codigo</option>
-            <option value="metodo">Metodo</option>
+            <option value="codigo">Código</option>
+            <option value="metodo">Método</option>
         </select>
         <button type="submit" class='btn-filtrar'>Buscar</button>
     </form>
@@ -30,22 +30,22 @@
         <tr>
             <td class='item-list title-item-list'>Ensayo</td>
             <td class='item-list title-item-list'>Código</td>
-            <td class='item-list title-item-list'>Metodo</td>
-            <td class='item-list title-item-list'>LDM</td>
-            <td class='item-list title-item-list'>LCM</td>
-            <td class='item-list title-item-list'>Unidad</td>
+            <td class='item-list title-item-list'>Método</td>
+            <td class='item-list title-item-list centrar'>LDM</td>
+            <td class='item-list title-item-list centrar'>LCM</td>
+            <td class='item-list title-item-list centrar'>Unidad</td>
         </tr>
     
         {% for parameter in parameters %}
         <tr class='row'>
             
-            <td class='item-list'>{% if parameter.acreditado != 'nan' %}<i style='color:green; margin-right:10px;'class="fa-solid fa-circle-check"></i>{% else %}<i style='color:red; margin-right:10px;'class="fa-solid fa-circle-check"></i>{% endif %}{{ parameter.ensayo }}</td>
+            <td class='item-list'>{% if parameter.acreditado != 'nan' %}<i style='color:green; margin-right:10px;'class="fa-solid fa-circle-check" title="Servicio acreditado"></i>{% else %}<i style='color:red; margin-right:10px;'class="fa-solid fa-circle-check" title="Servicio no acreditado"></i>{% endif %}{{ parameter.ensayo }}</td>
             
             <td class='item-list'>{{ parameter.codigo }}</td>
             <td class='item-list'>{{ parameter.metodo }}</td>
-            <td class='item-list'>{{ parameter.LDM }}</td>
-            <td class='item-list'>{{ parameter.LCM }}</td>
-            <td class='item-list'>{{ parameter.unidad }}</td>
+            <td class='item-list centrar'>{{ parameter.LDM }}</td>
+            <td class='item-list centrar'>{{ parameter.LCM }}</td>
+            <td class='item-list centrar'>{{ parameter.unidad }}</td>
         </tr>
         {% endfor %}
     </table>
@@ -70,14 +70,14 @@
     <p style='margin: 0 0 15px'>No hay registro de parametros.</p>
 {% endif %}
 
-<div class='import'>
+{% comment %} <div class='import'>
     <form action="" method="post" enctype="multipart/form-data" class='import-form'>
         {% csrf_token %}
         <input type="file" name="excel_file" id="">
         <input style='display:none;' type="text" name="responsable_de_analisis" value='{{ user.id }}' readonly>
         <button type="submit">Importar</button>
     </form>
-</div>
+</div> {% endcomment %}
 
 
 {% endblock content %}

@@ -1,5 +1,5 @@
 """LIMS views."""
-# Djnago module
+# Django module
 from django.urls import reverse
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -7,7 +7,7 @@ from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-from . import models, forms
+from . import models
 from datetime import datetime
 from workdays import workday
 from math import ceil

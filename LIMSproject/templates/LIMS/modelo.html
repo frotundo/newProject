@@ -10,7 +10,7 @@
     <h1 style='display: flex; justify-content: space-between;' class="title">{{ modelo.codigo_modelo }} 
     </h1>
 
-    <a href="{% url 'lims:generate_service' modelo.codigo_modelo %}" title='Generar servicio'><i class="fa-solid fa-copy"></i></a>
+    <a href="{% url 'lims:generate_service' modelo.codigo_modelo %}" title='Generar servicio'><i class="fa-solid fa-file-circle-plus"></i></a>
 </div>
 
 <p class="p-service"><strong>Cliente: </strong>{{ modelo.cliente.titular }}</p>
