@@ -38,11 +38,6 @@
             <td class='item-add'><label for="lang">¿Servicio ETFA?</label></td>
             <td class='item-input'>
                 <input type="text" name='etfa' value='NO' readonly>
-                {% comment %} <select class='select1' name="etfa" id="lang"  size='1'>
-                    <option value=""></option>
-                    <option value="True">SI</option>
-                    <option value="False">NO</option>
-                </select> {% endcomment %}
             </td>
         </tr>
         <p></p>
@@ -61,7 +56,7 @@
 
         <tr>
             <td class='item-add'><Label>Fecha de muestreo</Label></td>
-            <td class='item-input'><input type='date' name="fecha_de_muestreo" id="" placeholder="" required></td>
+            <td class='item-input'><input type='datetime-local' name="fecha_de_muestreo" id="" placeholder="" required></td>
         </tr>
 
         <tr>
@@ -71,7 +66,7 @@
         
         <tr>
             <td class='item-add'><Label>Fecha para entrega de envases</Label></td>
-            <td class='item-input'><input type='date' name="fecha_de_contenedores" id="" placeholder="" required></td>
+            <td class='item-input'><input type='datetime-local' name="fecha_de_contenedores" id="" placeholder="" required></td>
         </tr>
 
         <tr style='display:none'>

@@ -1873,7 +1873,7 @@ def client_add_project_cot_etfa(request, id_cliente):
 
 
 @login_required
-@user_passes_test(is_manager, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def normas_ref(request):
     """Normas de referencias view."""
 
@@ -1969,7 +1969,7 @@ def add_normas_ref(request):
 
 
 @login_required
-@user_passes_test(is_manager, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def methods(request):
     """Normas de referencias view."""
 
@@ -2053,7 +2053,7 @@ def add_method(request):
 
 
 @login_required
-@user_passes_test(is_manager, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def containers(request):
     '''Containers view.'''
 
@@ -2124,7 +2124,7 @@ def add_container(request):
 
 
 @login_required
-@user_passes_test(is_manager, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def filters(request):
     '''Filters view.'''
 
@@ -3195,7 +3195,8 @@ def service(request, service_id):
             if p.resultado_final!=None: 
                 progreso+=1
         analizado = progreso
-        return analizado, (progreso/len(queryset_parameters))*100
+        print(analizado)
+        return analizado, (progreso/len(queryset_parameters))*100 if analizado!= 0 else 0
 
     analizado, progreso  = prog()
 
@@ -3254,7 +3255,8 @@ def service_parameters(request):
     """Service parameters view."""
 
     queryset_service_parameters = models.ParametroDeMuestra.objects.exclude(ensayo__icontains='GRV').order_by('-created')
-    parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV')
+    parameters = set([p.parametro.id for p in queryset_service_parameters])
+    parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV').filter(id__in= parameters).order_by('codigo')
     parameters = parametros
 
     if request.method == 'POST':
@@ -3342,7 +3344,8 @@ def service_parameters_filter(request):
     """Service parameters for filter view."""
 
     queryset_service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('-created')
-    parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV')
+    parameters = set([p.parametro.id for p in queryset_service_parameters])
+    parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV').filter(id__in= parameters).order_by('codigo')
     parameters = parametros
     
 
@@ -3465,7 +3468,8 @@ def discarded_service_parameters(request):
     """Discarded service parameters view."""
 
     queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.exclude(ensayo__icontains='GRV').order_by('-discarded')
-    parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV')
+    parameters = set([p.parametro.id for p in queryset_service_parameters])
+    parametros = models.ParametroEspecifico.objects.exclude(codigo__icontains = 'GRV').filter(id__in=parameters).order_by('codigo')
     parameters = parametros
 
     if request.method == 'POST':
@@ -3508,7 +3512,8 @@ def discarded_service_parameters_filter(request):
     """Service parameters for filter view."""
 
     queryset_service_parameters = models.ParametroDeMuestraDescartada.objects.filter(ensayo__icontains='GRV').order_by('-discarded')
-    parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV')
+    parameters = set([p.parametro.id for p in queryset_service_parameters])
+    parametros = models.ParametroEspecifico.objects.filter(codigo__icontains = 'GRV').filter(id__in=parameters).order_by('codigo')
     parameters = parametros
     
 
@@ -3619,13 +3624,11 @@ def services(request):
             servicio = models.Servicio.objects.get(codigo_muestra=request.POST['servicio_id'])
             servicio.responsable = request.POST['responsable']
             fecha_muestreo = request.POST['fecha_de_muestreo']
-            fecha_de_muestreo = datetime.strptime(fecha_muestreo, "%d-%m-%Y")
-            servicio.fecha_de_muestreo = fecha_de_muestreo.strftime("%Y-%m-%d")
+            fecha_de_muestreo = datetime.strptime(fecha_muestreo, "%d-%m-%Y %H:%M")
+            servicio.fecha_de_muestreo = fecha_de_muestreo.strftime("%Y-%m-%d %H:%M")
             fecha_recepcion = request.POST['fecha_de_recepcion']
-            if fecha_recepcion.endswith(str(datetime.now().year)):
-                fecha_de_recepcion = datetime.strptime(fecha_recepcion, "%d-%m-%Y")
-                servicio.fecha_de_recepcion = fecha_de_recepcion.strftime("%Y-%m-%d")
-            else: servicio.fecha_de_recepcion = request.POST['fecha_de_recepcion']
+            if len(fecha_recepcion)!=0:
+                servicio.fecha_de_recepcion = fecha_recepcion
             servicio.save()
             
            
@@ -3886,19 +3889,22 @@ def add_batch(request):
         else: 
             current_year = datetime.now().year
             current_year = str(current_year)[2:]
-            last_batch = models.Batch.objects.all().latest('codigo')
+            
             if models.Batch.objects.exists()==False:
                 codigo_de_batch = ('1').zfill(5)
                 codigo_generado = f'L-{codigo_de_batch}-{current_year}'
             
-            elif last_batch.codigo[-2:] != current_year:
-                codigo_central = ('1').zfill(5)
-                codigo_generado = f'L-{codigo_central}-{current_year}'
+            else:
+                last_batch = models.Batch.objects.all().latest('codigo')
 
-            elif models.Batch.objects.exists()==True and last_batch.codigo[-2:] == current_year:
-                last_batch = models.Batch.objects.filter(codigo__endswith = '-'+current_year).latest('codigo')
-                codigo_de_batch = str(int(last_batch.codigo[-7:-3]) +1).zfill(5)
-                codigo_generado = f'L-{codigo_de_batch}-{current_year}'
+                if last_batch.codigo[-2:] != current_year:
+                    codigo_central = ('1').zfill(5)
+                    codigo_generado = f'L-{codigo_central}-{current_year}'
+
+                elif models.Batch.objects.exists()==True and last_batch.codigo[-2:] == current_year:
+                    last_batch = models.Batch.objects.filter(codigo__endswith = '-'+current_year).latest('codigo')
+                    codigo_de_batch = str(int(last_batch.codigo[-7:-3]) +1).zfill(5)
+                    codigo_generado = f'L-{codigo_de_batch}-{current_year}'
             
 
             services = request.POST.getlist('service')

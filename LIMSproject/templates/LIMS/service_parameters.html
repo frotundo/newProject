@@ -63,9 +63,9 @@
             <form action="" method='POST'>
                 {% csrf_token %}
                 {% if service_parameter.resultado_final != None %}
-                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}</p></td>
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_inicio|date:"d-m-Y H:i" }}</p></td>
                     
-                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_terminado|date:"d-m-Y" }}</p></td>
+                    <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_terminado|date:"d-m-Y H:i" }}</p></td>
                     
                     <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado }}</p></td>
                     
@@ -73,9 +73,9 @@
                     
                     <td class='item-list'><p style='text-align:center;'>{{ service_parameter.resultado_final }}</p></td>
                 {% else %}
-                    <td class=''><input class='input-par' type='date' name="fecha_de_inicio" id="" placeholder="" ></td>
+                    <td class=''><input class='input-par' type='datetime-local' name="fecha_de_inicio" id="" placeholder="" ></td>
                     
-                    <td class=''><input class='input-par' type='date' name="fecha_de_terminado" id="" placeholder="" ></td>
+                    <td class=''><input class='input-par' type='datetime-local' name="fecha_de_terminado" id="" placeholder="" ></td>
                     
                     <td class=''><input class='input-par' type='text' name="resultado" id="" placeholder="" ></td>
                     
