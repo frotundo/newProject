@@ -9,7 +9,7 @@ class Cliente(models.Model):
 
     titular = models.CharField(max_length=200, unique=True)
     direccion = models.CharField(max_length=200)
-    rut = models.CharField(max_length=10, unique=True)
+    rut = models.CharField(max_length=20, unique=True)
     actividad = models.CharField(max_length=250)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
@@ -22,7 +22,7 @@ class ContactoCliente(models.Model):
     """Contact client model."""
     
     nombre = models.CharField(max_length=200)
-    rut = models.CharField(max_length=200, unique=True)
+    rut = models.CharField(max_length=200, unique=True, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)

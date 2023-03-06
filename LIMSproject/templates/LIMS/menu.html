@@ -72,9 +72,12 @@
             <a class='link-menu' href="{% url 'lims:normas_ref' %}">
                 <i class="fa-solid fa-ruler-combined"></i>
                 <div>NORMAS DE REF</div> </a>
+            {% if request.user.username == 'admin' %}
             <a class='link-menu' href="{% url 'lims:base_importation' %}">
                 <i class="fa-solid fa-database"></i>
                 <div>DATA IMPORT.</div> </a>
+            {% endif %}
+            
         </div>
     </main>    
 

@@ -1350,21 +1350,73 @@ def clients(request):
     template = 'LIMS/clients.html'
 
     if request.method == 'POST':
-        if request.POST['search_text'] == '' or request.POST['opcion'] == '':
-            pass
-        elif request.POST['opcion'] == 'titular':
-            clientes = models.Cliente.objects.filter(titular__icontains = request.POST['search_text']).order_by('titular')
-            paginator = Paginator(clientes, 25)
-            page = request.GET.get('page')
-            clients = paginator.get_page(page)
+        if 'search_text' in request.POST and 'opcion' in request.POST:
+            if request.POST['search_text'] == '' or request.POST['opcion'] == '':
+                pass
+            elif request.POST['opcion'] == 'titular':
+                clientes = models.Cliente.objects.filter(titular__icontains = request.POST['search_text']).order_by('titular')
+                paginator = Paginator(clientes, 25)
+                page = request.GET.get('page')
+                clients = paginator.get_page(page)
 
 
-        elif request.POST['opcion'] == 'rut':
-            clientes = models.Cliente.objects.filter(rut__contains = request.POST['search_text']).order_by('titular')
-            paginator = Paginator(clientes, 25)
-            page = request.GET.get('page')
-            clients = paginator.get_page(page)
-    
+            elif request.POST['opcion'] == 'rut':
+                clientes = models.Cliente.objects.filter(rut__contains = request.POST['search_text']).order_by('titular')
+                paginator = Paginator(clientes, 25)
+                page = request.GET.get('page')
+                clients = paginator.get_page(page)
+        else:
+            if 'excel_file' in request.POST.keys():
+                if request.POST['excel_clientes'] == '':
+                    pass
+            
+            elif 'excel_clientes' in request.FILES:
+                excel_file = request.FILES['excel_clientes']
+                df = pd.read_excel(excel_file)
+
+                responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable'])
+                
+                for index, row in df.iterrows():
+                    if   models.Cliente.objects.filter(rut=str(row['rut']).replace('.','').replace(',','').replace('-','')).exists():
+                        continue
+                    else:
+                        if type(row['nombre']) != str: titular = '-'
+                        else: titular = str(row['nombre']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('í‰','É').replace('Â°','°')
+
+                        if type(row['direccion']) != str: direccion = '-'
+                        else: direccion = str(row['direccion']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('í‰','É').replace('Â°','°')
+
+                        if type(row['giro']) != str: giro = '-'
+                        else: giro = str(row['giro']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('í‰','É').replace('Â°','°')
+
+                        models.Cliente.objects.update_or_create(
+                            id=row['id'], 
+                            titular = titular, 
+                            rut= str(row['rut']).replace('.','').replace(',','').replace('-',''), 
+                            direccion = direccion, 
+                            actividad = giro, 
+                            creator_user = responsable_de_analisis
+                            )
+            elif 'excel_contactos' in request.FILES:
+                excel_file = request.FILES['excel_contactos']
+                df = pd.read_excel(excel_file)
+
+                responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable'])
+                
+                for index, row in df.iterrows():
+                    if   models.ContactoCliente.objects.filter(id=row['id']).exists() or models.Cliente.objects.filter(id=row['cliente_id']).exists()==False:
+                        continue
+                    else:
+                        if type(row['nombre']) != str: nombre = '-'
+                        else: nombre = str(row['nombre']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('Ã©','É').replace('Â°','°')
+
+                        models.ContactoCliente.objects.update_or_create(
+                            id=row['id'], 
+                            nombre = nombre, 
+                            creator_user = responsable_de_analisis,
+                            cliente_id = row['cliente_id']
+                            )
+            return redirect(request.META.get('HTTP_REFERER', '/'))
     
     context = {
                 'clients': clients,

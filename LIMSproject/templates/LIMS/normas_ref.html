@@ -59,6 +59,7 @@
     <p style='margin: 0 0 15px'>No hay registro de normas de referencia.</p>
 {% endif %}
 
+{% if request.user.username == 'admin' %}
 <div class='import'>
     <form action="" method="post" enctype="multipart/form-data" class='import-form'>
         {% csrf_token %}
@@ -67,5 +68,5 @@
         <button type="submit">Importar</button>
     </form>
 </div>
-
+{% endif %}
 {% endblock content %}

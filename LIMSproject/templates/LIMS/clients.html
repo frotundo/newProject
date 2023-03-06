@@ -62,17 +62,25 @@
     No hay registro de clientes.
 {% endif %}
 
+{% if  user.username == 'admin' %}
+<div class='import'>
+    <form action="" method="post" enctype="multipart/form-data" class='import-form'>
+        {% csrf_token %}
+        <input type="file" name="excel_clientes" id="">
+        <input style='display:none;' type="text" name="responsable" value='{{ user.id }}' readonly>
+        <button type="submit">Importar clientes</button>
+    </form>
+</div>
 
-
-
-{% comment %} <div class='right-bar-contain'>
-    <ul class='ul-right-bar-contain'>
-        <li class='right-bar-item'><a class='link-bar' href="">Contacto</a></li>
-        <li class='right-bar-item'><a class='link-bar' href="">Representante Legal</a></li>
-        <li class='right-bar-item'><a class='link-bar' href="{% url 'lims:sample_points' %}">Punto de Muestreo</a></li>
-        <li class='right-bar-item'><a class='link-bar' href="">RCA</a></li>
-    </ul>
-</div> {% endcomment %}
+<div class='import' style='margin:10px 0 0;'>
+    <form action="" method="post" enctype="multipart/form-data" class='import-form'>
+        {% csrf_token %}
+        <input type="file" name="excel_contactos" id="">
+        <input style='display:none;' type="text" name="responsable" value='{{ user.id }}' readonly>
+        <button type="submit">Importar contactos de clientes</button>
+    </form>
+</div>
+{% endif %}
 
 
 {% endblock content %}

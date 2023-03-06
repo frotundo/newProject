@@ -44,7 +44,10 @@
                 <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:containers' %}">ENVASES</a></li>
                 <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:filters' %}">FILTROS</a></li>
                 <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:normas_ref' %}">NORMAS DE REF</a></li>
-                <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:base_importation' %}">DATA IMPORT.</a></li>
+                {% if request.user.username == 'admin'  %}
+                    <li class='left-bar-item'><a class='link-bar' href="{% url 'lims:base_importation' %}">DATA IMPORT.</a></li>
+                {% endif %}
+                
             </ul>
         </div>
     </main>
