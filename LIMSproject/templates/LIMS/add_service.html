@@ -126,26 +126,10 @@
             <tr>
                 <td class='item-add'><label for="lang">Parametros</label></td>
                 <td class='item-input'>
-                    <select class='select1' name="parameters" id="lang"  multiple>
+                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple>
                         <option value=""></option>
                         {% for p in parameters %}
                         <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %}>{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
-                    {% endfor %}
-                    </select>
-                </td>
-            </tr>
-            <p></p>
-            <p></p>
-        </table>
-
-        <table  class='client-select'>
-            <tr>
-                <td class='item-add'><label for="lang">Parametros (análisis externos)</label></td>
-                <td class='item-input'>
-                    <select class='select1' name="analisis_externos" id="lang"  multiple>
-                        <option value=""></option>
-                        {% for p in parameters_externos %}
-                        <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
                     {% endfor %}
                     </select>
                 </td>

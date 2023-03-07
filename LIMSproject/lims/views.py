@@ -50,6 +50,26 @@ def add_workdays(start_date, num_workdays):
     end_date = workday(start_date, num_workdays)
     return end_date
 
+def title_fix(texto):
+    texto = texto.lower().title()
+    texto = " ".join(texto.split())
+    if texto[-1] == " ": texto = texto[:-1]
+    if texto[0] == " ": texto = texto[1:]
+    return texto
+
+def cap_fix(texto):
+    texto = texto.lower().capitalize()
+    texto = " ".join(texto.split())
+    if texto[-1] == " ": texto = texto[:-1]
+    if texto[0] == " ": texto = texto[1:]
+    return texto
+
+def rut_fix(rut):
+    rut = rut.replace('.','').replace(',','').replace('-','')
+    rut = " ".join(rut.split())
+    if rut[-1] == " ": rut = rut[:-1]
+    if rut[0] == " ": rut = rut[1:]
+    return rut
 
 def list_to_string(lista):
     if len(lista)==2:
@@ -768,17 +788,17 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
     return parameters, parameters_analisis_externos
 
 
-def calc_param_no_etfa(parameters, parameters_analisis_externos):
+def calc_param_no_etfa(parameters):
     """Esta función es para completar parametros faltantes en los servicio NO ETFA"""
     def anex_param(p):
         """Esta función es para agregar a la lista parameters los parametros que no se encuentren en esta ni en la lista de parametros de analisis externos"""
-        if p not in parameters and p not in parameters_analisis_externos:
+        if p not in parameters:
             parameters.append(p)
         return parameters
 
     def anex_param2(p, p2):
         """Esta función es para agregar a la lista parameters los parametros que no se encuentren en esta ni en la lista de parametros de analisis externos"""
-        if p not in parameters and p2 not in parameters and p not in parameters_analisis_externos and p2 not in parameters_analisis_externos:
+        if p not in parameters and p2 not in parameters:
                     parameters.append(p)
 
     for p in parameters:
@@ -1181,7 +1201,7 @@ def calc_param_no_etfa(parameters, parameters_analisis_externos):
                 anex_param(MG)
                 anex_param(DMG)
     
-    return parameters, parameters_analisis_externos
+    return parameters
 
 
 def calc_envases(parameters):
@@ -1344,7 +1364,7 @@ def clients(request):
     """Clients view."""
 
     clientes = models.Cliente.objects.all().order_by('titular')
-    paginator = Paginator(clientes, 25)
+    paginator = Paginator(clientes, 35)
     page = request.GET.get('page')
     clients = paginator.get_page(page)
     template = 'LIMS/clients.html'
@@ -1377,22 +1397,22 @@ def clients(request):
                 responsable_de_analisis = models.User.objects.get(pk=request.POST['responsable'])
                 
                 for index, row in df.iterrows():
-                    if   models.Cliente.objects.filter(rut=str(row['rut']).replace('.','').replace(',','').replace('-','')).exists():
+                    if   models.Cliente.objects.filter(rut=rut_fix(str(row['rut']))).exists():
                         continue
                     else:
                         if type(row['nombre']) != str: titular = '-'
-                        else: titular = str(row['nombre']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('í‰','É').replace('Â°','°')
+                        else: titular = title_fix(str(row['nombre']))
 
                         if type(row['direccion']) != str: direccion = '-'
-                        else: direccion = str(row['direccion']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('í‰','É').replace('Â°','°')
+                        else: direccion = title_fix(str(row['direccion']))
 
                         if type(row['giro']) != str: giro = '-'
-                        else: giro = str(row['giro']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('í‰','É').replace('Â°','°')
+                        else: giro = cap_fix(str(row['giro']))
 
                         models.Cliente.objects.update_or_create(
                             id=row['id'], 
                             titular = titular, 
-                            rut= str(row['rut']).replace('.','').replace(',','').replace('-',''), 
+                            rut= rut_fix(str(row['rut'])), 
                             direccion = direccion, 
                             actividad = giro, 
                             creator_user = responsable_de_analisis
@@ -1408,7 +1428,7 @@ def clients(request):
                         continue
                     else:
                         if type(row['nombre']) != str: nombre = '-'
-                        else: nombre = str(row['nombre']).replace('Ã³','ó').replace('Ã±','ñ').replace('Ãº','ú').replace('Ã','í').replace('í©','é').replace('Ã©','É').replace('Â°','°')
+                        else: nombre = title_fix(str(row['nombre']))
 
                         models.ContactoCliente.objects.update_or_create(
                             id=row['id'], 
@@ -1436,10 +1456,10 @@ def add_client(request):
         usuario = request.POST['creador']
         try:
             models.Cliente.objects.create(
-                titular=titular, 
-                rut=rut.replace('-','').replace('.','').replace(',',''), 
-                direccion=direccion, 
-                actividad=actividad, 
+                titular=title_fix(titular), 
+                rut=rut_fix(rut), 
+                direccion=title_fix(direccion), 
+                actividad=cap_fix(actividad), 
                 creator_user=usuario
                 )
             return redirect('lims:clients')
@@ -1539,8 +1559,8 @@ def client_add_legal_representative(request, id_cliente):
                     continue
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.RepresentanteLegalCliente.objects.create(
-                    nombre= contacto.title(), 
-                    rut=rut.replace('-','').replace('.','').replace(',',''), 
+                    nombre= title_fix(contacto), 
+                    rut=rut_fix(rut), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -1594,8 +1614,8 @@ def client_add_contact(request, id_cliente):
                     continue
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 models.ContactoCliente.objects.create(
-                    nombre= contacto.title(), 
-                    rut=rut.replace('-','').replace('.','').replace(',',''), 
+                    nombre= title_fix(contacto), 
+                    rut=rut_fix(rut), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -1648,7 +1668,7 @@ def client_add_sample_point(request, id_cliente):
                     continue
             for punto, usuario in zip(puntos, usuarios):
                 models.PuntoDeMuestreo.objects.create(
-                    nombre= punto, 
+                    nombre= cap_fix(punto), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -1702,7 +1722,7 @@ def client_add_monitoring_place(request, id_cliente):
                     continue
             for punto, usuario in zip(puntos, usuarios):
                 models.LugarDeMonitoreo.objects.create(
-                    nombre= punto, 
+                    nombre= title_fix(punto), 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -1801,7 +1821,7 @@ def client_add_project(request, id_cliente):
         try:
             models.Proyecto.objects.create(
             codigo=codigo, 
-            nombre=nombre, 
+            nombre=cap_fix(nombre), 
             creator_user=creator_user,
             cliente_id=client)
 
@@ -1851,7 +1871,7 @@ def client_add_project_cot(request, id_cliente):
             try:
                 project = models.Proyecto.objects.create(
                     codigo=codigo, 
-                    nombre=nombre, 
+                    nombre=cap_fix(nombre), 
                     tipo_de_muestra = tipodemuestra,
                     creator_user=creator_user,
                     cliente_id=client, 
@@ -1906,7 +1926,7 @@ def client_add_project_cot_etfa(request, id_cliente):
             try:
                 project = models.Proyecto.objects.create(
                     codigo=codigo, 
-                    nombre=nombre, 
+                    nombre=cap_fix(nombre), 
                     creator_user=creator_user,
                     tipo_de_muestra = tipodemuestra,
                     cliente_id=client, 
@@ -2434,6 +2454,7 @@ def add_etfa(request):
 def delete_etfa(request, parameter_id):
     parameter = models.ParametroEspecifico.objects.get(id=parameter_id)
     parameter.codigo_etfa = None
+    parameter.updated_at = datetime.now()
     parameter.save()
     return redirect(request.META.get('HTTP_REFERER', '/'))
     
@@ -2509,7 +2530,6 @@ def add_service(request, project_id):
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
     parametros = models.ParametroEspecifico.objects.all().order_by('codigo')
-    parametros_externos = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa='Cálculo') | Q(codigo_etfa='Cálculo-E')).order_by('ensayo')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
     if request.method == 'POST':
@@ -2534,9 +2554,8 @@ def add_service(request, project_id):
             muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
             creator_user = request.POST['creator_user']
             parameters = request.POST.getlist('parameters')
-            parameters_analisis_externos = request.POST.getlist('analisis_externos')
             
-            parameters, parameters_analisis_externos = calc_param_no_etfa(parameters=parameters, parameters_analisis_externos=parameters_analisis_externos)
+            parameters = calc_param_no_etfa(parameters=parameters)
 
             envases = calc_envases(parameters=parameters)
 
@@ -2602,7 +2621,6 @@ def add_service(request, project_id):
         'tipo_de_muestra': tipo_muestra,
         'tipos_de_muestras': tipo_de_muestra,
         'parameters': parametros,
-        'parameters_externos': parametros_externos,
         'normas': normas,
     })
 
@@ -3290,6 +3308,7 @@ def edit_sample_parameter(request,parameter_id):
         
         parametro.resultado_final = float(request.POST['resultado_final'].replace(',','.'))
         parametro.creator_user = request.POST['creator_user']
+        parametro.updated_at = datetime.now()
         parametro.save()
         
         servicio_id = parametro.servicio_id
@@ -3509,6 +3528,7 @@ def service_parameter_dropped(request, parameter_id):
     parameter.peso_inicial = None
     parameter.peso_final = None
     parameter.resultado_final = None
+    parameter.updated_at = datetime.now()
     parameter.save()
     
     return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -3712,10 +3732,12 @@ def edit_sample_code(request, service_id):
             codigo_muestra = request.POST['codigo_muestra']
             service.codigo_muestra = codigo_muestra
             service.editor_sample_code = request.POST['edit_code']
+            service.updated_at = datetime.now()
             service.save()
 
             for parameter in parameters:
                 parameter.codigo_servicio = codigo_muestra
+                parameter.updated_at = datetime.now()
                 parameter.save()
 
             return redirect('lims:services')
@@ -4000,6 +4022,7 @@ def batch(request, batch_id):
             parametro.resultado = request.POST['resultado']
             parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
             parametro.resultado_final = request.POST['resultado_final']
+            parametro.updated_at = datetime.now()
             parametro.save()
 
             return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -4070,6 +4093,7 @@ def base_importation(request):
             return redirect(request.META.get('HTTP_REFERER', '/'))
 
     return render(request, 'LIMS/base_importation.html')
+
 
 @login_required
 @user_passes_test(is_commercial, login_url='lims:index')

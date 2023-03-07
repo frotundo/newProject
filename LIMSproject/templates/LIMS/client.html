@@ -39,7 +39,7 @@
             {% for representative in legal_representatives %}
                 <tr>
                     <td class='item-list-2'>{{ representative.nombre }}</td>
-                    <td class='item-list-2'>{{ representative.rut }}</td>
+                    <td class='item-list-2'>{% if representante.rut == None %}-{% else %}{{ representative.rut }}{% endif %}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -82,7 +82,7 @@
             {% for contact in contacts %}
                 <tr>
                     <td class='item-list-2'>{{ contact.nombre }}</td>
-                    <td class='item-list-2'>{{ contact.rut }}</td>
+                    <td class='item-list-2'>{% if contact.rut == None %}-{% else %}{{ contact.rut }}{% endif %}</td>
                 </tr>
             {% endfor %}
         </table>

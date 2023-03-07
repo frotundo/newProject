@@ -135,9 +135,29 @@ Ten en cuenta que esta es solo una configuración básica y puede variar según 
     # user = request.user
     # groups = user.groups.all()
     # print(groups)
-print('Hola mundo')
+# print('Hola mundo')
 
-from math import ceil
+# from math import ceil
 
-print(ceil(9.9))
-print(ceil(1.1))
+# print(ceil(9.9))
+# print(ceil(1.1))
+
+texto = 'EXPLOTACION DE OTRAS MINAS Y CANTERAS N.C.P.'
+texto = texto.lower().capitalize()
+texto = " ".join(texto.split())
+if texto[-1] == " ": texto = texto[:-1]
+if texto[0] == " ": texto = texto[1:]
+print(texto)
+
+texto = "    Hola   mi       nombre es ChatGPT."
+
+# Reemplazar más de dos espacios consecutivos por solo un espacio
+texto = " ".join(texto.split())
+
+# Eliminar el último carácter del texto
+if texto[-1] == " ": texto = texto[:-1]
+
+# Eliminar el primer carácter del texto si es un espacio
+if texto[0] == " ": texto = texto[1:]
+
+print(texto)

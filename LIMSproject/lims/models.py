@@ -137,6 +137,7 @@ class ParametroEspecifico(models.Model):
     codigo_etfa = models.CharField(max_length=20, null=True, blank=True)
     acreditado = models.CharField(max_length=20, null=True, blank=True)
     envase = models.ForeignKey(Envase, on_delete=models.PROTECT, null=True, blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -223,6 +224,7 @@ class Servicio(models.Model):
     etfa = models.BooleanField(default=False) 
     modelo = models.ForeignKey(ModeloDeServicioDeFiltro, on_delete=models.PROTECT, null=True, blank=True)
     muestreado_por_algoritmo = models.CharField(max_length=254)
+    updated_at = models.DateTimeField(null=True, blank=True)
     created = models.DateTimeField()
     creator_user = models.CharField(max_length=100)
     editor_sample_code = models.CharField(max_length=100, null=True, blank=True,)
@@ -261,6 +263,7 @@ class ParametroDeMuestra(models.Model):
     peso_inicial = models.FloatField(null=True, blank=True,)
     peso_final = models.FloatField(null=True, blank=True,)
     ensayo = models.CharField(max_length=50, null=True, blank=True,)
+    updated_at = models.DateTimeField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100, null=True, blank=True)
 
