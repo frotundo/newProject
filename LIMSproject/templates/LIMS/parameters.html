@@ -22,7 +22,8 @@
 
 <div class='title_contain'>
     <h1 class="title">Parámetros</h1>
-    <a class='link-add' href="{% url 'lims:add_parameter' %}" title="Agregar parámetro"><i class="fa-solid fa-circle-plus"></i></a> 
+    {% if manager %}<a class='link-add' href="{% url 'lims:add_parameter' %}" title="Agregar parámetro"><i class="fa-solid fa-circle-plus"></i></a> {% endif %}
+    
 </div>
 
 {% if parameters %}
@@ -39,7 +40,7 @@
         {% for parameter in parameters %}
         <tr class='row'>
             
-            <td class='item-list' >{% if parameter.acreditado != 'nan' %}<i style='color:green; margin-right:10px;'class="fa-solid fa-circle-check" title="Servicio acreditado"></i>{% else %}<i style='color:red; margin-right:10px;'class="fa-solid fa-circle-check" title="Servicio no acreditado"></i>{% endif %}{{ parameter.ensayo }}</td>
+            <td class='item-list' >{% if parameter.acreditado != 'nan' %}<i style='color:green; margin-right:10px;'class="fa-solid fa-circle-check" title="Servicio acreditado"></i>{% else %}<i style='color:red; margin-right:10px;'class="fa-solid fa-circle-check" title="Servicio no acreditado"></i>{% endif %} {% if manager %}<a href="{% url 'lims:edit_parameter' parameter.codigo %}">{{ parameter.ensayo }}</a>{% else %}{{ parameter.ensayo }}{% endif %} </td>
             
             <td class='item-list'title="{{parameter.ensayo}} en {{ parameter.tipo_de_muestra }}">{{ parameter.codigo }}</td>
             <td class='item-list'>{{ parameter.metodo }}</td>

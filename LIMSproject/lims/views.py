@@ -1950,6 +1950,8 @@ def normas_ref(request):
     """Normas de referencias view."""
 
     queryset_normas = models.NormaDeReferencia.objects.all().order_by('norma')
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
 
     if request.method == 'POST':
 
@@ -1986,6 +1988,7 @@ def normas_ref(request):
     normas = paginator.get_page(page)
     return render(request, 'LIMS/normas_ref.html',{
         'normas': normas,
+        'manager': manager,
     })
 
 
@@ -2046,6 +2049,8 @@ def methods(request):
     """Normas de referencias view."""
 
     queryset_metodos = models.Metodo.objects.all().order_by('nombre')
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
     
     if request.method == 'POST':
         if 'search_text' in request.POST.keys():
@@ -2063,6 +2068,7 @@ def methods(request):
     metodos = paginator.get_page(page)
     return render(request, 'LIMS/methods.html',{
         'metodos': metodos,
+        'manager': manager,
     })
 
 
@@ -2130,9 +2136,11 @@ def containers(request):
     '''Containers view.'''
 
     queryset_envases = models.Envase.objects.all().order_by('nombre')
-    paginator = Paginator(queryset_envases, 25)
+    paginator = Paginator(queryset_envases, 35)
     page = request.GET.get('page')
     envases = paginator.get_page(page)
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
     
     if request.method == 'POST':
         if 'excel_file' in request.POST.keys():
@@ -2166,6 +2174,7 @@ def containers(request):
 
     return render(request, 'LIMS/containers.html',{
         'envases': envases,
+        'manager': manager,
     })
 
 
@@ -2204,6 +2213,8 @@ def filters(request):
     paginator = Paginator(queryset_filters, 35)
     page = request.GET.get('page')
     filtros = paginator.get_page(page)
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
     
     if request.method == 'POST':
         if 'excel_file' in request.POST.keys():
@@ -2229,6 +2240,7 @@ def filters(request):
 
     return render(request, 'LIMS/filters.html',{
         'filtros': filtros,
+        'manager': manager,
     })
 
 
@@ -2256,12 +2268,14 @@ def add_filter(request):
 
 
 @login_required
-@user_passes_test(is_manager, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def parameters(request):
     '''Parameters view.'''
 
     metodos = models.Metodo.objects.all()
     queryset_parameters = models.ParametroEspecifico.objects.all().order_by('ensayo', 'codigo')
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
    
     if request.method == 'POST':
         if 'search_text' in request.POST.keys():
@@ -2283,6 +2297,7 @@ def parameters(request):
     return render(request, 'LIMS/parameters.html', {
         'parameters': parameters,
         'metodos': metodos,
+        'manager': manager,
     })
 
 
@@ -2327,9 +2342,29 @@ def add_parameter(request):
     return render(request, 'LIMS/add_parameter.html', context)
     
 
-
 @login_required
 @user_passes_test(is_manager, login_url='lims:index')
+def edit_parameter(request, parameter_id):
+    """Add parameter view."""
+
+    parameter = models.ParametroEspecifico.objects.get(codigo=parameter_id)    
+    context = {
+        'parameter': parameter,
+    }
+
+    if request.method == 'POST':
+        acreditado = request.POST['acreditado']
+        if acreditado == '':
+            parameter.acreditado = 'nan'
+        else: parameter.acreditado = acreditado
+        parameter.updated_at = datetime.now()
+        parameter.save()
+
+    return render(request, 'LIMS/edit_parameter.html', context)
+
+
+@login_required
+@user_passes_test(is_commercial, login_url='lims:index')
 def samples_type(request):
     """Samples type view."""
 
@@ -2337,9 +2372,12 @@ def samples_type(request):
     paginator = Paginator(queryset_samples_type, 35)
     page = request.GET.get('page')
     samples_type = paginator.get_page(page)
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
     
     return render(request, 'LIMS/samples_type.html', {
         'samples_type':samples_type,
+        'manager': manager,
     })
 
 
@@ -2398,11 +2436,13 @@ def add_sample_type(request):
 
 
 @login_required
-@user_passes_test(is_manager, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def etfa(request):
     """ETFA view."""
 
     queryset_services = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('codigo_etfa')
+    user = request.user
+    manager = user.groups.filter(name='manager').exists()
 
     if request.method == 'POST':
         if 'search_text' in request.POST.keys():
@@ -2428,6 +2468,7 @@ def etfa(request):
     services = paginator.get_page(page)
     return render(request, 'LIMS/etfa.html',{
         'services':services,
+        'manager': manager,
     })
 
 

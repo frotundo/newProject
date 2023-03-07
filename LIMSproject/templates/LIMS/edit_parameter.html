@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+{% block content %}
+<h1 class="title">Agregar Parametros</h1>
+
+<form action="" method='POST'>
+    {% csrf_token %}   
+
+        <table>
+            <tr>
+                <td class='item-add'><label for="">Acreditación</label></td>
+                <td class='item-input'><input type="text" name="acreditado" value='{% if parameter.acreditado == 'nan' %}{% else %}{{ parameter.acreditado }}{% endif %}' placeholder="Código de acreditación"></td>
+            </tr>
+        </table>
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

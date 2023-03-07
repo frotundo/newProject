@@ -26,6 +26,7 @@ urlpatterns = [
     path('containers/add_container/', views.add_container, name="add_containers"),
     path('parameters/', views.parameters, name="parameters"),
     path('parameters/add_parameter/', views.add_parameter, name="add_parameter"),
+    path('parameters/<str:parameter_id>/edit_parameter/', views.edit_parameter, name="edit_parameter"),
     path('samples_type/', views.samples_type, name="samples_type"),
     path('samples_type/add_sample_type/', views.add_sample_type, name="add_sample_type"),
     path('etfa/', views.etfa, name="etfa"),

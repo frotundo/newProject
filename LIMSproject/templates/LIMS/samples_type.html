@@ -8,7 +8,8 @@
 {% block content %}
 <div class='title_contain'>
     <h1 class="title">Tipos de Muestras</h1>
-    <a class='link-add' href="{% url 'lims:add_sample_type' %}" title="Agregar tipo de muestra"><i class="fa-solid fa-circle-plus"></i></a> 
+    {% if manager %}<a class='link-add' href="{% url 'lims:add_sample_type' %}" title="Agregar tipo de muestra"><i class="fa-solid fa-circle-plus"></i></a> {% endif %}
+    
 </div>
 
 {% if samples_type %}

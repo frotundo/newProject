@@ -8,7 +8,8 @@
 {% block content %}
 <div class='title_contain'>
     <h1 class="title">Filtros</h1>
-    <a class='link-add' href="{% url 'lims:add_filters' %}" title="Agregar filtro"><i class="fa-solid fa-circle-plus"></i></a> 
+    {% if manager %}<a class='link-add' href="{% url 'lims:add_filters' %}" title="Agregar filtro"><i class="fa-solid fa-circle-plus"></i></a>{% endif %}
+     
 </div>
 
 {% if filtros %}
