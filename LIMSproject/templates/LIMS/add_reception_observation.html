@@ -1,0 +1,24 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'css/lims/lims.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Agregar Observación de Recepción</h1>
+
+<form class='form'  action="" method='POST'>
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td class='item-add'><Label>Observación</Label></td>
+            <td class='item-input'><input type="text" name="observacion" id="" placeholder="Información adicional"></td>
+        </tr>
+    </table>
+        
+    <button class='button-save' type="submit">Guardar</button>
+</form>
+
+
+{% endblock content %}

@@ -58,7 +58,7 @@
         {% for servicio in servicios %}
         <tr class='row'>
             <td class='item-list-sp'><a  href="{% url 'lims:service' servicio.codigo %}" class='item-list-sp'>{{ servicio.codigo_muestra }}</a> {% if servicio.fecha_de_recepcion == None %}{% if servicio.filtros_id != None %}{% if  servicio.editor_sample_code == None %} <a href="{% url 'lims:edit_sample_code' servicio.codigo %}" title="Editar código de servicio"><i class="fa-solid fa-pen"></i></a>{% endif %}{% endif %}{% endif %}</td>
-            <td class='item-list'  style="text-align: center;">{{ servicio.punto_de_muestreo }}</td>
+            <td class='item-list'  style="text-align: center;">{{ servicio.punto_de_muestreo }}{% if servicio.fecha_de_recepcion == None %}{% if servicio.observacion_de_recepcion == None %} <a href="{% url 'lims:add_reception_observation' servicio.codigo %}"><i style="margin-left: 10px; font-size: 1.5rem;" class="fa-solid fa-message" title='Observaciones de recepción'></i></a> {% endif %}{% endif %}</td>
             <form action="" method='POST'>
                 {% csrf_token %} 
                 <td class=''>{% if servicio.fecha_de_recepcion != None %} <p style='text-align:center; font-size: 1.2rem'>{{ servicio.fecha_de_muestreo|date:"d-m-Y H:i" }}</p> {% else %}<input class='input-par' type='text' name="fecha_de_muestreo" value='{{ servicio.fecha_de_muestreo|date:"d-m-Y H:i" }}'id="" placeholder="" >{% endif %}</td>

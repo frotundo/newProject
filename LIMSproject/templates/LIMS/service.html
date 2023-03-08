@@ -26,6 +26,9 @@
 
 <p class="p-service"><strong>Servicio ETFA: </strong> {% if service.etfa == True  %} SI {% else %} NO {% endif %}</p>
 <p class="p-service"><strong>Cliente: </strong>{{ client.titular }}</p>
+{% if service.representante_legal != None %}
+<p class="p-service"><strong>Representante legal: </strong>{{ service.representante_legal }}</p>
+{% endif %}
 <p class="p-service"><strong>Proyecto: </strong>{{ service.proyecto.nombre }}</p>
 <p class="p-service"><strong>Punto de muestreo: </strong>{{ service.punto_de_muestreo }}</p>
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
@@ -33,10 +36,11 @@
 <p class='p-service'><strong>Fecha de entrega al cliente: </strong>{{ service.fecha_de_entrega_cliente|date:"d-m-Y" }}</p>
 {% if project.cotizado %}
 {% else %}
-<p class='p-service'><strong>Fecha de entrega de envase para enviar a terreno: </strong>{{ service.fecha_de_contenedores_o_filtros|date:"d-m-Y" }}</p>
+<p class='p-service'><strong>Fecha de entrega de envase para enviar a terreno: </strong>{{ service.fecha_de_contenedores_o_filtros|date:"d-m-Y H:m" }}</p>
 {% endif %}
-
+{% if service.fecha_de_recepcion != None %}
 <p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepcion|date:"d-m-Y" }}</p>
+{% endif %}
 
 {% if project.cotizado %}
 {% else %}
@@ -51,16 +55,25 @@
 {% endif %}
 
 {% endif %}
-
+{% if service.observacion != None %}
 <h3>Observación</h3>
-<p class='p-service'>{{ service.observacion }}</p>
+<p class='p-service' style='padding-left: 10px;'>{{ service.observacion }}</p>
+{% endif %}
 
-
+{% if norma.norma %}
 <h3>Norma de referencia</h3>
-<p class='p-service'>{{ norma.norma }}</p>
+<p class='p-service' style='padding-left: 10px;'></p>
+{% endif %}
 
+{% if rca.rca_asociada != None %}
 <h3>RCA</h3>
-<p class='p-service'>{{ rca.rca_asociada }}</p>
+<p class='p-service' style='padding-left: 10px;'>{{ rca.rca_asociada }}</p>
+{% endif %}
+
+{% if service.observacion_de_recepcion != None %}
+<h3>Observación de recepción</h3>
+<p class='p-service' style='padding-left: 10px;'>{{ service.observacion_de_recepcion }}</p>
+{% endif %}
 
 {% if manager == True %}
 <div>

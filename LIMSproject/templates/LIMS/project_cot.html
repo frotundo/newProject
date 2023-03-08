@@ -13,6 +13,20 @@
 
 <p class="p-service"><strong>Código: </strong>{{ project.codigo }}</p>
 <p></p>
+<p class="p-service"><strong>Servicio ETFA: </strong>{% if project.etfa %}SI {% else %} NO{% endif %}</p>
+<p></p>
+{% if project.representante_legal %}
+<p class="p-service"><strong>Representante legal: </strong>{{ project.representante_legal }}</p>
+<p></p>
+{% endif %}
+{% if project.rCA %}
+<p class="p-service"><strong>RCA: </strong>{{ rca.rca_asociada }}</p>
+<p></p>
+{% endif %}
+{% if project.norma_de_referencia %}
+<p class="p-service"><strong>Norma de Referencia: </strong>{{ project.norma_de_referencia }}</p>
+<p></p>
+{% endif %}
 
 {% if parametros_cotizados %}
 <h3>Parametros cotizados</h3>

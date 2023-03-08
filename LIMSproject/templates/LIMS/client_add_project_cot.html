@@ -66,10 +66,58 @@
             <tr>
                 <td class='item-add'><label for="lang">Parametros cotizados</label></td>
                 <td class='item-input'>
-                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple required>
+                    <select class='select1 select-mult' name="parameters" id="lang" multiple required>
                         <option value=""></option>
                         {% for p in parameters %}
                         <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %}>{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Norma de Referencia</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="norma_de_referencia" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for n in normas %}
+                        <option value="{{ n.id }}">{{ n.norma }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Representante legal</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="representante_legal" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for representante_legal in representantes_legales %}
+                        <option value="{{ representante_legal.id }}">{{ representante_legal.nombre }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">RCA</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="rCA" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for rca in rcas %}
+                        <option value="{{ rca.id }}">{{ rca.rca_asociada }}</option>
                     {% endfor %}
                     </select>
                 </td>

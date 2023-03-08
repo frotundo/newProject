@@ -46,17 +46,17 @@
     <table>
         <tr style='display:none;'>
             <td class='item-add'><Label>Proyecto</Label></td>
-            <td class='item-input'><input type="text" name="proyecto" id="" placeholder="" value='{{ project.codigo }}'></td>
+            <td class='item-input'><input type="text" name="proyecto" id="" placeholder="" value='{{ project.codigo }}' readonly></td>
         </tr>
 
         <tr style='display:none;'>
             <td class='item-add'><Label>Cliente</Label></td>
-            <td class='item-input'><input type="text" name="cliente" id="" placeholder="" value='{{ project.cliente_id }}'></td>
+            <td class='item-input'><input type="text" name="cliente" id="" placeholder="" value='{{ project.cliente_id }}' readonly></td>
         </tr>
 
         <tr>
             <td class='item-add'><Label>Fecha de muestreo</Label></td>
-            <td class='item-input'><input type='datetime-local' name="fecha_de_muestreo" id="" placeholder="" required></td>
+            <td class='item-input'><input type='date' name="fecha_de_muestreo" id="" placeholder="" required></td>
         </tr>
 
         <tr>
@@ -76,7 +76,7 @@
 
         <tr>
             <td class='item-add'><Label>Muestreado por</Label></td>
-            <td class='item-input'><input type="text" name="muestreado_por_algoritmo" id="" placeholder="Nombre del muestreador"></td>
+            <td class='item-input'><input type="text" name="muestreado_por_algoritmo" id="" placeholder="Nombre del muestreador" required></td>
         </tr>
 
         <tr>
@@ -93,7 +93,7 @@
             <tr>
                 <td class='item-add'><label for="lang">Lugar de monitoreo</label></td>
                 <td class='item-input'>
-                    <select class='select1' name="area" id="lang"  size='1'>
+                    <select class='select1' name="area" id="lang"  size='1' required>
                         <option value=""></option>
                         {% for sp in monitoring_places %}
                         <option value="{{ sp.nombre }}">{{ sp.nombre }}</option>
@@ -109,7 +109,7 @@
             <tr>
                 <td class='item-add'><label for="lang">Punto de muestreo</label></td>
                 <td class='item-input'>
-                    <select class='select1' name="punto_de_muestreo" id="lang"  size='1'>
+                    <select class='select1' name="punto_de_muestreo" id="lang"  size='1' required>
                         <option value=""></option>
                         {% for sp in sample_points %}
                         <option value="{{ sp.nombre }}">{{ sp.nombre }}</option>
@@ -126,7 +126,7 @@
             <tr>
                 <td class='item-add'><label for="lang">Parametros</label></td>
                 <td class='item-input'>
-                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple>
+                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple required>
                         <option value=""></option>
                         {% for p in parameters %}
                         <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %}>{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
@@ -146,6 +146,22 @@
                         <option value=""></option>
                         {% for n in normas %}
                         <option value="{{ n.id }}">{{ n.norma }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <p></p>
+            <p></p>
+        </table>
+
+        <table  class='client-select'>
+            <tr>
+                <td class='item-add'><label for="lang">Representante legal</label></td>
+                <td class='item-input'>
+                    <select class='select1' name="representante_legal" id="lang"  size='1'>
+                        <option value=""></option>
+                        {% for representante_legal in representantes_legales %}
+                        <option value="{{ representante_legal.id }}">{{ representante_legal.nombre }}</option>
                     {% endfor %}
                     </select>
                 </td>

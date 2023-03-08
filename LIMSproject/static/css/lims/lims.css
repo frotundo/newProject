@@ -211,7 +211,8 @@ input {
 .fa-rotate-left, 
 .fa-chart-column,
 .fa-copy,
-.fa-file-circle-plus {
+.fa-file-circle-plus,
+.fa-message {
     color: #0c7cbf;
     font-size: 2rem;
     cursor: pointer;
@@ -223,7 +224,8 @@ input {
 .fa-rotate-left:hover,
 .fa-chart-column:hover,
 .fa-copy:hover,
-.fa-file-circle-plus:hover {
+.fa-file-circle-plus:hover,
+.fa-message:hover {
     color: #acc835;
 }
 
@@ -474,4 +476,8 @@ background-color: #acc835;
     width: 160px; 
     text-align: center; 
     font-size: 1.4rem;
+}
+
+.select-mult {
+    height: 200px;
 }

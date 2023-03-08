@@ -1230,7 +1230,6 @@ def calc_envases(parameters):
     VA_1L_SP = 0
     B_PLAS = 0
     P_1L_PEROX = 0
-    # P_1L_BA_SP = 0
 
     for p in parameters:
         param = models.ParametroEspecifico.objects.get(pk=p).envase
@@ -1238,7 +1237,7 @@ def calc_envases(parameters):
             V_1L_HCL +=1
         elif param == models.Envase.objects.get(codigo='VA-1L-SP'):
             VA_1L_SP = 1
-        elif param == models.Envase.objects.get(codigo='B-PLAS') or param == models.Envase.objects.get(codigo='P-1L-BA-SP'):
+        elif param == models.Envase.objects.get(codigo='B-PLAS'):
             B_PLAS = 1
         elif param == models.Envase.objects.get(codigo='P-1L-NAOH'):
             P_1L_NAOH = 1
@@ -1841,12 +1840,18 @@ def client_add_project_cot(request, id_cliente):
     parameters = models.ParametroEspecifico.objects.all().order_by('ensayo')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
+    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
+    representantes_legales = models.RepresentanteLegalCliente.objects.filter(cliente_id=cliente.id).order_by('nombre')
+    normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
     context = {
         'cliente': cliente,
         'parameters': parameters,
         'tipo_de_muestra': tipo_muestra,
         'tipos_de_muestras': tipo_de_muestra,
+        'rcas': rcas,
+        'representantes_legales': representantes_legales,
+        'normas': normas,
     }
 
     if request.method == 'POST':
@@ -1865,9 +1870,21 @@ def client_add_project_cot(request, id_cliente):
             creator_user = request.POST['creator_user']
             parameters = request.POST.getlist('parameters')
             parameters_analisis_externos = []
+            norma_de_referencia = request.POST['norma_de_referencia']
+            representante_legal = request.POST['representante_legal']
+            rCA = request.POST['rCA']
             
-            parameters, parameters_analisis_externos = calc_param_no_etfa(parameters=parameters, parameters_analisis_externos=parameters_analisis_externos)
+            parameters = calc_param_no_etfa(parameters=parameters)
             
+            if norma_de_referencia == '': norma_de_referencia = None
+            else: norma_de_referencia = norma_de_referencia
+
+            if rCA == '': rCA = None
+            else: rCA = rCA
+
+            if representante_legal == '': representante_legal = None
+            else: representante_legal = models.RepresentanteLegalCliente.objects.get(id=representante_legal)
+
             try:
                 project = models.Proyecto.objects.create(
                     codigo=codigo, 
@@ -1879,7 +1896,6 @@ def client_add_project_cot(request, id_cliente):
                     )
                 
                 project.parametros_cotizados.set(parameters)
-                project.parametros_externos.set(parameters_analisis_externos)
                 return redirect('lims:client', id_cliente)
             except:
                 context['error'] = "El Codigo de Proyecto ya existe."
@@ -1896,12 +1912,18 @@ def client_add_project_cot_etfa(request, id_cliente):
     parameters = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa = None)|Q(codigo_etfa = 'nan')|Q(codigo_etfa = 'Cálculo')).order_by('ensayo')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
+    rcas = models.RCACliente.objects.filter(cliente_id=id_cliente).order_by('rca_asociada')
+    representantes_legales = models.RepresentanteLegalCliente.objects.filter(cliente_id=id_cliente).order_by('nombre')
+    normas = models.NormaDeReferencia.objects.all().order_by('norma')
     
     context = {
         'cliente': cliente,
         'parameters': parameters,
         'tipo_de_muestra': tipo_muestra,
         'tipos_de_muestras': tipo_de_muestra,
+        'rcas': rcas,
+        'representantes_legales': representantes_legales,
+        'normas': normas,
     }
 
     if request.method == 'POST':
@@ -1920,8 +1942,14 @@ def client_add_project_cot_etfa(request, id_cliente):
             creator_user = request.POST['creator_user']
             parameters = request.POST.getlist('parameters')
             parameters_analisis_externos = request.POST.getlist('analisis_externos')
+            representante_legal = models.RepresentanteLegalCliente.objects.get(id=request.POST['representante_legal']) 
+            norma_de_referencia = request.POST['norma_de_referencia']
+            rCA = request.POST['rCA']
             
             parameters, parameters_analisis_externos = calc_param_etfa(parameters=parameters, parameters_analisis_externos=parameters_analisis_externos)
+
+            if norma_de_referencia == '': norma_de_referencia = None
+            else: norma_de_referencia = norma_de_referencia
 
             try:
                 project = models.Proyecto.objects.create(
@@ -1931,7 +1959,10 @@ def client_add_project_cot_etfa(request, id_cliente):
                     tipo_de_muestra = tipodemuestra,
                     cliente_id=client, 
                     cotizado=True,
-                    etfa=True
+                    etfa=True,
+                    rCA = rCA,
+                    representante_legal = representante_legal,
+                    norma_de_referencia = norma_de_referencia,
                     )
                 
                 project.parametros_cotizados.set(parameters)
@@ -2508,7 +2539,6 @@ def project(request, project_id):
     project = models.Proyecto.objects.get(pk = project_id)
     cliente = models.Cliente.objects.get(pk=project.cliente_id)
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id)
-    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id)
     queryset_services = models.Servicio.objects.filter(proyecto_id=project_id).order_by('-created', 'codigo')
     paginator = Paginator(queryset_services, 20)
     page = request.GET.get('page')
@@ -2523,7 +2553,6 @@ def project(request, project_id):
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
-        'rcas': rcas,
         'services': services,
         'modelos': modelos,
         'parameters': parameters_service,
@@ -2538,7 +2567,6 @@ def project_cot(request, project_id):
     project = models.Proyecto.objects.get(pk = project_id)
     cliente = models.Cliente.objects.get(pk=project.cliente_id)
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id)
-    rcas = models.RCACliente.objects.filter(cliente_id=cliente.id)
     queryset_services = models.Servicio.objects.filter(proyecto_id=project_id).order_by('-created', 'codigo')
     paginator = Paginator(queryset_services, 20)
     page = request.GET.get('page')
@@ -2546,16 +2574,21 @@ def project_cot(request, project_id):
     parameters_service = models.ParametroDeMuestra.objects.all()
     parametros_cotizados = project.parametros_cotizados.all()
     parametros_externos = project.parametros_externos.all()
-    return render(request, 'LIMS/project_cot.html', {
+
+    context = {
         'project': project, 
         'cliente': cliente,
         'sample_points': sample_points,
-        'rcas': rcas,
         'services': services,
         'parameters': parameters_service,
         'parametros_cotizados':parametros_cotizados,
         'parametros_externos': parametros_externos,
-    })
+    }
+    if project.rCA != None: 
+        rca = models.RCACliente.objects.get(id=project.rCA)
+        context['rca'] = rca
+    
+    return render(request, 'LIMS/project_cot.html', context)
 
 
 @login_required
@@ -2568,6 +2601,7 @@ def add_service(request, project_id):
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
+    representantes_legales = models.RepresentanteLegalCliente.objects.filter(cliente_id=cliente.id).order_by('nombre')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
     parametros = models.ParametroEspecifico.objects.all().order_by('codigo')
@@ -2590,6 +2624,7 @@ def add_service(request, project_id):
             habiles = request.POST['habiles']
             fecha_de_contenedores = request.POST['fecha_de_contenedores']
             norma_de_referencia = request.POST['norma_de_referencia']
+            representante_legal = request.POST['representante_legal']
             rCA = request.POST['rCA']
             etfa = False
             muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
@@ -2618,7 +2653,21 @@ def add_service(request, project_id):
                 elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
                     codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
                     codigo_generado = f'{codigo_de_servicio}-{current_year}'
-             
+            
+            if norma_de_referencia == '': norma_de_referencia = None
+            else: norma_de_referencia = norma_de_referencia
+
+            if rCA == '': rCA = None
+            else: rCA = rCA
+
+            if observacion == '': observacion = None
+            else: observacion = observacion
+
+            if representante_legal == '': representante_legal = None
+            else: representante_legal = models.RepresentanteLegalCliente.objects.get(id=representante_legal)
+
+            
+
             models.Servicio.objects.create(
                 codigo = codigo_de_servicio,
                 codigo_muestra = codigo_generado, 
@@ -2631,6 +2680,7 @@ def add_service(request, project_id):
                 fecha_de_entrega_cliente = fecha_de_entrega_cliente,
                 fecha_de_contenedores_o_filtros = fecha_de_contenedores,
                 norma_de_referencia = norma_de_referencia,
+                representante_legal= representante_legal,
                 rCA = rCA,
                 etfa = etfa,
                 envases = envases,
@@ -2663,6 +2713,7 @@ def add_service(request, project_id):
         'tipos_de_muestras': tipo_de_muestra,
         'parameters': parametros,
         'normas': normas,
+        'representantes_legales': representantes_legales,
     })
 
 
@@ -2676,6 +2727,7 @@ def add_service_etfa(request, project_id):
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
+    representantes_legales = models.RepresentanteLegalCliente.objects.filter(cliente_id=cliente.id).order_by('nombre')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
     tipo_muestra = ''
     parametros = models.ParametroEspecifico.objects.exclude(Q(codigo_etfa = 'nan') | Q(codigo_etfa = None) | Q(codigo_etfa='Cálculo')).order_by('ensayo')
@@ -2702,6 +2754,7 @@ def add_service_etfa(request, project_id):
             fecha_de_contenedores = request.POST['fecha_de_contenedores']
             norma_de_referencia = request.POST['norma_de_referencia']
             rCA = request.POST['rCA']
+            representante_legal = models.RepresentanteLegalCliente.objects.get(id=request.POST['representante_legal']) 
             etfa = True
             muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
             creator_user = request.POST['creator_user']
@@ -2733,7 +2786,12 @@ def add_service_etfa(request, project_id):
                 elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
                     codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
                     codigo_generado = f'{codigo_de_servicio}-{current_year}'
+            if norma_de_referencia == '': norma_de_referencia = None
+            else: norma_de_referencia = norma_de_referencia
             
+            if observacion == '': observacion = None
+            else: observacion = observacion
+
             models.Servicio.objects.create(
                 codigo = codigo_de_servicio,
                 codigo_muestra = codigo_generado, 
@@ -2750,6 +2808,7 @@ def add_service_etfa(request, project_id):
                 etfa = etfa,
                 envases = envases,
                 muestreado_por_algoritmo = muestreado_por_algoritmo,
+                representante_legal = representante_legal,
                 creator_user = creator_user,
                 cliente = cliente,
                 created = datetime.now()
@@ -2792,7 +2851,21 @@ def add_service_etfa(request, project_id):
         'parameters': parametros,
         'parameters_externos': parametros_externos,
         'normas': normas,
+        'representantes_legales': representantes_legales,
     })
+
+
+@login_required
+@user_passes_test(is_income, login_url='lims:services')
+def add_reception_observation(request, service_id):
+    service = models.Servicio.objects.get(pk = service_id)
+    if request.method == 'POST':
+        service.observacion_de_recepcion = request.POST['observacion']
+        service.updated_at = datetime.now()
+        service.save()
+
+        return redirect('lims:services')
+    return render(request, 'LIMS/add_reception_observation.html')
 
 
 @login_required
@@ -3104,21 +3177,19 @@ def add_service_cot(request, project_id):
         cliente = request.POST['cliente']
         punto_de_muestreo = request.POST['punto_de_muestreo']
         area = request.POST['area']
-        tipo_de_muestra = request.POST['tipo_de_muestra']
         fecha_de_muestreo = request.POST['fecha_de_muestreo']
         fecha_de_recepcion = request.POST['fecha_de_recepcion']
         observacion = request.POST['observacion']
         habiles = request.POST['habiles']
-        norma_de_referencia = request.POST['norma_de_referencia']
-        rCA = request.POST['rCA']
         etfa = request.POST['etfa']
         muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
         creator_user = request.POST['creator_user']
         parameters = request.POST.getlist('parameters')
         parameters_externos = request.POST.getlist('parameters_externos')
         
-        fecha_de_recepcion= datetime.strptime(fecha_de_recepcion, "%Y-%m-%d")
-        fecha_de_entrega_cliente = add_workdays(fecha_de_recepcion, int(habiles))
+        
+        fecha_recepcion= datetime.strptime(fecha_de_recepcion[:10], "%Y-%m-%d")
+        fecha_de_entrega_cliente = add_workdays(fecha_recepcion, int(habiles))
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
 
@@ -3144,20 +3215,23 @@ def add_service_cot(request, project_id):
                 codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
                 codigo_generado = f'{codigo_de_servicio}-{current_year}'
 
-           
+        if observacion == '': observacion = None
+        else: observacion = observacion    
+
         models.Servicio.objects.create(
             codigo = codigo_de_servicio,
             codigo_muestra = codigo_generado, 
             proyecto_id = proyecto, 
             punto_de_muestreo = punto_de_muestreo,
             area = area,
-            tipo_de_muestra = tipo_de_muestra,
+            tipo_de_muestra = project.tipo_de_muestra,
             fecha_de_muestreo = fecha_de_muestreo,
             fecha_de_recepcion = fecha_de_recepcion,
-            observacion = observacion,
+            observacion_de_recepcion = observacion,
             fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-            norma_de_referencia = norma_de_referencia,
-            rCA = rCA,
+            norma_de_referencia = project.norma_de_referencia,
+            rCA = project.rCA,
+            representante_legal = project.representante_legal,
             etfa = etfa,
             muestreado_por_algoritmo = muestreado_por_algoritmo,
             creator_user = creator_user,
@@ -3189,7 +3263,7 @@ def add_service_cot(request, project_id):
                         created = datetime.now()
                         )
 
-        return redirect('lims:project', project_id)
+        return redirect('lims:project_cot', project_id)
         
     return render(request, 'LIMS/add_service_cot.html', {
         'project': project, 
@@ -3293,12 +3367,28 @@ def service(request, service_id):
     paginator = Paginator(queryset_parameters, 10)
     page = request.GET.get('page')
     parameters = paginator.get_page(page)
-    rca = models.RCACliente.objects.get(pk=service.rCA)
-    norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
     project = models.Proyecto.objects.get(pk=service.proyecto_id)
     user = request.user
     manager = user.groups.filter(name='manager').exists()
     comercial = user.groups.filter(name='comercial').exists()
+    context = {
+        'service': service,
+        'client': client,
+        'parametros': parametros,
+        'parameters': parameters,
+        'project': project,
+        'manager': manager,
+        'total': len(queryset_parameters),
+        'comercial': comercial,
+    }
+
+    if service.norma_de_referencia != None:
+        norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
+        context['norma'] = norma
+
+    if service.rCA != None:
+        rca = models.RCACliente.objects.get(pk=service.rCA)
+        context['rca'] = rca
     
     def prog():
         progreso = 0
@@ -3306,25 +3396,13 @@ def service(request, service_id):
             if p.resultado_final!=None: 
                 progreso+=1
         analizado = progreso
-        print(analizado)
         return analizado, (progreso/len(queryset_parameters))*100 if analizado!= 0 else 0
 
     analizado, progreso  = prog()
+    context['analizado'] = analizado
+    context['progreso'] = progreso
 
-    return render(request, 'LIMS/service.html', {
-        'service': service,
-        'client': client,
-        'parametros': parametros,
-        'parameters': parameters,
-        'rca': rca,
-        'norma': norma,
-        'project': project,
-        'manager': manager,
-        'progreso': progreso,
-        'total': len(queryset_parameters),
-        'analizado': analizado,
-        'comercial': comercial,
-    })
+    return render(request, 'LIMS/service.html', context)
 
  
 @login_required 
@@ -3660,7 +3738,7 @@ def discarded_service_parameters_filter(request):
     })
 
 @login_required
-@user_passes_test(is_manager, login_url='lims:index')
+@user_passes_test(is_commercial, login_url='lims:index')
 def projects(request):
     """Projects view."""
 
@@ -4165,18 +4243,14 @@ def service_simulator(request):
             context['etfa'] = etfa
             context['tipo_de_muestra'] = tipo_de_muestra
             parameters = request.POST.getlist('parameters')
-            parameters_analisis_externos = []
             
             if etfa == 'SI':
                 parameters,  parameters_analisis_externos = calc_param_etfa(parameters=parameters, parameters_analisis_externos=parameters_analisis_externos)
             else:
-                parameters,  parameters_analisis_externos = calc_param_no_etfa(parameters=parameters, parameters_analisis_externos=parameters_analisis_externos)
+                parameters = calc_param_no_etfa(parameters=parameters)
             
             if len(parameters)>0: 
                 parametros = [models.ParametroEspecifico.objects.get(id=p) for p in parameters]
                 context['parametros'] = parametros
-            if len(parameters_analisis_externos)>0: 
-                parametros_analisis_externos = [models.ParametroEspecifico.objects.get(id=p) for p in parameters_analisis_externos]
-                context['parametros_analisis_externos'] = parametros_analisis_externos
                 
     return render(request, 'LIMS/service_simulator.html', context)
