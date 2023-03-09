@@ -1128,7 +1128,7 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                     anex_param(str(DMG.id))
                 else: anex_param_ext(str(DMG.id))
     
-    return parameters
+    return parameters, parameters_analisis_externos
 
 
 def calc_param_no_etfa(parameters):
@@ -3250,7 +3250,7 @@ def add_model_service(request, project_id):
     monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
-    tipo_de_muestras_excluidas = ['Agua para fines industriales', 'Agua Potable/Bebida', 'Agua residual', 'Agua subterránea', 'Agua superficial', 'Lodos', 'Sedimentos', 'Suelos']
+    tipo_de_muestras_excluidas = ['Agua para fines industriales', 'Agua Potable/Bebida', 'Agua residual', 'Agua subterránea', 'Agua superficial', 'Lodos', 'Sedimentos', 'Suelos', 'RISE', 'Fuentes de captación']
     tipo_de_muestra = tipo_de_muestra.exclude(nombre__in = tipo_de_muestras_excluidas)
     tipo_muestra = ''
     parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
@@ -4622,14 +4622,18 @@ def service_simulator(request):
             context['etfa'] = etfa
             context['tipo_de_muestra'] = tipo_de_muestra
             parameters = request.POST.getlist('parameters')
+            parameters_analisis_externos = []
             
             if etfa == 'SI':
-                parameters,  parameters_analisis_externos = calc_param_etfa(parameters=parameters, parameters_analisis_externos=parameters_analisis_externos)
+                parameters,  parameters_analisis_externos = calc_param_etfa(parameters=parameters, parameters_analisis_externos = parameters_analisis_externos)
             else:
                 parameters = calc_param_no_etfa(parameters=parameters)
             
             if len(parameters)>0: 
                 parametros = [models.ParametroEspecifico.objects.get(id=p) for p in parameters]
                 context['parametros'] = parametros
+            if len(parameters_analisis_externos)>0: 
+                parametros_analisis_externos = [models.ParametroEspecifico.objects.get(id=p) for p in parameters_analisis_externos]
+                context['parametros_analisis_externos'] = parametros_analisis_externos
                 
     return render(request, 'LIMS/service_simulator.html', context)
