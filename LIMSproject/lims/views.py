@@ -83,6 +83,349 @@ def render_view(request, template, context):
     return render(request, template, context)
 
 
+def calc_param_cot_etfa(parameters):
+
+    """Esta función es para completar parametros faltantes en los servicio ETFA"""
+    parameters_f = []
+    for p in parameters:
+        parametro = models.ParametroEspecifico.objects.get(pk= p).codigo
+        if 'HCT' in parametro:
+            if 'AFI-HCT'==parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='AFI-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='AFI-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)
+                
+            
+            elif 'AP-HCT'==parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='AP-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='AP-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AR-HCT' == parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='AR-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='AR-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'SUB-HCT' == parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='SUB-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='SUB-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'SUP-HCT' == parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='SUP-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='SUP-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)                
+            
+            elif 'L-HCT' == parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='L-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='L-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'SD-HCT' == parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='SD-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='SD-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'S-HCT' == parametro:
+                HCF = models.ParametroEspecifico.objects.get(codigo='S-HCF-GRV')
+                HCV = models.ParametroEspecifico.objects.get(codigo='S-HCV')
+                if HCF.codigo_etfa=='nan' or HCF.codigo_etfa==None or HCV.codigo_etfa=='nan' or HCV.codigo_etfa==None:
+                    parameters_f.append(p)
+        
+        elif 'DDD+DDE+DDT' in parametro:
+            if 'AP-DDD+DDE+DDT'==parametro:
+                DDD = models.ParametroEspecifico.objects.get(codigo='AP-DDD-ME')
+                DDE = models.ParametroEspecifico.objects.get(codigo='AP-DDE-ME')
+                DDT = models.ParametroEspecifico.objects.get(codigo='AP-DDT-ME')
+                if DDD.codigo_etfa=='nan' or DDD.codigo_etfa==None or DDE.codigo_etfa=='nan' or DDE.codigo_etfa==None or DDT.codigo_etfa=='nan' or DDT.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'FC-DDD+DDE+DDT'==parametro:
+                DDD = models.ParametroEspecifico.objects.get(codigo='FC-DDD-ME')
+                DDE = models.ParametroEspecifico.objects.get(codigo='FC-DDE-ME')
+                DDT = models.ParametroEspecifico.objects.get(codigo='FC-DDT-ME')
+                if DDD.codigo_etfa=='nan' or DDD.codigo_etfa==None or DDE.codigo_etfa=='nan' or DDE.codigo_etfa==None or DDT.codigo_etfa=='nan' or DDT.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+        elif 'THM' in parametro:
+            if 'AFI-THM-SM'==parametro:
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='AFI-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='AFI-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='AFI-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AFI-TRICLOR-SM')
+                if BROMODICL.codigo_etfa=='nan' or BROMODICL.codigo_etfa==None or DIBROMOCL.codigo_etfa=='nan' or DIBROMOCL.codigo_etfa==None or TRIBROM.codigo_etfa=='nan' or TRIBROM.codigo_etfa==None or TRICLOR.codigo_etfa=='nan' or TRICLOR.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AP-THM-ME'==parametro:
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-ME')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-ME')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-ME')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-ME')
+                if BROMODICL.codigo_etfa=='nan' or BROMODICL.codigo_etfa==None or DIBROMOCL.codigo_etfa=='nan' or DIBROMOCL.codigo_etfa==None or TRIBROM.codigo_etfa=='nan' or TRIBROM.codigo_etfa==None or TRICLOR.codigo_etfa=='nan' or TRICLOR.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AP-THM-SM'==parametro:
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='AP-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='AP-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='AP-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AP-TRICLOR-SM')
+                if BROMODICL.codigo_etfa=='nan' or BROMODICL.codigo_etfa==None or DIBROMOCL.codigo_etfa=='nan' or DIBROMOCL.codigo_etfa==None or TRIBROM.codigo_etfa=='nan' or TRIBROM.codigo_etfa==None or TRICLOR.codigo_etfa=='nan' or TRICLOR.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AR-THM-SM'==parametro:
+                BROMODICL_NCH = models.ParametroEspecifico.objects.get(codigo='AR-BROMODICL-NCH')
+                BROMODICL_SM = models.ParametroEspecifico.objects.get(codigo='AR-BROMODICL-SM')
+                DIBROMOCL_NCH = models.ParametroEspecifico.objects.get(codigo='AR-DIBROMOCL-NCH')
+                DIBROMOCL_SM = models.ParametroEspecifico.objects.get(codigo='AR-DIBROMOCL-SM')
+                TRIBROM_NCH = models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-NCH')
+                TRIBROM_SM = models.ParametroEspecifico.objects.get(codigo='AR-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='AR-TRICLOR-SM')
+                if BROMODICL_NCH.codigo_etfa=='nan' or BROMODICL_NCH.codigo_etfa==None or BROMODICL_SM.codigo_etfa=='nan' or BROMODICL_SM.codigo_etfa==None or DIBROMOCL_NCH.codigo_etfa=='nan' or DIBROMOCL_NCH.codigo_etfa==None or DIBROMOCL_SM.codigo_etfa=='nan' or DIBROMOCL_SM.codigo_etfa==None or TRIBROM_NCH.codigo_etfa=='nan' or TRIBROM_NCH.codigo_etfa==None or TRIBROM_SM.codigo_etfa=='nan' or TRIBROM_SM.codigo_etfa==None or TRICLOR.codigo_etfa=='nan' or TRICLOR.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'SUB-THM-SM'==parametro:
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='SUB-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='SUB-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='SUB-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='SUB-TRICLOR-SM')
+                if BROMODICL.codigo_etfa=='nan' or BROMODICL.codigo_etfa==None or DIBROMOCL.codigo_etfa=='nan' or DIBROMOCL.codigo_etfa==None or TRIBROM.codigo_etfa=='nan' or TRIBROM.codigo_etfa==None or TRICLOR.codigo_etfa=='nan' or TRICLOR.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'SUP-THM-SM'==parametro:
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='SUP-BROMODICL-SM')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='SUP-DIBROMOCL-SM')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='SUP-TRIBROM-SM')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='SUP-TRICLOR-SM')
+                if BROMODICL.codigo_etfa=='nan' or BROMODICL.codigo_etfa==None or DIBROMOCL.codigo_etfa=='nan' or DIBROMOCL.codigo_etfa==None or TRIBROM.codigo_etfa=='nan' or TRIBROM.codigo_etfa==None or TRICLOR.codigo_etfa=='nan' or TRICLOR.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'FC-THM-ME'==parametro:
+                BROMODICL = models.ParametroEspecifico.objects.get(codigo='FC-BROMODICL-ME')
+                DIBROMOCL = models.ParametroEspecifico.objects.get(codigo='FC-DIBROMOCL-ME')
+                TRIBROM = models.ParametroEspecifico.objects.get(codigo='FC-TRIBROM-ME')
+                TRICLOR = models.ParametroEspecifico.objects.get(codigo='FC-TRICLOR-ME')
+                if BROMODICL.codigo_etfa=='nan' or BROMODICL.codigo_etfa==None or DIBROMOCL.codigo_etfa=='nan' or DIBROMOCL.codigo_etfa==None or TRIBROM.codigo_etfa=='nan' or TRIBROM.codigo_etfa==None or TRICLOR.codigo_etfa=='nan' or TRICLOR.codigo_etfa==None:
+                    parameters_f.append(p)
+        
+        elif 'LANGELIER' in parametro:
+            if 'SUP-LANGELIER'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='SUP-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='SUP-PH-SM')                
+                SDT = models.ParametroEspecifico.objects.get(codigo='SUP-SDT-GRV')
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or ALCAL.codigo_etfa=='nan' or ALCAL.codigo_etfa==None or DUREZA.codigo_etfa=='nan' or DUREZA.codigo_etfa==None or PH.codigo_etfa=='nan' or PH.codigo_etfa==None or DUREZA.codigo_etfa==None or SDT.codigo_etfa=='nan' or SDT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            
+            elif 'SUB-LANGELIER'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='SUB-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='SUB-PH-SM')
+                SDT = models.ParametroEspecifico.objects.get(codigo='SUB-SDT-GRV')
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or ALCAL.codigo_etfa=='nan' or ALCAL.codigo_etfa==None or DUREZA.codigo_etfa=='nan' or DUREZA.codigo_etfa==None or PH.codigo_etfa=='nan' or PH.codigo_etfa==None or DUREZA.codigo_etfa==None or SDT.codigo_etfa=='nan' or SDT.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AR-LANGELIER'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='AR-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='AR-PH-SM')
+                PH2 = models.ParametroEspecifico.objects.get(codigo='AR-PH-NCH')
+                SDT = models.ParametroEspecifico.objects.get(codigo='AR-SDT-GRV')
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or ALCAL.codigo_etfa=='nan' or ALCAL.codigo_etfa==None or DUREZA.codigo_etfa=='nan' or DUREZA.codigo_etfa==None or PH.codigo_etfa=='nan' or PH.codigo_etfa==None or PH2.codigo_etfa=='nan' or PH2.codigo_etfa==None or DUREZA.codigo_etfa==None or SDT.codigo_etfa=='nan' or SDT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+
+            elif 'AP-LANGELIER'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='AP-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='AP-PH-SM')
+                SDT = models.ParametroEspecifico.objects.get(codigo='AP-SDT-GRV')
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or ALCAL.codigo_etfa=='nan' or ALCAL.codigo_etfa==None or DUREZA.codigo_etfa=='nan' or DUREZA.codigo_etfa==None or PH.codigo_etfa=='nan' or PH.codigo_etfa==None or DUREZA.codigo_etfa==None or SDT.codigo_etfa=='nan' or SDT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'AFI-LANGELIER'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS')
+                ALCAL = models.ParametroEspecifico.objects.get(codigo='AFI-ALCAL-T')
+                DUREZA = models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA')
+                PH = models.ParametroEspecifico.objects.get(codigo='AFI-PH-SM')
+                SDT = models.ParametroEspecifico.objects.get(codigo='AFI-SDT-GRV')
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or ALCAL.codigo_etfa=='nan' or ALCAL.codigo_etfa==None or DUREZA.codigo_etfa=='nan' or DUREZA.codigo_etfa==None or PH.codigo_etfa=='nan' or PH.codigo_etfa==None or DUREZA.codigo_etfa==None or SDT.codigo_etfa=='nan' or SDT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+        elif 'NT' in parametro:
+            if 'AFI-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='AFI-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='AFI-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='AFI-NKT')  
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AP-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='AP-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='AP-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='AP-NKT')                       
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AR-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='AR-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='AR-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='AR-NKT-SM')                       
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'SUB-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='SUB-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='SUB-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='SUB-NKT')                       
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'SUP-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='SUP-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='SUP-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='SUP-NKT')                       
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'S-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='S-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='S-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='S-NKT')                       
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'L-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='L-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='L-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='L-NKT')                       
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'SD-NT'==parametro:
+                NO3 = models.ParametroEspecifico.objects.get(codigo='SD-NO3-CI')
+                NO2 = models.ParametroEspecifico.objects.get(codigo='SD-NO2-CI')
+                NKT = models.ParametroEspecifico.objects.get(codigo='SD-NKT')                       
+                if NO3.codigo_etfa=='nan' or NO3.codigo_etfa==None or NO2.codigo_etfa=='nan' or NO2.codigo_etfa==None or NKT.codigo_etfa=='nan' or NKT.codigo_etfa==None:
+                    parameters_f.append(p)
+        
+        elif 'RAS' in parametro:
+            if 'AP-RAS'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1')                       
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'AR-RAS'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1')                       
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'SUB-RAS'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1')                       
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'SUP-RAS'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1')                       
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None:
+                    parameters_f.append(p)
+
+        elif 'NA100' in parametro:
+            if 'AP-NA100'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AP-NA-ICP1')
+                K = models.ParametroEspecifico.objects.get(codigo='AP-K-ICP1')                       
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None or K.codigo_etfa=='nan' or K.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'AR-NA100'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='AR-NA-ICP1') 
+                K = models.ParametroEspecifico.objects.get(codigo='AR-K-ICP1')                      
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None or K.codigo_etfa=='nan' or K.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'SUB-NA100'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUB-NA-ICP1')
+                K = models.ParametroEspecifico.objects.get(codigo='SUB-K-ICP1')                       
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None or K.codigo_etfa=='nan' or K.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'SUP-NA100'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1')
+                NA = models.ParametroEspecifico.objects.get(codigo='SUP-NA-ICP1') 
+                K = models.ParametroEspecifico.objects.get(codigo='SUP-K-ICP1')                      
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or NA.codigo_etfa=='nan' or NA.codigo_etfa==None or K.codigo_etfa=='nan' or K.codigo_etfa==None:
+                    parameters_f.append(p)
+
+        elif 'DUREZA-T' in parametro:
+            if 'AFI-DUREZA-T'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AFI-CA-AAS')
+                DCA = models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='AFI-MG-AAS')
+                DMG = models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-MG')                      
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or DCA.codigo_etfa=='nan' or DCA.codigo_etfa==None or DMG.codigo_etfa=='nan' or DMG.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'AP-DUREZA-T'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AP-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='AP-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-MG')                      
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or DCA.codigo_etfa=='nan' or DCA.codigo_etfa==None or DMG.codigo_etfa=='nan' or DMG.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'AR-DUREZA-T'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='AR-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='AR-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='AR-DUREZA-MG')                      
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or DCA.codigo_etfa=='nan' or DCA.codigo_etfa==None or DMG.codigo_etfa=='nan' or DMG.codigo_etfa==None:
+                    parameters_f.append(p)
+            
+            elif 'SUB-DUREZA-T'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUB-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUB-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-MG')                      
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or DCA.codigo_etfa=='nan' or DCA.codigo_etfa==None or DMG.codigo_etfa=='nan' or DMG.codigo_etfa==None:
+                    parameters_f.append(p)
+
+            elif 'SUP-DUREZA-T'==parametro:
+                CA = models.ParametroEspecifico.objects.get(codigo='SUP-CA-ICP1')
+                DCA = models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA')
+                MG = models.ParametroEspecifico.objects.get(codigo='SUP-MG-ICP1')
+                DMG = models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-MG')                      
+                if CA.codigo_etfa=='nan' or CA.codigo_etfa==None or MG.codigo_etfa=='nan' or MG.codigo_etfa==None or DCA.codigo_etfa=='nan' or DCA.codigo_etfa==None or DMG.codigo_etfa=='nan' or DMG.codigo_etfa==None:
+                    parameters_f.append(p)
+    
+    return parameters_f
+
+
 def calc_param_etfa(parameters, parameters_analisis_externos):
 
     """Esta función es para completar parametros faltantes en los servicio ETFA"""
@@ -128,8 +471,8 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                 else: anex_param_ext(str(HCV.id))
             
             elif 'AR-HCT' == parametro:
-                HCF = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-NCH-GRV').id)
-                HCF2 = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-GRV').id)
+                HCF2 = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-NCH-GRV').id)
+                HCF = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-GRV').id)
                 HCV = models.ParametroEspecifico.objects.get(codigo='AR-HCV')
                 anex_param2(p=HCF, p2=HCF2)
                 if HCV.codigo_etfa!='nan' and HCV.codigo_etfa!=None:
@@ -346,7 +689,7 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                 ALCAL = models.ParametroEspecifico.objects.get(codigo='SUP-ALCAL-T')
                 DUREZA = models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA')
                 PH = models.ParametroEspecifico.objects.get(codigo='SUP-PH-SM')                
-                SDT = models.ParametroEspecifico.objects.get(codigo='AFI-SDT-SM')
+                SDT = models.ParametroEspecifico.objects.get(codigo='SUP-SDT-GRV')
                 
                 if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
                     anex_param(str(CA.id))
@@ -370,7 +713,7 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                 ALCAL = models.ParametroEspecifico.objects.get(codigo='SUB-ALCAL-T')
                 DUREZA = models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA')
                 PH = models.ParametroEspecifico.objects.get(codigo='SUB-PH-SM')
-                SDT = models.ParametroEspecifico.objects.get(codigo='SUB-SDT-SM-GRV')
+                SDT = models.ParametroEspecifico.objects.get(codigo='SUB-SDT-GRV')
                 if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
                     anex_param(str(CA.id))
                 else: anex_param_ext(str(CA.id))
@@ -415,7 +758,7 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                 DUREZA = models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA')
                 PH = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-SM').id)
                 PH2 = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-ME').id)
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-SM-GRV').id)
+                SDT = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-GRV').id)
                 SDT2 = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-ME-GRV').id)
                 if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
                     anex_param(str(CA.id))
@@ -434,7 +777,7 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                 ALCAL = models.ParametroEspecifico.objects.get(codigo='AFI-ALCAL-T')
                 DUREZA = models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA')
                 PH = models.ParametroEspecifico.objects.get(codigo='AFI-PH-SM')
-                SDT = models.ParametroEspecifico.objects.get(codigo='')
+                SDT = models.ParametroEspecifico.objects.get(codigo='AFI-SDT-GRV')
                 if CA.codigo_etfa!='nan' and CA.codigo_etfa!=None:
                     anex_param(str(CA.id))
                 else: anex_param_ext(str(CA.id))
@@ -785,7 +1128,7 @@ def calc_param_etfa(parameters, parameters_analisis_externos):
                     anex_param(str(DMG.id))
                 else: anex_param_ext(str(DMG.id))
     
-    return parameters, parameters_analisis_externos
+    return parameters
 
 
 def calc_param_no_etfa(parameters):
@@ -818,8 +1161,8 @@ def calc_param_no_etfa(parameters):
                 anex_param(str(HCV.id))
             
             elif 'AR-HCT' == parametro:
-                HCF = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-NCH-GRV').id)
-                HCF2 = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-GRV').id)
+                HCF2 = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-NCH-GRV').id)
+                HCF = str(models.ParametroEspecifico.objects.get(codigo='AR-HCF-GRV').id)
                 HCV = models.ParametroEspecifico.objects.get(codigo='AR-HCV')
                 anex_param2(p=HCF, p2=HCF2)
                 anex_param(str(HCV.id))
@@ -952,7 +1295,7 @@ def calc_param_no_etfa(parameters):
                 ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUP-ALCAL-T').id)
                 DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUP-DUREZA-CA').id)
                 PH = str(models.ParametroEspecifico.objects.get(codigo='SUP-PH-SM').id)                       
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='AFI-SDT-SM').id)
+                SDT = str(models.ParametroEspecifico.objects.get(codigo='SUP-SDT-GRV').id)
                 anex_param(CA)
                 anex_param(ALCAL)
                 anex_param(DUREZA)
@@ -964,7 +1307,7 @@ def calc_param_no_etfa(parameters):
                 ALCAL = str(models.ParametroEspecifico.objects.get(codigo='SUB-ALCAL-T').id)
                 DUREZA = str(models.ParametroEspecifico.objects.get(codigo='SUB-DUREZA-CA').id)
                 PH = str(models.ParametroEspecifico.objects.get(codigo='SUB-PH-SM').id)
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='SUB-SDT-SM-GRV').id)
+                SDT = str(models.ParametroEspecifico.objects.get(codigo='SUB-SDT-GRV').id)
                 anex_param(CA)
                 anex_param(ALCAL)
                 anex_param(DUREZA)
@@ -990,7 +1333,7 @@ def calc_param_no_etfa(parameters):
                 DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AP-DUREZA-CA').id)
                 PH = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-SM').id)
                 PH2 = str(models.ParametroEspecifico.objects.get(codigo='AP-PH-ME').id)
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-SM-GRV').id)
+                SDT = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-GRV').id)
                 SDT2 = str(models.ParametroEspecifico.objects.get(codigo='AP-SDT-ME-GRV').id)
                 anex_param(CA)
                 anex_param(ALCAL)
@@ -1003,7 +1346,7 @@ def calc_param_no_etfa(parameters):
                 ALCAL = str(models.ParametroEspecifico.objects.get(codigo='AFI-ALCAL-T').id)
                 DUREZA = str(models.ParametroEspecifico.objects.get(codigo='AFI-DUREZA-CA').id)
                 PH = str(models.ParametroEspecifico.objects.get(codigo='AFI-PH-SM').id)
-                SDT = str(models.ParametroEspecifico.objects.get(codigo='').id)
+                SDT = str(models.ParametroEspecifico.objects.get(codigo='AFI-SDT-GRV').id)
                 anex_param(CA)
                 anex_param(ALCAL)
                 anex_param(DUREZA)
@@ -1915,6 +2258,11 @@ def client_add_project_cot_etfa(request, id_cliente):
     rcas = models.RCACliente.objects.filter(cliente_id=id_cliente).order_by('rca_asociada')
     representantes_legales = models.RepresentanteLegalCliente.objects.filter(cliente_id=id_cliente).order_by('nombre')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
+    parametros_i = [parameter.id for parameter in parameters.filter(codigo_etfa__icontains='Cálculo-E')]
+    print(parametros_i)
+    parametros_f = calc_param_cot_etfa(parametros_i)
+    print(parametros_f)
+    parameters = parameters.exclude(id__in=parametros_f)
     
     context = {
         'cliente': cliente,
@@ -1941,11 +2289,11 @@ def client_add_project_cot_etfa(request, id_cliente):
             tipodemuestra = request.POST['tipo_de_muestra']
             creator_user = request.POST['creator_user']
             parameters = request.POST.getlist('parameters')
-            parameters_analisis_externos = request.POST.getlist('analisis_externos')
             representante_legal = models.RepresentanteLegalCliente.objects.get(id=request.POST['representante_legal']) 
             norma_de_referencia = request.POST['norma_de_referencia']
             rCA = request.POST['rCA']
-            
+            parameters_analisis_externos = []
+
             parameters, parameters_analisis_externos = calc_param_etfa(parameters=parameters, parameters_analisis_externos=parameters_analisis_externos)
 
             if norma_de_referencia == '': norma_de_referencia = None
@@ -1966,7 +2314,7 @@ def client_add_project_cot_etfa(request, id_cliente):
                     )
                 
                 project.parametros_cotizados.set(parameters)
-                project.parametros_externos.set(parameters_analisis_externos)
+                # project.parametros_externos.set(parameters_analisis_externos)
 
                 return redirect('lims:client', id_cliente)
             except:
@@ -2573,7 +2921,7 @@ def project_cot(request, project_id):
     services = paginator.get_page(page)
     parameters_service = models.ParametroDeMuestra.objects.all()
     parametros_cotizados = project.parametros_cotizados.all()
-    parametros_externos = project.parametros_externos.all()
+    # parametros_externos = project.parametros_externos.all()
 
     context = {
         'project': project, 
@@ -2582,7 +2930,7 @@ def project_cot(request, project_id):
         'services': services,
         'parameters': parameters_service,
         'parametros_cotizados':parametros_cotizados,
-        'parametros_externos': parametros_externos,
+        # 'parametros_externos': parametros_externos,
     }
     if project.rCA != None: 
         rca = models.RCACliente.objects.get(id=project.rCA)

@@ -35,12 +35,12 @@
 {% endfor %}
 {% endif %}
 <p><br></p>
-{% if parametros_externos %}
+{% comment %} {% if parametros_externos %}
 <h3>Parametros (Analisis Externos)</h3>
 {% for pc in parametros_externos %}
 <p style='margin-left: 20px'>{{ pc.codigo }} ({{pc}})</p>
 {% endfor %}
-{% endif %}
+{% endif %} {% endcomment %}
 
 <div>
     <div class='subtitle_contain'>
