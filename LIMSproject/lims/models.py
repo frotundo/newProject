@@ -8,9 +8,9 @@ class Cliente(models.Model):
     """Analysis model."""
 
     titular = models.CharField(max_length=200, unique=True)
-    direccion = models.CharField(max_length=200)
+    direccion = models.CharField(max_length=200, null= True, blank=True)
     rut = models.CharField(max_length=20, unique=True)
-    actividad = models.CharField(max_length=250)
+    actividad = models.CharField(max_length=254, null= True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -83,9 +83,9 @@ class Envase(models.Model):
 
     codigo = models.CharField(primary_key=True, max_length=15)
     nombre = models.CharField(max_length=100)
-    volumen = models.CharField(max_length=10)
-    material = models.CharField(max_length=100)
-    preservante = models.CharField(max_length=254)
+    volumen = models.CharField(max_length=10, null=True, blank=True)
+    material = models.CharField(max_length=100, null=True, blank=True)
+    preservante = models.CharField(max_length=254, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     creator_user = models.CharField(max_length=100)
 
@@ -169,7 +169,7 @@ class Proyecto(models.Model):
     # parametros_externos = models.ManyToManyField(ParametroEspecifico, related_name='parametros_analisis_externos')
     cotizado = models.BooleanField(null=True, blank=True,) 
     tipo_de_muestra = models.CharField(max_length=100, null=True, blank=True)
-    etfa = models.BooleanField(null=True, blank=True,) 
+    etfa = models.BooleanField(null=True, blank=True) 
     norma_de_referencia = models.CharField(max_length=254, null=True, blank=True)
     representante_legal = models.ForeignKey(RepresentanteLegalCliente, on_delete=models.PROTECT, null=True, blank=True)
     rCA = models.CharField(max_length=254, null=True, blank=True)
@@ -195,7 +195,7 @@ class ModeloDeServicioDeFiltro(models.Model):
     norma_de_referencia = models.ForeignKey(NormaDeReferencia, on_delete=models.PROTECT)
     responsable = models.CharField(max_length=200)
     rCA = models.ForeignKey(RCACliente, on_delete=models.PROTECT)
-    etfa = models.BooleanField() 
+    etfa = models.BooleanField(default=False) 
     muestreado_por_algoritmo = models.CharField(max_length=254)
     created = models.DateTimeField()
     creator_user = models.CharField(max_length=100)

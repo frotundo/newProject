@@ -11,21 +11,6 @@
 <form action="" method='POST'>
     {% csrf_token %}
 
-    <table  class='client-select'>
-        <tr>
-            <td class='item-add'><label for="lang">¿Servicio ETFA?</label></td>
-            <td class='item-input'>
-                <input type="text" name='etfa' value='{% if project.etfa %}SI{% else %}NO{% endif %} ' readonly>
-                {% comment %} <select class='select1' name="etfa" id="lang"  size='1'>
-                    <option value=""></option>
-                    <option value="True">SI</option>
-                    <option value="False">NO</option>
-                </select> {% endcomment %}
-            </td>
-        </tr>
-        <p></p>
-        <p></p>
-    </table>
     <table>
         <tr style='display:none;'>
             <td class='item-add'><Label>Proyecto</Label></td>
@@ -37,10 +22,6 @@
             <td class='item-input'><input type="text" name="cliente" id="" placeholder="" value='{{ project.cliente_id }}'></td>
         </tr>
         
-        {% comment %} <tr>
-            <td class='item-add'><Label>Codigo de muestra</Label></td>
-            <td class='item-input'><input type="text" name="codigo_muestra" id="" placeholder="codigo"></td>
-        </tr> {% endcomment %}
 
         <tr>
             <td class='item-add'><Label>Fecha de muestreo</Label></td>

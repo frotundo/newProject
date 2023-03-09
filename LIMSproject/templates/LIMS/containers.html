@@ -24,9 +24,9 @@
         {% for envase in envases %}
         <tr class='row'>
             <td class='item-list'>{{ envase.codigo }}</td>
-            <td class='item-list'>{{ envase.volumen }}</td>
-            <td class='item-list'>{{ envase.material }}</td>
-            <td class='item-list'>{{ envase.preservante }}</td>
+            <td class='item-list'>{% if envase.volumen %}{{ envase.volumen }}{% else %}-{% endif %}</td>
+            <td class='item-list'>{% if envase.material %}{{ envase.material }}{% else %}-{% endif %}</td>
+            <td class='item-list'>{% if envase.preservante %}{{ envase.preservante }}{% else %}-{% endif %}</td>
         </tr>
         {% endfor %}
     </table>

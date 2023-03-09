@@ -1742,13 +1742,13 @@ def clients(request):
                     if   models.Cliente.objects.filter(rut=rut_fix(str(row['rut']))).exists():
                         continue
                     else:
-                        if type(row['nombre']) != str: titular = '-'
+                        if type(row['nombre']) != str: titular = None
                         else: titular = title_fix(str(row['nombre']))
 
-                        if type(row['direccion']) != str: direccion = '-'
+                        if type(row['direccion']) != str: direccion = None
                         else: direccion = title_fix(str(row['direccion']))
 
-                        if type(row['giro']) != str: giro = '-'
+                        if type(row['giro']) != str: giro = None
                         else: giro = cap_fix(str(row['giro']))
 
                         models.Cliente.objects.update_or_create(
@@ -1769,7 +1769,7 @@ def clients(request):
                     if   models.ContactoCliente.objects.filter(id=row['id']).exists() or models.Cliente.objects.filter(id=row['cliente_id']).exists()==False:
                         continue
                     else:
-                        if type(row['nombre']) != str: nombre = '-'
+                        if type(row['nombre']) != str: nombre = None
                         else: nombre = title_fix(str(row['nombre']))
 
                         models.ContactoCliente.objects.update_or_create(
@@ -1790,18 +1790,31 @@ def clients(request):
 @user_passes_test(is_commercial, login_url='lims:index')
 def add_client(request):
     """Add client view."""
+
     if request.method == 'POST':
         titular = request.POST['titular']
         rut = request.POST['rut']
         direccion = request.POST['direccion']
         actividad = request.POST['actividad']
         usuario = request.POST['creador']
+        
+        if direccion == '': direccion = None
+        else: direccion = title_fix(direccion)
+
+        if actividad == '': actividad = None
+        else: actividad = cap_fix(actividad)
+
         try:
+            if models.Cliente.objects.all().exists():
+                last_client = models.Cliente.objects.all().order_by('id').latest('id')
+                id = last_client.id + 1
+            
             models.Cliente.objects.create(
+                id = id,
                 titular=title_fix(titular), 
                 rut=rut_fix(rut), 
-                direccion=title_fix(direccion), 
-                actividad=cap_fix(actividad), 
+                direccion= direccion, 
+                actividad= actividad, 
                 creator_user=usuario
                 )
             return redirect('lims:clients')
@@ -1955,6 +1968,9 @@ def client_add_contact(request, id_cliente):
                 except:
                     continue
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
+                if rut == '': rut = None
+                else: rut = rut
+
                 models.ContactoCliente.objects.create(
                     nombre= title_fix(contacto), 
                     rut=rut_fix(rut), 
@@ -2235,6 +2251,7 @@ def client_add_project_cot(request, id_cliente):
                     tipo_de_muestra = tipodemuestra,
                     creator_user=creator_user,
                     cliente_id=client, 
+                    etfa = False,
                     cotizado=True,
                     )
                 
@@ -2393,8 +2410,9 @@ def add_normas_ref(request):
             todo = []
             for valor in request.POST.values():
                 todo.append(valor)
-            normas = todo[1::2]
-            usuarios = todo[2::2]
+            normas = todo[1::3]
+            descripcion = todo [2::3]
+            usuarios = todo[3::3]
             duplicados = []
             for norma in normas:
                 try:
@@ -2405,9 +2423,10 @@ def add_normas_ref(request):
                             normas.pop(duplicado)
                 except:
                     continue
-            for norma, usuario in zip(normas, usuarios):
+            for norma, descripcion, usuario in zip(normas, descripcion, usuarios):
                 models.NormaDeReferencia.objects.create(
-                    norma=norma, 
+                    norma=norma,
+                    descripcion = descripcion, 
                     creator_user=usuario
                     ) 
             if duplicados != []:
@@ -2537,10 +2556,10 @@ def containers(request):
                     continue
                 else:
                     if type(row['Preservante']) == str: preservante = row['Preservante']
-                    else: preservante = '-'
+                    else: preservante = None
 
                     if type(row['Volumen']) == str: volumen = row['Volumen']
-                    else: volumen = '-'
+                    else: volumen = None
 
                     models.Envase.objects.create(
                         codigo = row['Código Envase'], 
@@ -2569,6 +2588,10 @@ def add_container(request):
         material = request.POST['material']
         preservante = request.POST['preservante']
         usuario = request.POST['creador']
+
+        if volumen == '': volumen = None
+        if material == '': material = None
+        if preservante == '': None
         models.Envase.objects.create(
             codigo= codigo,
             nombre=nombre, 
@@ -3227,6 +3250,8 @@ def add_model_service(request, project_id):
     monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     rcas = models.RCACliente.objects.filter(cliente_id=cliente.id).order_by('rca_asociada')
     tipo_de_muestra = models.TipoDeMuestra.objects.all().order_by('nombre')
+    tipo_de_muestras_excluidas = ['Agua para fines industriales', 'Agua Potable/Bebida', 'Agua residual', 'Agua subterránea', 'Agua superficial', 'Lodos', 'Sedimentos', 'Suelos']
+    tipo_de_muestra = tipo_de_muestra.exclude(nombre__in = tipo_de_muestras_excluidas)
     tipo_muestra = ''
     parametros = models.ParametroEspecifico.objects.all().order_by('ensayo')
     normas = models.NormaDeReferencia.objects.all().order_by('norma')
@@ -3529,7 +3554,6 @@ def add_service_cot(request, project_id):
         fecha_de_recepcion = request.POST['fecha_de_recepcion']
         observacion = request.POST['observacion']
         habiles = request.POST['habiles']
-        etfa = request.POST['etfa']
         muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
         creator_user = request.POST['creator_user']
         parameters = request.POST.getlist('parameters')
@@ -3542,11 +3566,6 @@ def add_service_cot(request, project_id):
         current_year = str(current_year)[2:]
 
         last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
-
-        if 'SI' in etfa: 
-            etfa=True
-        else: 
-            etfa=False
 
         if models.Servicio.objects.exists()==False:
             codigo_de_servicio = ('1').zfill(5)
@@ -3580,7 +3599,7 @@ def add_service_cot(request, project_id):
             norma_de_referencia = project.norma_de_referencia,
             rCA = project.rCA,
             representante_legal = project.representante_legal,
-            etfa = etfa,
+            etfa = project.etfa,
             muestreado_por_algoritmo = muestreado_por_algoritmo,
             creator_user = creator_user,
             cliente = cliente,
@@ -4531,12 +4550,12 @@ def base_importation(request):
                     continue
                 else:
                     if row['LDM']>=0: ldm = row['LDM']
-                    else: ldm = '-'
+                    else: ldm = None
                     
                     if row['LCM']>=0: lcm = row['LCM']
-                    else: lcm = '-'
+                    else: lcm = None
 
-                    if ldm != '-' and lcm != '-':
+                    if ldm != None and lcm != None:
                         ldm_str = str(ldm)
                         int_part, dec_part = ldm_str.split('.')
                         lcm = round(lcm, len(dec_part))
@@ -4544,16 +4563,28 @@ def base_importation(request):
                     if type(row['Envases']) == str: envase = models.Envase.objects.get(pk= row['Envases'])
                     else: envase = None
 
+                    if type(row['Unidad']) != str: unidad = None
+                    else: unidad = row['Unidad']
+
+                    if type(row['Código Autorización ETFA']) != str: codigo_etfa = None
+                    else: codigo_etfa = row['Código Autorización ETFA']
+
+                    if type(row['Acreditado']) != str: acreditado = None
+                    else: acreditado = row['Acreditado']
+
+                    if type(row['Acreditado']) != str: acreditado = None
+                    else: acreditado = row['Acreditado']
+
                     models.ParametroEspecifico.objects.create(
                         ensayo = row['Parámetro'] , 
                         codigo= row['Código de Parámetro'], 
                         metodo = row['Código de Metodología'],
                         LDM = ldm,
                         LCM = lcm,
-                        unidad = row['Unidad'],
+                        unidad = unidad,
                         tipo_de_muestra = row['Matriz'],
-                        codigo_etfa = row['Código Autorización ETFA'],
-                        acreditado = row['Acreditado'],
+                        codigo_etfa = codigo_etfa,
+                        acreditado = acreditado,
                         envase = envase,
                         creator_user = responsable_de_analisis)
 

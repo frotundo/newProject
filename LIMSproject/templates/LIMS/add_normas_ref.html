@@ -21,6 +21,10 @@
                 <td class='item-add'><label for="">Norma</label></td>
                 <td class='item-input'><input type="text" name="Punto{{ forloop.counter }}" placeholder="Standard" required></td>
             </tr>
+            <tr>
+                <td class='item-add'><label for="">Descripción</label></td>
+                <td class='item-input'><input type="text" name="descripcion{{ forloop.counter }}" placeholder="Descripción" required></td>
+            </tr>
             <tr style='display:none'>
                 <td class='item-add'><label for="">Creador</label></td>
                 <td class='item-input'><input type='text' name="creador{{ forloop.counter }}" value='{{ user.username }}' required></td>

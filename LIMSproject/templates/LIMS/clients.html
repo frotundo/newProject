@@ -37,8 +37,8 @@
             <td><a href="{% url 'lims:client' c.id %}" class='item-list item-list-a' style='display: block;
                 width: 180px;'>{{ c.titular }}</a></td>
             <td class='item-list'>{{ c.rut }}</td>
-            <td class='item-list'>{{ c.direccion }}</td>
-            <td class='item-list'>{{ c.actividad }}</td>
+            <td class='item-list'>{% if c.direccion %}{{ c.direccion }}{% else %}-{% endif %}</td>
+            <td class='item-list'>{% if c.actividad %}{{ c.actividad }}{% else %}-{% endif %}</td>
         </tr>
         {% endfor %}
     </table>

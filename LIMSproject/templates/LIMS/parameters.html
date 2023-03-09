@@ -44,9 +44,9 @@
             
             <td class='item-list'title="{{parameter.ensayo}} en {{ parameter.tipo_de_muestra }}">{{ parameter.codigo }}</td>
             <td class='item-list'>{{ parameter.metodo }}</td>
-            <td class='item-list centrar'>{{ parameter.LDM }}</td>
-            <td class='item-list centrar'>{{ parameter.LCM }}</td>
-            <td class='item-list centrar'>{{ parameter.unidad }}</td>
+            <td class='item-list centrar'>{% if parameter.LDM %}{{ parameter.LDM }}{% else %}-{% endif %}</td>
+            <td class='item-list centrar'>{% if parameter.LCM %}{{ parameter.LCM }}{% else %}-{% endif %}</td>
+            <td class='item-list centrar'>{% if parameter.unidad %}{{ parameter.unidad }}{% else %}-{% endif %}</td>
         </tr>
         {% endfor %}
     </table>
