@@ -101,7 +101,7 @@
         
             {% for p in parameters %}
                 <tr class='btn-service row'>
-                    <td class='item-list-2'><a href="{% url 'lims:edit_sample_parameter' p.id%}">
+                    <td class='item-list-2'><a href="{% url 'lims:edit_sample_parameter' p.id%}" title="{{ p.parametro.ensayo }} por el método: {{ p.parametro.metodo }}">
                         {% for i in parametros %}
                             {% if i.id == p.parametro_id %}<strong>{{ i.ensayo }} {% if p.analisis_externos == True %} <span style='color: red;'>(AE)</span> {% endif %}</strong> {% endif %}
                         {% endfor %}</a></td>
@@ -131,7 +131,7 @@
         </div>
         
     {% else  %}
-        No hay registro de parametros.
+        No hay registro de parámetros.
     {% endif %}
     
 </div>
@@ -140,7 +140,7 @@
     {% if parameters %}
     <h3>Parametros</h3>
     {% for p in parameters %}
-    <p style='margin-left: 20px'>{{ p.ensayo }} ({{ p.parametro.ensayo }} {% if p.analisis_externos == True %} <span style='color: red;'>Analisis externo</span> {% endif %})</p>
+    <p style='margin-left: 20px'>{{ p.ensayo }} ({{ p.parametro.ensayo }} por el método: {{ p.parametro.metodo }}{% if p.analisis_externos == True %} <span style='color: red;'>Analisis externo</span> {% endif %})</p>
     {% endfor %}
     {% endif %}
 {% endif %}

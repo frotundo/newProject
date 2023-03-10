@@ -17,7 +17,7 @@
                 <select class='select1' name="parametro" id="" required>
                     <option value=""></option>
                     {% for p in parametros %}
-                    <option value="{{ p.codigo }}">{{ p.codigo }}</option>
+                    <option value="{{ p.codigo }}">{{ p.codigo }} ({{ p.ensayo }} por el método: {{ p.metodo }})</option>
                     {% endfor %}
                 </select>
                 <button type="submit" class='btn-filtrar'>Filtrar</button>

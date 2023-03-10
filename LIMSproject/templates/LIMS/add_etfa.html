@@ -30,7 +30,7 @@
                     <select class='select1' name="parametro" id="lang" size='1'>
                         <option value=""></option>
                         {% for p in parameters %}
-                        <option value="{{ p.id }}">{{ p.codigo }}  {{p.ensayo}}  {{p.metodo}}</option>
+                        <option value="{{ p.id }}">{{ p.codigo }}  ({{p.ensayo}} en {{ p.tipo_de_muestra }} por el método: {{p.metodo}})</option>
                     {% endfor %}
                     </select>
                 </td>

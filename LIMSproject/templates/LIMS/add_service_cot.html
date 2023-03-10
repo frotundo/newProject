@@ -93,7 +93,7 @@
                     <select class='select1' name="parameters" id="lang"  multiple required>
                         <option value=""></option>
                         {% for p in parametros_cot %}
-                        <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                        <option value="{{ p.id }}">{{ p.codigo }} ({{ p.ensayo }} por el método: {{ p.metodo }})</option>
                     {% endfor %}
                     </select>
                 </td>

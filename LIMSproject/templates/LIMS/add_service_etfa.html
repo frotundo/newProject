@@ -146,7 +146,7 @@
                     <select class='select1' name="analisis_externos" id="lang" style="height: 200px;" multiple>
                         <option value=""></option>
                         {% for p in parameters_externos %}
-                        <option value="{{ p.id }}">{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
+                        <option value="{{ p.id }}">{{ p.codigo }} ({{ p.ensayo }} por el método: {{ p.metodo }})</option>
                     {% endfor %}
                     </select>
                 </td>

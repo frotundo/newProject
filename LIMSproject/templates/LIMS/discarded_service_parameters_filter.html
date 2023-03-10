@@ -59,7 +59,7 @@
         {% for service_parameter in service_parameters %}
         <tr class='row'>
             <td class='item-list'>{{ service_parameter.codigo_servicio }}</td>
-            <td class='item-list'>{{ service_parameter.ensayo }}</td>
+            <td class='item-list'  title='{{ service_parameter.parametro.ensayo }} por el método: {{ service_parameter.parametro.metodo }}>{{ service_parameter.ensayo }}</td>
 
             <td class='item-list'><p style='text-align:center;'>{{ service_parameter.fecha_de_inicio|date:"d-m-Y" }}</p></td>
             
