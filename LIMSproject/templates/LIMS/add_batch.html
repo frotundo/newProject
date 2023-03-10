@@ -14,7 +14,7 @@
         <tr>
             <td class='item-add'><label for="lang">Parametro</label></td>
             <td class='item-input'>
-                <select class='select1' name="parametro" id="">
+                <select class='select1' name="parametro" id="" required>
                     <option value=""></option>
                     {% for p in parametros %}
                     <option value="{{ p.codigo }}">{{ p.codigo }}</option>
@@ -28,7 +28,7 @@
     
 </form>
 
-<form action="" method='POST'>
+<form class="form inactive" action="" method='POST'>
     {% csrf_token %}
 
     <table>
@@ -39,7 +39,7 @@
 
         <tr style='display:none'>
             <td class='item-add'><label for="">Parametro seleccionado</label></td>
-            <td class='item-input'><input type='text' name="parametro_escogido" value='{{ parametro }}' required readonly></td>
+            <td class='item-input'><input type='text' class='parametro_escogido' name="parametro_escogido" value='{{ parametro }}' required readonly></td>
         </tr>
 
         <tr>
@@ -56,7 +56,7 @@
         <tr>
             <td class='item-add'><label for="lang">Analista responsable</label></td>
             <td class='item-input'>
-                <select class='select1' name="analista" id="">
+                <select class='select1' name="analista" id="" required>
                     <option value=""></option>
                     {% for analista in analistas %}
                     <option value="{{ analista.id }}">{{ analista.username }}</option>
@@ -73,3 +73,14 @@
 
 
 {% endblock content %}
+
+{% block extrajs %}
+
+<script>
+    const parametro_escogido = document.querySelector('.parametro_escogido');
+    const form = document.querySelector('.form');
+    if (parametro_escogido.value!=''){
+        form.classList.remove('inactive');
+    }
+</script>
+{% endblock extrajs %}

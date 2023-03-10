@@ -1971,7 +1971,12 @@ def client_add_contact(request, id_cliente):
                 if rut == '': rut = None
                 else: rut = rut
 
+                if models.ContactoCliente.objects.all().exists():
+                    last_contact = models.ContactoCliente.objects.all().order_by('id').latest('id')
+                    id = last_contact.id + 1
+
                 models.ContactoCliente.objects.create(
+                    id = id,
                     nombre= title_fix(contacto), 
                     rut=rut_fix(rut), 
                     cliente_id= id_cliente, 
@@ -2249,6 +2254,9 @@ def client_add_project_cot(request, id_cliente):
                     codigo=codigo, 
                     nombre=cap_fix(nombre), 
                     tipo_de_muestra = tipodemuestra,
+                    representante_legal = representante_legal,
+                    rCA = rCA,
+                    norma_de_referencia = norma_de_referencia,
                     creator_user=creator_user,
                     cliente_id=client, 
                     etfa = False,
@@ -2424,7 +2432,12 @@ def add_normas_ref(request):
                 except:
                     continue
             for norma, descripcion, usuario in zip(normas, descripcion, usuarios):
+                if models.NormaDeReferencia.objects.all().exists():
+                    last = models.NormaDeReferencia.objects.all().order_by('id').latest('id')
+                    id = last.id + 1
+
                 models.NormaDeReferencia.objects.create(
+                    id = id,
                     norma=norma,
                     descripcion = descripcion, 
                     creator_user=usuario
@@ -2507,7 +2520,11 @@ def add_method(request):
                 except:
                     continue
             for nombre, descripcion, usuario in zip(metodos, descripciones, usuarios):
+                if models.Metodo.objects.all().exists():
+                    last = models.Metodo.objects.all().order_by('id').latest('id')
+                    id = last.id + 1
                 models.Metodo.objects.create(
+                    id=id,
                     nombre= nombre, 
                     descripcion= descripcion,
                     creator_user=usuario
@@ -2705,7 +2722,7 @@ def parameters(request):
 
 @login_required
 @user_passes_test(is_manager, login_url='lims:index')
-def add_parameter(request):
+def add_parameter(request): 
     """Add parameter view."""
 
     metodos = models.Metodo.objects.all().order_by('nombre')
@@ -2735,7 +2752,21 @@ def add_parameter(request):
         creator_user = request.POST['creator_user']
 
         try:
-            models.ParametroEspecifico.objects.create(ensayo=ensayo, codigo= codigo, metodo= metodo, LDM= ldm, LCM= lcm, unidad=unidad, tipo_de_muestra= tipo_de_muestra, envase_id=envase, acreditado=acreditado, creator_user= creator_user)
+            if models.ParametroEspecifico.objects.all().exists():
+                    last = models.ParametroEspecifico.objects.all().order_by('id').latest('id')
+                    id = last.id + 1
+
+            models.ParametroEspecifico.objects.create(
+                id=id,
+                ensayo=ensayo, 
+                codigo= codigo, 
+                metodo= metodo, 
+                LDM= ldm, 
+                LCM= lcm, 
+                unidad=unidad, 
+                tipo_de_muestra= tipo_de_muestra, envase_id=envase, 
+                acreditado=acreditado, 
+                creator_user= creator_user)
             return redirect('lims:parameters')
         except:
             error = 'EL código del parametro ya existe.'
@@ -2818,6 +2849,10 @@ def add_sample_type(request):
                 except:
                     continue
             for nombre, usuario in zip(nombres, usuarios):
+                if models.TipoDeMuestra.objects.all().exists():
+                    last = models.TipoDeMuestra.objects.all().order_by('id').latest('id')
+                    id = last.id + 1
+
                 models.TipoDeMuestra.objects.create(
                     nombre=nombre, 
                     creator_user=usuario
@@ -2958,6 +2993,14 @@ def project_cot(request, project_id):
     if project.rCA != None: 
         rca = models.RCACliente.objects.get(id=project.rCA)
         context['rca'] = rca
+
+    if project.norma_de_referencia != None: 
+        norma_de_referencia = models.NormaDeReferencia.objects.get(id=project.norma_de_referencia).norma
+        context['norma_de_referencia'] = norma_de_referencia
+
+    if project.representante_legal != None: 
+        representante_legal = models.RepresentanteLegalCliente.objects.get(id=project.representante_legal.id)
+        context['representante_legal'] = representante_legal
     
     return render(request, 'LIMS/project_cot.html', context)
 
@@ -3050,9 +3093,9 @@ def add_service(request, project_id):
                 observacion = observacion,
                 fecha_de_entrega_cliente = fecha_de_entrega_cliente,
                 fecha_de_contenedores_o_filtros = fecha_de_contenedores,
-                norma_de_referencia = norma_de_referencia,
+                norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma,
                 representante_legal= representante_legal,
-                rCA = rCA,
+                rCA = models.RCACliente.objects.get(id=rCA).rca_asociada,
                 etfa = etfa,
                 envases = envases,
                 muestreado_por_algoritmo = muestreado_por_algoritmo,
@@ -3158,7 +3201,7 @@ def add_service_etfa(request, project_id):
                     codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
                     codigo_generado = f'{codigo_de_servicio}-{current_year}'
             if norma_de_referencia == '': norma_de_referencia = None
-            else: norma_de_referencia = norma_de_referencia
+            else: norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma
             
             if observacion == '': observacion = None
             else: observacion = observacion
@@ -3174,8 +3217,8 @@ def add_service_etfa(request, project_id):
                 observacion = observacion,
                 fecha_de_entrega_cliente = fecha_de_entrega_cliente,
                 fecha_de_contenedores_o_filtros = fecha_de_contenedores,
-                norma_de_referencia = norma_de_referencia,
-                rCA = rCA,
+                norma_de_referencia = norma_de_referencia ,
+                rCA = models.RCACliente.objects.get(id=rCA).rca_asociada,
                 etfa = etfa,
                 envases = envases,
                 muestreado_por_algoritmo = muestreado_por_algoritmo,
@@ -3305,11 +3348,11 @@ def add_model_service(request, project_id):
                 tipo_de_muestra = tipo_de_muestra,
                 filtro = models.Filtro.objects.get(codigo = filtro),
                 observacion = observacion,
-                norma_de_referencia = norma_de_referencia,
-                rCA = rCA,
+                norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia),
+                rCA = models.RCACliente.objects.get(id=rCA),
                 muestreado_por_algoritmo = muestreado_por_algoritmo,
                 creator_user = creator_user,
-                cliente = cliente,
+                cliente = models.Cliente.objects.get(id=cliente),
                 created = datetime.now()
                 )  
 
@@ -3359,8 +3402,8 @@ def generate_service(request, model_id):
         creator_user = request.POST['creator_user']
         fecha_de_envio = request.POST['fecha_de_envio']
 
-        fecha_de_muestreo= datetime.strptime(fecha_de_muestreo, "%Y-%m-%d")
-        fecha_de_entrega_cliente = add_workdays(fecha_de_muestreo, int(habiles))
+        fecha_muestreo= datetime.strptime(fecha_de_muestreo[0:9], "%Y-%m-%d")
+        fecha_de_entrega_cliente = add_workdays(fecha_muestreo, int(habiles))
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
 
@@ -3369,7 +3412,7 @@ def generate_service(request, model_id):
             codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-        if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+        else:
             last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
 
             if last_service.codigo_muestra[-2:] != current_year: 
@@ -3392,8 +3435,8 @@ def generate_service(request, model_id):
                 fecha_de_entrega_cliente = fecha_de_entrega_cliente,
                 fecha_de_contenedores_o_filtros = fecha_de_envio,
                 filtros = modelo.filtro,
-                norma_de_referencia = modelo.norma_de_referencia.id,
-                rCA = modelo.rCA.id,
+                norma_de_referencia = modelo.norma_de_referencia.norma,
+                rCA = modelo.rCA.rca_asociada,
                 muestreado_por_algoritmo = modelo.muestreado_por_algoritmo,
                 creator_user = creator_user,
                 cliente = modelo.cliente.id,
@@ -3500,8 +3543,8 @@ def clone_service(request, service_id):
                         observacion = observacion,
                         fecha_de_entrega_cliente = fecha_de_entrega_cliente,
                         fecha_de_contenedores_o_filtros = fecha_de_contenedores,
-                        norma_de_referencia = norma_de_referencia,
-                        rCA = rCA,
+                        norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma,
+                        rCA = models.RCACliente.objects.get(id=rCA),
                         etfa = service.etfa,
                         muestreado_por_algoritmo = muestreado_por_algoritmo,
                         creator_user = creator_user,
@@ -3537,7 +3580,6 @@ def add_service_cot(request, project_id):
 
     project = models.Proyecto.objects.get(pk = project_id)
     parametros_cot = project.parametros_cotizados.all()
-    parameters_externos = project.parametros_externos.all()
     cliente = models.Cliente.objects.get(pk=project.cliente_id)
     sample_points = models.PuntoDeMuestreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
     monitoring_places = models.LugarDeMonitoreo.objects.filter(cliente_id=cliente.id).order_by('nombre')
@@ -3557,7 +3599,6 @@ def add_service_cot(request, project_id):
         muestreado_por_algoritmo = request.POST['muestreado_por_algoritmo']
         creator_user = request.POST['creator_user']
         parameters = request.POST.getlist('parameters')
-        parameters_externos = request.POST.getlist('parameters_externos')
         
         
         fecha_recepcion= datetime.strptime(fecha_de_recepcion[:10], "%Y-%m-%d")
@@ -3565,13 +3606,11 @@ def add_service_cot(request, project_id):
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
 
-        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
-
         if models.Servicio.objects.exists()==False:
             codigo_de_servicio = ('1').zfill(5)
             codigo_generado = f'{codigo_de_servicio}-{current_year}'
         
-        if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+        else:
             last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
             
             if last_service.codigo_muestra[-2:] != current_year: 
@@ -3589,15 +3628,15 @@ def add_service_cot(request, project_id):
             codigo = codigo_de_servicio,
             codigo_muestra = codigo_generado, 
             proyecto_id = proyecto, 
-            punto_de_muestreo = punto_de_muestreo,
-            area = area,
+            punto_de_muestreo = models.PuntoDeMuestreo.objects.get(id=punto_de_muestreo).nombre,
+            area = models.LugarDeMonitoreo.objects.get(id=area).nombre,
             tipo_de_muestra = project.tipo_de_muestra,
             fecha_de_muestreo = fecha_de_muestreo,
             fecha_de_recepcion = fecha_de_recepcion,
             observacion_de_recepcion = observacion,
             fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-            norma_de_referencia = project.norma_de_referencia,
-            rCA = project.rCA,
+            norma_de_referencia = models.NormaDeReferencia.objects.get(id=project.norma_de_referencia).norma,
+            rCA = models.RCACliente.objects.get(id=project.rCA).rca_asociada,
             representante_legal = project.representante_legal,
             etfa = project.etfa,
             muestreado_por_algoritmo = muestreado_por_algoritmo,
@@ -3617,19 +3656,6 @@ def add_service_cot(request, project_id):
                 created = datetime.now()
                 )
         
-        if len(parameters_externos)>0:
-                for pid in parameters_externos:
-                    ensayo = models.ParametroEspecifico.objects.get(pk=pid)
-                    models.ParametroDeMuestra.objects.create(
-                        servicio_id = codigo_de_servicio, 
-                        parametro_id= pid,
-                        ensayo= ensayo.codigo, 
-                        codigo_servicio= codigo_generado,
-                        analisis_externos = True,
-                        creator_user = creator_user,
-                        created = datetime.now()
-                        )
-
         return redirect('lims:project_cot', project_id)
         
     return render(request, 'LIMS/add_service_cot.html', {
@@ -3641,7 +3667,6 @@ def add_service_cot(request, project_id):
         'tipos_de_muestras': tipo_de_muestra,
         'normas': normas,
         'parametros_cot': parametros_cot,
-        'parameters_externos': parameters_externos
     })
 
 
@@ -3748,14 +3773,6 @@ def service(request, service_id):
         'total': len(queryset_parameters),
         'comercial': comercial,
     }
-
-    if service.norma_de_referencia != None:
-        norma = models.NormaDeReferencia.objects.get(pk=service.norma_de_referencia)
-        context['norma'] = norma
-
-    if service.rCA != None:
-        rca = models.RCACliente.objects.get(pk=service.rCA)
-        context['rca'] = rca
     
     def prog():
         progreso = 0
@@ -4445,6 +4462,7 @@ def add_batch(request):
                 servicios = servicios.filter(parametro__codigo = request.POST['parametro'])
                 context['servicios']= servicios
                 context['parametro'] = request.POST['parametro']
+                context['parametros'] = models.ParametroEspecifico.objects.filter(codigo=request.POST['parametro'])
         
         else: 
             current_year = datetime.now().year
@@ -4489,6 +4507,7 @@ def add_batch(request):
 def batch(request, batch_id):
     lote = models.Batch.objects.get(codigo = batch_id)
     parametros = models.ParametroDeMuestra.objects.filter(batch_id = lote).exclude(ensayo__icontains='GRV').order_by('servicio_id')
+    parametros_grv = models.ParametroDeMuestra.objects.filter(batch_id = lote).filter(ensayo__icontains='GRV').order_by('servicio_id')
     service_parameters = models.ParametroDeMuestra.objects.filter(ensayo__icontains='GRV').order_by('servicio_id')
 
     if request.method == 'POST':            
@@ -4496,17 +4515,34 @@ def batch(request, batch_id):
             responsable = User.objects.get(pk=request.POST['responsable_de_analisis'])
             parametro.responsable_de_analisis= responsable
             fecha_inicio = request.POST['fecha_de_inicio']
+            
             if fecha_inicio.endswith(str(datetime.now().year)):
                 fecha_de_inicio = datetime.strptime(fecha_inicio, "%d-%m-%Y")
                 parametro.fecha_de_inicio = fecha_de_inicio.strftime("%Y-%m-%d")
             else: parametro.fecha_de_inicio = request.POST['fecha_de_inicio']
             fecha_terminado = request.POST['fecha_de_terminado']
+            
             if fecha_terminado.endswith(str(datetime.now().year)):
                 fecha_de_terminado = datetime.strptime(fecha_terminado, "%d-%m-%Y")
                 parametro.fecha_de_terminado = fecha_de_terminado.strftime("%Y-%m-%d")
             else: parametro.fecha_de_terminado = request.POST['fecha_de_terminado']
-            parametro.resultado = request.POST['resultado']
-            parametro.factor_de_dilucion = request.POST['factor_de_dilucion']
+            
+            if request.POST['resultado'] == '': resultado = None
+            else: resultado = request.POST['resultado']
+
+            if request.POST['factor_de_dilucion'] == '': factor_de_dilucion = None
+            else: factor_de_dilucion = request.POST['factor_de_dilucion']
+
+            if request.POST['peso_inicial'] == '': peso_inicial = None
+            else: peso_inicial = request.POST['peso_inicial']
+
+            if request.POST['peso_final'] == '': peso_final = None
+            else: peso_final = request.POST['peso_final']
+
+            parametro.peso_inicial = peso_inicial
+            parametro.peso_final = peso_final
+            parametro.resultado = resultado
+            parametro.factor_de_dilucion = factor_de_dilucion
             parametro.resultado_final = request.POST['resultado_final']
             parametro.updated_at = datetime.now()
             parametro.save()
@@ -4516,6 +4552,7 @@ def batch(request, batch_id):
     return render(request, "LIMS/batch_service_parameters.html", {
         'lote': lote,
         'parametros': parametros,
+        'parametros_grv': parametros_grv,
         'service_parameter': service_parameters,
     })
 

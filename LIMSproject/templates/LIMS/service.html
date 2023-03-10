@@ -60,14 +60,14 @@
 <p class='p-service' style='padding-left: 10px;'>{{ service.observacion }}</p>
 {% endif %}
 
-{% if norma.norma %}
+{% if service.norma_de_referencia %}
 <h3>Norma de referencia</h3>
-<p class='p-service' style='padding-left: 10px;'></p>
+<p class='p-service' style='padding-left: 10px;'>{{ service.norma_de_referencia }}</p>
 {% endif %}
 
-{% if rca.rca_asociada != None %}
+{% if service.rCA != None %}
 <h3>RCA</h3>
-<p class='p-service' style='padding-left: 10px;'>{{ rca.rca_asociada }}</p>
+<p class='p-service' style='padding-left: 10px;'>{{ service.rCA }}</p>
 {% endif %}
 
 {% if service.observacion_de_recepcion != None %}
