@@ -14,7 +14,7 @@
         <tr>
             <td class='item-add'><label for="lang">Tipo de muestra</label></td>
             <td class='item-input' style='display: flex;'>
-                <select class='select1' name="tipo_muestra" id="lang"  size='1'>
+                <select class='select1' name="tipo_muestra" id="lang"  size='1' required>
                     <option value=""></option>
                     {% for tipo in tipos_de_muestras %}
                     <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
@@ -36,7 +36,7 @@
         <table>
             <tr style='display:none'>
                 <td class='item-add'><label for="">Cliente</label></td>
-                <td class='item-input'><input type='text' name="cliente" value={{cliente.id}} required></td>
+                <td class='item-input'><input type='text' name="cliente" value={{cliente.id}} readonly></td>
             </tr>
 
             <tr style='display:none;'>
@@ -45,25 +45,25 @@
             </tr>
 
             <tr>
-                <td class='item-add'><Label>Nombre</Label></td>
+                <td class='item-add'><Label>Nombre <span style='color: red;'>*</span></Label></td>
                 <td class='item-input'><input type="text" name="nombre" id="" placeholder="nombre" required></td>
                 
             </tr>
             
             <tr>
-                <td class='item-add'><Label>Código</Label></td>
+                <td class='item-add'><Label>Código <span style='color: red;'>*</span></Label></td>
                 <td class='item-input'><input type="text" name="codigo" id="" placeholder="Código" required></td>
             </tr>   
             
             <tr style='display:none'>
                 <td class='item-add'><label for="">Creador</label></td>
-                <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+                <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' readonly></td>
             </tr>
         </table>
         
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Parametros cotizados</label></td>
+                <td class='item-add'><label for="lang">Parametros cotizados <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
                     <select class='select1 select-mult' name="parameters" id="lang"  multiple required>
                         <option value=""></option>
@@ -95,7 +95,7 @@
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Representante legal</label></td>
+                <td class='item-add'><label for="lang">Representante legal <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
                     <select class='select1' name="representante_legal" id="lang"  size='1' required>
                         <option value=""></option>
@@ -111,7 +111,7 @@
         
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">RCA</label></td>
+                <td class='item-add'><label for="lang">RCA <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
                     <select class='select1' name="rCA" id="lang"  size='1' required>
                         <option value=""></option>

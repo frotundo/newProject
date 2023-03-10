@@ -14,7 +14,7 @@
         <tr>
             <td class='item-add'><label for="lang">Tipo de muestra</label></td>
             <td class='item-input' style='display: flex;'>
-                <select class='select1' name="tipo_muestra" id="lang"  size='1'>
+                <select class='select1' name="tipo_muestra" id="lang"  size='1' required>
                     <option value=""></option>
                     {% for tipo in tipos_de_muestras %}
                     <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
@@ -55,27 +55,27 @@
         </tr>
 
         <tr>
-            <td class='item-add'><Label>Fecha de muestreo</Label></td>
+            <td class='item-add'><Label>Fecha de muestreo <span style='color: red;'>*</span></Label></td>
             <td class='item-input'><input type='date' name="fecha_de_muestreo" id="" placeholder="" required></td>
         </tr>
 
         <tr>
-            <td class='item-add'><Label>Días habiles para entrega al cliente</Label></td>
+            <td class='item-add'><Label>Días habiles para entrega al cliente <span style='color: red;'>*</span></Label></td>
             <td class='item-input'><input type='number' name="habiles" id="" placeholder="numero de días habiles" required></td>
         </tr>
         
         <tr>
-            <td class='item-add'><Label>Fecha para entrega de envases</Label></td>
+            <td class='item-add'><Label>Fecha para entrega de envases <span style='color: red;'>*</span></Label></td>
             <td class='item-input'><input type='datetime-local' name="fecha_de_contenedores" id="" placeholder="" required></td>
         </tr>
 
         <tr style='display:none'>
             <td class='item-add'><label for="">Creador</label></td>
-            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' readonly></td>
         </tr>
 
         <tr>
-            <td class='item-add'><Label>Muestreado por</Label></td>
+            <td class='item-add'><Label>Muestreado por <span style='color: red;'>*</span></Label></td>
             <td class='item-input'><input type="text" name="muestreado_por_algoritmo" id="" placeholder="Nombre del muestreador" required></td>
         </tr>
 
@@ -91,7 +91,7 @@
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Lugar de monitoreo</label></td>
+                <td class='item-add'><label for="lang">Lugar de monitoreo <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
                     <select class='select1' name="area" id="lang"  size='1' required>
                         <option value=""></option>
@@ -107,7 +107,7 @@
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Punto de muestreo</label></td>
+                <td class='item-add'><label for="lang">Punto de muestreo <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
                     <select class='select1' name="punto_de_muestreo" id="lang"  size='1' required>
                         <option value=""></option>
@@ -124,7 +124,7 @@
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Parametros</label></td>
+                <td class='item-add'><label for="lang">Parametros <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
                     <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple required>
                         <option value=""></option>

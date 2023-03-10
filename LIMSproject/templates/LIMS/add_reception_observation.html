@@ -12,8 +12,8 @@
     {% csrf_token %}
     <table>
         <tr>
-            <td class='item-add'><Label>Observación</Label></td>
-            <td class='item-input'><input type="text" name="observacion" id="" placeholder="Información adicional"></td>
+            <td class='item-add'><Label>Observación <span style='color: red;'>*</span></Label></td>
+            <td class='item-input'><input type="text" name="observacion" id="" placeholder="Información adicional" required></td>
         </tr>
     </table>
         

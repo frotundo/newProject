@@ -15,19 +15,19 @@
     <table>
         <tr style='display:none;'>
             <td class='item-add'><Label>Proyecto</Label></td>
-            <td class='item-input'><input type="text" name="proyecto" id="" placeholder="" value='{{ project.codigo }}'></td>
+            <td class='item-input'><input type="text" name="proyecto" id="" placeholder="" value='{{ project.codigo }}' readonly></td>
         </tr>
 
         <tr style='display:none'>
             <td class='item-add'><label for="">Creador</label></td>
-            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' readonly></td>
         </tr>
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Parametros</label></td>
+                <td class='item-add'><label for="lang">Parametros <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
-                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple>
+                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple required>
                         <option value=""></option>
                         {% for p in parameters %}
                         <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %}>{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>

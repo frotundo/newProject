@@ -299,9 +299,12 @@ input {
 #body-menu {
     padding: 0 10%;
 }
+
 .main-menu  {
     display: grid;
     place-items : center;
+    place-content: center;
+    padding: 6.5% 0 0;
 }
 
 #menu-contain { 

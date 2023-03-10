@@ -1969,7 +1969,7 @@ def client_add_contact(request, id_cliente):
                     continue
             for contacto, rut, usuario in zip(contactos, ruts, usuarios):
                 if rut == '': rut = None
-                else: rut = rut
+                else: rut = rut_fix(rut)
 
                 if models.ContactoCliente.objects.all().exists():
                     last_contact = models.ContactoCliente.objects.all().order_by('id').latest('id')
@@ -1978,7 +1978,7 @@ def client_add_contact(request, id_cliente):
                 models.ContactoCliente.objects.create(
                     id = id,
                     nombre= title_fix(contacto), 
-                    rut=rut_fix(rut), 
+                    rut= rut, 
                     cliente_id= id_cliente, 
                     creator_user= usuario
                     ) 
@@ -3057,7 +3057,7 @@ def add_service(request, project_id):
             if models.Servicio.objects.exists()==False:
                 codigo_de_servicio = ('1').zfill(5)
                 codigo_generado = f'{codigo_de_servicio}-{current_year}'
-            if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
+            else:
                 last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
 
                 if last_service.codigo_muestra[-2:] != current_year: 

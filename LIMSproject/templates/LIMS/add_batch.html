@@ -38,12 +38,12 @@
         </tr>
 
         <tr style='display:none'>
-            <td class='item-add'><label for="">Parametro seleccionado</label></td>
+            <td class='item-add'><label for="">Parametro seleccionado <span style='color: red;'>*</span></label></td>
             <td class='item-input'><input type='text' class='parametro_escogido' name="parametro_escogido" value='{{ parametro }}' required readonly></td>
         </tr>
 
         <tr>
-            <td class='item-add'><label for="lang">Servicios</label></td>
+            <td class='item-add'><label for="lang">Servicios  <span style='color: red;'>*</span></label></td>
             <td class='item-input'>
                 <select class='select1' name="service" id="lang"  multiple required>
                     {% for s in servicios %}
@@ -54,7 +54,7 @@
         </tr>
 
         <tr>
-            <td class='item-add'><label for="lang">Analista responsable</label></td>
+            <td class='item-add'><label for="lang">Analista responsable  <span style='color: red;'>*</span></label></td>
             <td class='item-input'>
                 <select class='select1' name="analista" id="" required>
                     <option value=""></option>

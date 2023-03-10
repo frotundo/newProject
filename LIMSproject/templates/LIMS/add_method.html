@@ -18,13 +18,13 @@
     {% for n in pm %}
         <table class='table-client'>
             <tr>
-                <td class='item-add'><label for="">Nombre</label></td>
+                <td class='item-add'><label for="">Nombre <span style='color: red;'>*</span></label></td>
                 <td class='item-input'><input type="text" name="metodo{{ forloop.counter }}" placeholder="Método" required></td>
             </tr>
 
             <tr>
-                <td class='item-add'><label for="">Descripción</label></td>
-                <td class='item-input'><input type="text" name="descripcion{{ forloop.counter }}" placeholder="Descripción"></td>
+                <td class='item-add'><label for="">Descripción <span style='color: red;'>*</span></label></td>
+                <td class='item-input'><input type="text" name="descripcion{{ forloop.counter }}" placeholder="Descripción" required></td>
             </tr>
 
             <tr style='display:none'>

@@ -18,7 +18,7 @@
     {% for n in pm %}
         <table class='table-client'>
             <tr>
-                <td class='item-add'><label for="">Nombre</label></td>
+                <td class='item-add'><label for="">Nombre <span style='color: red;'>*</span></label></td>
                 <td class='item-input'><input type="text" name="nombre{{ forloop.counter }}" placeholder="Matriz" required></td>
             </tr>
             <tr style='display:none'>

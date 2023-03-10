@@ -46,9 +46,9 @@
                 </td>
             </tr>
             <tr>
-                <td class='item-add'><label for="lang">Parametros</label></td>
+                <td class='item-add'><label for="lang">Parametros <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
-                    <select class='select1' name="parameters" id="lang"  multiple style="height: 200px;">
+                    <select class='select1' name="parameters" id="lang"  multiple style="height: 200px;" required>
                         <option value=""></option>
                         {% for p in parameters %}
                         <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %}>{{ p.codigo }} (Analisis de {{ p.ensayo }} en {{ p.tipo_de_muestra }} por {{ p.metodo }})</option>
@@ -67,7 +67,7 @@
         {% csrf_token %}
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">¿Servicio ETFA?</label></td>
+                <td class='item-add'><label for="lang">¿Servicio ETFA? <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
                     <select class='select1' style='width: 60%' name="etfa" id="lang"  size='1' required>
                         <option value=""></option>
@@ -77,7 +77,7 @@
                 </td>
             </tr>
             <tr>
-                <td class='item-add'><label for="lang">Tipo de muestra</label></td>
+                <td class='item-add'><label for="lang">Tipo de muestra <span style='color: red;'>*</span></label></td>
                 <td class='item-input' style='display: flex;'>
                     <select class='select1' name="tipo_muestra" id="lang"  size='1' required>
                         <option value=""></option>
