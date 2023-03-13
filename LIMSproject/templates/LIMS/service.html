@@ -32,14 +32,18 @@
 <p class="p-service"><strong>Proyecto: </strong>{{ service.proyecto.nombre }}</p>
 <p class="p-service"><strong>Punto de muestreo: </strong>{{ service.punto_de_muestreo }}</p>
 <p class='p-service'><strong>Tipo de muestra: </strong>{{ service.tipo_de_muestra }}</p>
-<p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo|date:"d-m-Y" }}</p>
+<p class='p-service'><strong>Fecha de muestreo: </strong>{{ service.fecha_de_muestreo|date:"d-m-Y H:m" }}</p>
 <p class='p-service'><strong>Fecha de entrega al cliente: </strong>{{ service.fecha_de_entrega_cliente|date:"d-m-Y" }}</p>
 {% if project.cotizado %}
 {% else %}
+{% if service.filtros != None %}
+<p class='p-service'><strong>Fecha de envío de filtro a terreno: </strong>{{ service.fecha_de_contenedores_o_filtros|date:"d-m-Y H:m" }}</p>
+{% else %}
 <p class='p-service'><strong>Fecha de entrega de envase para enviar a terreno: </strong>{{ service.fecha_de_contenedores_o_filtros|date:"d-m-Y H:m" }}</p>
 {% endif %}
+{% endif %}
 {% if service.fecha_de_recepcion != None %}
-<p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepcion|date:"d-m-Y" }}</p>
+<p class='p-service'><strong>Fecha de recepción: </strong>{{ service.fecha_de_recepcion|date:"d-m-Y H:m" }}</p>
 {% endif %}
 
 {% if project.cotizado %}

@@ -22,18 +22,20 @@
 <h3>Observación</h3>
 <p class='p-service'>{{ modelo.observacion }}</p>
 
-
+{% if modelo.norma_de_referencia %}
 <h3>Norma de referencia</h3>
 <p class='p-service'>{{ modelo.norma_de_referencia.norma }}</p>
+{% endif %}
 
+{% if modelo.rCA %}
 <h3>RCA</h3>
-<p class='p-service'>{{ modelo.rCA.rca_asociada }}</p>
-
+<p class='p-service'>{{ .rca_asociada }}</p>
+{% endif %}
 
 {% if parameters %}
 <h3>Parametros</h3>
 {% for p in parameters %}
-<p style='margin-left: 20px'>{{ p.codigo }} ({{ p.ensayo }})</p>
+<p style='margin-left: 20px'>{{ p.codigo }} ({{ p.ensayo }} por el método: {{ p.metodo }})</p>
 {% endfor %}
 {% endif %}
 

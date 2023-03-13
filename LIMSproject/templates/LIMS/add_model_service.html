@@ -36,22 +36,22 @@
     <table>
         <tr style='display:none;'>
             <td class='item-add'><Label>Proyecto</Label></td>
-            <td class='item-input'><input type="text" name="proyecto" id="" placeholder="" value='{{ project.codigo }}'></td>
+            <td class='item-input'><input type="text" name="proyecto" id="" placeholder="" value='{{ project.codigo }}' readonly></td>
         </tr>
 
         <tr style='display:none;'>
             <td class='item-add'><Label>Cliente</Label></td>
-            <td class='item-input'><input type="text" name="cliente" id="" placeholder="" value='{{ project.cliente_id }}'></td>
+            <td class='item-input'><input type="text" name="cliente" id="" placeholder="" value='{{ project.cliente_id }}' readonly></td>
         </tr>
 
         <tr style='display:none'>
             <td class='item-add'><label for="">Creador</label></td>
-            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' required></td>
+            <td class='item-input'><input type='text' name="creator_user" value='{{ user.username }}' readonly></td>
         </tr>
 
         <tr>
-            <td class='item-add'><Label>Muestreado por</Label></td>
-            <td class='item-input'><input type="text" name="muestreado_por_algoritmo" id="" placeholder="Nombre del muestreador"></td>
+            <td class='item-add'><Label>Muestreado por <span style='color: red;'>*</span></Label></td>
+            <td class='item-input'><input type="text" name="muestreado_por_algoritmo" id="" placeholder="Nombre del muestreador" required></td>
         </tr>
 
         <tr>
@@ -66,9 +66,9 @@
         
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Tipo de filtro</label></td>
+                <td class='item-add'><label for="lang">Tipo de filtro <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
-                    <select class='select1' name="filtro" id="lang"  size='1'>
+                    <select class='select1' name="filtro" id="lang"  size='1' required>
                         <option value=""></option>
                         {% for filtro in filtros %}
                         <option value="{{ filtro.codigo }}">{{ filtro.descripcion }}</option>
@@ -82,9 +82,9 @@
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Lugar de monitoreo</label></td>
+                <td class='item-add'><label for="lang">Lugar de monitoreo <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
-                    <select class='select1' name="area" id="lang"  size='1'>
+                    <select class='select1' name="area" id="lang"  size='1' required>
                         <option value=""></option>
                         {% for sp in monitoring_places %}
                         <option value="{{ sp.nombre }}">{{ sp.nombre }}</option>
@@ -98,9 +98,9 @@
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Punto de muestreo</label></td>
+                <td class='item-add'><label for="lang">Punto de muestreo <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
-                    <select class='select1' name="punto_de_muestreo" id="lang"  size='1'>
+                    <select class='select1' name="punto_de_muestreo" id="lang"  size='1' required>
                         <option value=""></option>
                         {% for sp in sample_points %}
                         <option value="{{ sp.nombre }}">{{ sp.nombre }}</option>
@@ -114,9 +114,9 @@
 
         <table  class='client-select'>
             <tr>
-                <td class='item-add'><label for="lang">Parametros</label></td>
+                <td class='item-add'><label for="lang">Parametros <span style='color: red;'>*</span></label></td>
                 <td class='item-input'>
-                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple>
+                    <select class='select1' name="parameters" id="lang" style="height: 200px;" multiple required>
                         <option value=""></option>
                         {% for p in parameters %}
                         <option value="{{ p.id }}" style={% if p.acreditado == 'nan' %}"color: rgb(196, 0, 0);"{% endif %}>{{ p.codigo }} ({{ p.ensayo }} por el método: {{ p.metodo }})</option>

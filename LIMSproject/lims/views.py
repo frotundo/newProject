@@ -3056,18 +3056,21 @@ def add_service(request, project_id):
             current_year = str(current_year)[2:]
 
             if models.Servicio.objects.exists()==False:
-                codigo_de_servicio = ('1').zfill(5)
-                codigo_generado = f'{codigo_de_servicio}-{current_year}'
+                codigo_central = ('1').zfill(5)
+                codigo = codigo_central
+                codigo_generado = f'{codigo_central}-{current_year}'
             else:
-                last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
-
-                if last_service.codigo_muestra[-2:] != current_year: 
+                last_service = models.Servicio.objects.filter(Q(codigo_muestra__endswith = '-'+current_year) |Q (codigo_muestra__endswith = '-'+str(int(current_year)-1))).latest('codigo_muestra')
+                
+                codigo = str(int(models.Servicio.objects.all().latest('codigo').codigo)+1).zfill(5)
+                
+                if last_service.codigo_muestra[-2:] != current_year:
                     codigo_central = ('1').zfill(5)
                     codigo_generado = f'{codigo_central}-{current_year}'
                 
                 elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-                    codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-                    codigo_generado = f'{codigo_de_servicio}-{current_year}'
+                    codigo_central = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                    codigo_generado = f'{codigo_central}-{current_year}'
             
             if norma_de_referencia == '': norma_de_referencia = None
             else: norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma
@@ -3084,7 +3087,7 @@ def add_service(request, project_id):
             
 
             models.Servicio.objects.create(
-                codigo = codigo_de_servicio,
+                codigo = codigo,
                 codigo_muestra = codigo_generado, 
                 proyecto_id = proyecto, 
                 area = area,
@@ -3109,7 +3112,7 @@ def add_service(request, project_id):
             for pid in parameters:
                 ensayo = models.ParametroEspecifico.objects.get(pk=pid)
                 models.ParametroDeMuestra.objects.create(
-                    servicio_id = codigo_de_servicio, 
+                    servicio_id = codigo, 
                     parametro_id= pid,
                     ensayo= ensayo.codigo, 
                     codigo_servicio= codigo_generado,
@@ -3189,19 +3192,22 @@ def add_service_etfa(request, project_id):
 
 
             if models.Servicio.objects.exists()==False:
-                codigo_de_servicio = ('1').zfill(5)
-                codigo_generado = f'{codigo_de_servicio}-{current_year}'
+                codigo_central = ('1').zfill(5)
+                codigo = codigo_central
+                codigo_generado = f'{codigo_central}-{current_year}'
             
-            if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
-                last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+            else:
+                last_service = models.Servicio.objects.filter(Q(codigo_muestra__endswith = '-'+current_year) |Q (codigo_muestra__endswith = '-'+str(int(current_year)-1))).latest('codigo_muestra')
+
+                codigo = str(int(models.Servicio.objects.all().latest('codigo').codigo)+1).zfill(5)
 
                 if last_service.codigo_muestra[-2:] != current_year: 
                     codigo_central = ('1').zfill(5)
                     codigo_generado = f'{codigo_central}-{current_year}'
                 
                 elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-                    codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-                    codigo_generado = f'{codigo_de_servicio}-{current_year}'
+                    codigo_central = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                    codigo_generado = f'{codigo_central}-{current_year}'
             if norma_de_referencia == '': norma_de_referencia = None
             else: norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma
             
@@ -3209,7 +3215,7 @@ def add_service_etfa(request, project_id):
             else: observacion = observacion
 
             models.Servicio.objects.create(
-                codigo = codigo_de_servicio,
+                codigo = codigo,
                 codigo_muestra = codigo_generado, 
                 proyecto_id = proyecto, 
                 punto_de_muestreo = punto_de_muestreo,
@@ -3234,7 +3240,7 @@ def add_service_etfa(request, project_id):
             for pid in parameters:
                 ensayo = models.ParametroEspecifico.objects.get(pk=pid)
                 models.ParametroDeMuestra.objects.create(
-                    servicio_id = codigo_de_servicio, 
+                    servicio_id = codigo, 
                     parametro_id= pid,
                     ensayo= ensayo.codigo, 
                     codigo_servicio= codigo_generado,
@@ -3246,7 +3252,7 @@ def add_service_etfa(request, project_id):
                 for pid in parameters_analisis_externos:
                     ensayo = models.ParametroEspecifico.objects.get(pk=pid)
                     models.ParametroDeMuestra.objects.create(
-                        servicio_id = codigo_de_servicio, 
+                        servicio_id = codigo, 
                         parametro_id= pid,
                         ensayo= ensayo.codigo, 
                         codigo_servicio= codigo_generado,
@@ -3331,10 +3337,10 @@ def add_model_service(request, project_id):
                 codigo_de_modelo = ('1').zfill(5)
                 codigo_generado = f'M-{codigo_de_modelo}-{current_year}'
 
-            if models.ModeloDeServicioDeFiltro.objects.filter(codigo_modelo__endswith = '-'+current_year).exists()!=False:
-                last_service = models.ModeloDeServicioDeFiltro.objects.filter(codigo_modelo__endswith = '-'+current_year).latest('codigo_modelo')
+            else:
+                last_service = models.ModeloDeServicioDeFiltro.objects.filter(Q(codigo_modelo__endswith = '-'+current_year) | Q(codigo_modelo__endswith = '-' + str(int(current_year)-1))).latest('codigo_modelo')
 
-                if last_service.codigo_modelo[-2:] != current_year: 
+                if last_service.codigo_modelo[-2:] != current_year:
                     codigo_central = ('1').zfill(5)
                     codigo_generado = f'M-{codigo_central}-{current_year}'
                 
@@ -3342,6 +3348,11 @@ def add_model_service(request, project_id):
                     codigo_de_modelo = str(int(last_service.codigo_modelo[-7:-3]) +1).zfill(5)
                     codigo_generado = f'M-{codigo_de_modelo}-{current_year}'  
             
+            if  norma_de_referencia == '': norma_de_referencia = None
+            else: norma_de_referencia =  models.NormaDeReferencia.objects.get(id=norma_de_referencia)
+
+            if  rCA == '': rCA = None
+            else: rCA =  models.RCACliente.objects.get(id=rCA)
 
             modelo = models.ModeloDeServicioDeFiltro.objects.create(
                 codigo_modelo =codigo_generado ,
@@ -3351,8 +3362,8 @@ def add_model_service(request, project_id):
                 tipo_de_muestra = tipo_de_muestra,
                 filtro = models.Filtro.objects.get(codigo = filtro),
                 observacion = observacion,
-                norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia),
-                rCA = models.RCACliente.objects.get(id=rCA),
+                norma_de_referencia = norma_de_referencia,
+                rCA = rCA,
                 muestreado_por_algoritmo = muestreado_por_algoritmo,
                 creator_user = creator_user,
                 cliente = models.Cliente.objects.get(id=cliente),
@@ -3399,65 +3410,80 @@ def generate_service(request, model_id):
 
     if request.method == 'POST':
 
+        codigo_generado = request.POST['codigo_muestra']
         fecha_de_muestreo = request.POST['fecha_de_muestreo']
         habiles = request.POST['habiles']
         observacion = request.POST['observacion']
         creator_user = request.POST['creator_user']
         fecha_de_envio = request.POST['fecha_de_envio']
-
-        fecha_muestreo= datetime.strptime(fecha_de_muestreo[0:9], "%Y-%m-%d")
+        fecha_muestreo= datetime.strptime(fecha_de_muestreo[:10], "%Y-%m-%d")
         fecha_de_entrega_cliente = add_workdays(fecha_muestreo, int(habiles))
+        fecha_de_recepcion = request.POST['fecha_de_recepcion']
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
 
-
-        if models.Servicio.objects.exists()==False:
-            codigo_de_servicio = ('1').zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
-        
-        else:
-            last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
-
-            if last_service.codigo_muestra[-2:] != current_year: 
+        if codigo_generado == '':
+            if models.Servicio.objects.exists()==False:
                 codigo_central = ('1').zfill(5)
+                codigo = codigo_central
                 codigo_generado = f'{codigo_central}-{current_year}'
             
-            elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-                codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-                codigo_generado = f'{codigo_de_servicio}-{current_year}'
-            
-            models.Servicio.objects.create(
-                codigo = codigo_de_servicio,
-                codigo_muestra = codigo_generado, 
-                proyecto_id = modelo.proyecto.codigo, 
-                punto_de_muestreo = modelo.punto_de_muestreo,
-                area= modelo.area,
-                tipo_de_muestra = modelo.tipo_de_muestra,
-                fecha_de_muestreo = fecha_de_muestreo,
-                observacion = observacion,
-                fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-                fecha_de_contenedores_o_filtros = fecha_de_envio,
-                filtros = modelo.filtro,
-                norma_de_referencia = modelo.norma_de_referencia.norma,
-                rCA = modelo.rCA.rca_asociada,
-                dias_habiles = habiles,
-                muestreado_por_algoritmo = modelo.muestreado_por_algoritmo,
+            else:
+                last_service = models.Servicio.objects.filter(Q(codigo_muestra__endswith = '-'+current_year) |Q (codigo_muestra__endswith = '-'+str(int(current_year)-1))).latest('codigo_muestra')
+                
+                codigo = str(int(models.Servicio.objects.all().latest('codigo').codigo)+1).zfill(5)
+
+                if last_service.codigo_muestra[-2:] != current_year: 
+                    codigo_central = ('1').zfill(5)
+                    codigo_generado = f'{codigo_central}-{current_year}'
+                
+                elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+                    codigo_central = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                    codigo_generado = f'{codigo_central}-{current_year}'
+        else:
+            if models.Servicio.objects.exists()==False:
+                codigo = ('1').zfill(5)
+            else:
+                codigo = str(int(models.Servicio.objects.all().latest('codigo').codigo)+1).zfill(5)
+
+        if modelo.norma_de_referencia == None: norma_de_referencia = None
+        else: norma_de_referencia = modelo.norma_de_referencia.norma  
+
+        if modelo.rCA == None: rCA = None
+        else: rCA = modelo.rCA.rca_asociada  
+        models.Servicio.objects.create(
+            codigo = codigo,
+            codigo_muestra = codigo_generado, 
+            proyecto_id = modelo.proyecto.codigo, 
+            punto_de_muestreo = modelo.punto_de_muestreo,
+            area= modelo.area,
+            tipo_de_muestra = modelo.tipo_de_muestra,
+            fecha_de_muestreo = fecha_de_muestreo,
+            observacion_de_recepcion = observacion,
+            fecha_de_entrega_cliente = fecha_de_entrega_cliente,
+            fecha_de_contenedores_o_filtros = fecha_de_envio,
+            fecha_de_recepcion = fecha_de_recepcion,
+            filtros = modelo.filtro,
+            norma_de_referencia = norma_de_referencia,
+            rCA = rCA,
+            dias_habiles = habiles,
+            muestreado_por_algoritmo = modelo.muestreado_por_algoritmo,
+            creator_user = creator_user,
+            cliente = modelo.cliente.id,
+            created = datetime.now()
+            )                    
+
+        for p in parameters:
+            models.ParametroDeMuestra.objects.create(
+                servicio_id = codigo, 
+                parametro_id= p.id,
+                ensayo= p.codigo, 
+                codigo_servicio= codigo_generado,
                 creator_user = creator_user,
-                cliente = modelo.cliente.id,
                 created = datetime.now()
-                )                    
+                )
 
-            for p in parameters:
-                models.ParametroDeMuestra.objects.create(
-                    servicio_id = codigo_de_servicio, 
-                    parametro_id= p.id,
-                    ensayo= p.codigo, 
-                    codigo_servicio= codigo_generado,
-                    creator_user = creator_user,
-                    created = datetime.now()
-                    )
-
-            return redirect('lims:project', modelo.proyecto.codigo)
+        return redirect('lims:project', modelo.proyecto.codigo)
         
         
 
@@ -3516,29 +3542,24 @@ def clone_service(request, service_id):
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
 
-        last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+        last_service = models.Servicio.objects.filter(Q(codigo_muestra__endswith = '-'+current_year) |Q (codigo_muestra__endswith = '-'+str(int(current_year)-1))).latest('codigo_muestra')
 
-        if models.Servicio.objects.exists()==False:
-            codigo_de_servicio = ('1').zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        codigo = str(int(models.Servicio.objects.all().latest('codigo').codigo)+1).zfill(5)
+
+        if last_service.codigo_muestra[-2:] != current_year: 
+            codigo_central = ('1').zfill(5)
+            codigo_generado = f'{codigo_central}-{current_year}'
         
-        if models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).exists()!=False:
-            last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
-
-            if last_service.codigo_muestra[-2:] != current_year: 
-                codigo_central = ('1').zfill(5)
-                codigo_generado = f'{codigo_central}-{current_year}'
-            
-            elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-                codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-                codigo_generado = f'{codigo_de_servicio}-{current_year}'
+        elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
+            codigo_central = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+            codigo_generado = f'{codigo_central}-{current_year}'
 
  
         if len(parameters_cot)==0 or comprobador_de_parametros():
             for sp in sample_points:
                 if int(punto_de_muestreo) == int(sp.id):   
                     models.Servicio.objects.create(
-                        codigo = codigo_de_servicio,
+                        codigo = codigo,
                         codigo_muestra = codigo_generado, 
                         proyecto_id = proyecto, 
                         punto_de_muestreo = sp.nombre,
@@ -3560,7 +3581,7 @@ def clone_service(request, service_id):
             for pid in parameters:
                 ensayo = models.ParametroEspecifico.objects.get(pk=pid)
                 models.ParametroDeMuestra(
-                    servicio_id = codigo_de_servicio, 
+                    servicio_id = codigo, 
                     parametro_id= pid,
                     ensayo= ensayo.codigo, 
                     codigo_servicio= codigo_generado,
@@ -3612,25 +3633,31 @@ def add_service_cot(request, project_id):
         current_year = str(current_year)[2:]
 
         if models.Servicio.objects.exists()==False:
-            codigo_de_servicio = ('1').zfill(5)
-            codigo_generado = f'{codigo_de_servicio}-{current_year}'
+            codigo_central = ('1').zfill(5)
+            codigo = codigo_central
+            codigo_generado = f'{codigo_central}-{current_year}'
         
         else:
-            last_service = models.Servicio.objects.filter(codigo_muestra__endswith = '-'+current_year).latest('codigo_muestra')
+            last_service = models.Servicio.objects.filter(Q(codigo_muestra__endswith = '-'+current_year) |Q (codigo_muestra__endswith = '-'+str(int(current_year)-1))).latest('codigo_muestra')
+
+            codigo = str(int(models.Servicio.objects.all().latest('codigo').codigo)+1).zfill(5)
             
             if last_service.codigo_muestra[-2:] != current_year: 
                 codigo_central = ('1').zfill(5)
                 codigo_generado = f'{codigo_central}-{current_year}'
             
             elif models.Servicio.objects.exists()==True and last_service.codigo_muestra[-2:] == current_year:
-                codigo_de_servicio = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
-                codigo_generado = f'{codigo_de_servicio}-{current_year}'
+                codigo_central = str(int(last_service.codigo_muestra[-7:-3]) +1).zfill(5)
+                codigo_generado = f'{codigo_central}-{current_year}'
 
         if observacion == '': observacion = None
-        else: observacion = observacion    
+        else: observacion = observacion  
+
+        if project.norma_de_referencia == None: norma_de_referencia = None   
+        else: norma_de_referencia = models.NormaDeReferencia.objects.get(id=project.norma_de_referencia).norma
 
         models.Servicio.objects.create(
-            codigo = codigo_de_servicio,
+            codigo = codigo,
             codigo_muestra = codigo_generado, 
             proyecto_id = proyecto, 
             punto_de_muestreo = models.PuntoDeMuestreo.objects.get(id=punto_de_muestreo).nombre,
@@ -3640,7 +3667,7 @@ def add_service_cot(request, project_id):
             fecha_de_recepcion = fecha_de_recepcion,
             observacion_de_recepcion = observacion,
             fecha_de_entrega_cliente = fecha_de_entrega_cliente,
-            norma_de_referencia = models.NormaDeReferencia.objects.get(id=project.norma_de_referencia).norma,
+            norma_de_referencia = norma_de_referencia,
             rCA = models.RCACliente.objects.get(id=project.rCA).rca_asociada,
             dias_habiles = habiles,
             representante_legal = project.representante_legal,
@@ -3654,7 +3681,7 @@ def add_service_cot(request, project_id):
         for pid in parameters:
             ensayo = models.ParametroEspecifico.objects.get(pk=pid)
             models.ParametroDeMuestra.objects.create(
-                servicio_id = codigo_de_servicio, 
+                servicio_id = codigo, 
                 parametro_id= pid,
                 ensayo= ensayo.codigo, 
                 codigo_servicio= codigo_generado,
