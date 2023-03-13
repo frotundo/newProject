@@ -2954,6 +2954,9 @@ def project(request, project_id):
     page = request.GET.get('page')
     modelos = paginator.get_page(page)
     parameters_service = models.ParametroDeMuestra.objects.all()
+
+    user = request.user
+    comercial = user.groups.filter(name='comercial').exists()
     
     return render(request, 'LIMS/project.html', {
         'project': project, 
@@ -2962,6 +2965,7 @@ def project(request, project_id):
         'services': services,
         'modelos': modelos,
         'parameters': parameters_service,
+        'comercial': comercial,
     })
 
 
@@ -3393,10 +3397,14 @@ def add_model_service(request, project_id):
 def modelo(request, model_id):
     modelo = models.ModeloDeServicioDeFiltro.objects.get(codigo_modelo = model_id)
     parameters = modelo.parametros.all()
+    user = request.user
+    ingreso = user.groups.filter(name='ingreso').exists()
+
 
     context = {
         'modelo': modelo,
         'parameters': parameters,
+        'ingreso': ingreso,
     }
     return render(request, 'LIMS/modelo.html', context)
 
@@ -4155,12 +4163,13 @@ def discarded_service_parameters_filter(request):
     })
 
 @login_required
-@user_passes_test(is_commercial, login_url='lims:index')
+@user_passes_test(is_commercial_or_income, login_url='lims:index')
 def projects(request):
     """Projects view."""
 
     queryset_proyectos = models.Proyecto.objects.all().order_by('codigo')
     clientes = models.Cliente.objects.all().order_by('titular')
+
     if request.method == 'POST':
         if 'client' in request.POST.keys():
             if request.POST['client'] == '' :

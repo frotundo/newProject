@@ -9,8 +9,9 @@
 <div class='title_contain' style="display: flex; justify-content: space-between;">
     <h1 style='display: flex; justify-content: space-between;' class="title">{{ modelo.codigo_modelo }} 
     </h1>
-
+    {% if ingreso %}
     <a href="{% url 'lims:generate_service' modelo.codigo_modelo %}" title='Generar servicio'><i class="fa-solid fa-file-circle-plus"></i></a>
+    {% endif %}
 </div>
 
 <p class="p-service"><strong>Cliente: </strong>{{ modelo.cliente.titular }}</p>
