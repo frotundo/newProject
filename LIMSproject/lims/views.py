@@ -2979,7 +2979,8 @@ def project_cot(request, project_id):
     services = paginator.get_page(page)
     parameters_service = models.ParametroDeMuestra.objects.all()
     parametros_cotizados = project.parametros_cotizados.all()
-    # parametros_externos = project.parametros_externos.all()
+    user = request.user
+    ingreso = user.groups.filter(name='ingreso').exists()
 
     context = {
         'project': project, 
@@ -2988,7 +2989,7 @@ def project_cot(request, project_id):
         'services': services,
         'parameters': parameters_service,
         'parametros_cotizados':parametros_cotizados,
-        # 'parametros_externos': parametros_externos,
+        'ingreso': ingreso,
     }
     if project.rCA != None: 
         rca = models.RCACliente.objects.get(id=project.rCA)
@@ -3069,10 +3070,10 @@ def add_service(request, project_id):
                     codigo_generado = f'{codigo_de_servicio}-{current_year}'
             
             if norma_de_referencia == '': norma_de_referencia = None
-            else: norma_de_referencia = norma_de_referencia
+            else: norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma
 
             if rCA == '': rCA = None
-            else: rCA = rCA
+            else: rCA = models.RCACliente.objects.get(id=rCA).rca_asociada
 
             if observacion == '': observacion = None
             else: observacion = observacion
@@ -3093,9 +3094,10 @@ def add_service(request, project_id):
                 observacion = observacion,
                 fecha_de_entrega_cliente = fecha_de_entrega_cliente,
                 fecha_de_contenedores_o_filtros = fecha_de_contenedores,
-                norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma,
+                norma_de_referencia = norma_de_referencia,
                 representante_legal= representante_legal,
-                rCA = models.RCACliente.objects.get(id=rCA).rca_asociada,
+                rCA = rCA,
+                dias_habiles = habiles,
                 etfa = etfa,
                 envases = envases,
                 muestreado_por_algoritmo = muestreado_por_algoritmo,
@@ -3219,6 +3221,7 @@ def add_service_etfa(request, project_id):
                 fecha_de_contenedores_o_filtros = fecha_de_contenedores,
                 norma_de_referencia = norma_de_referencia ,
                 rCA = models.RCACliente.objects.get(id=rCA).rca_asociada,
+                dias_habiles = habiles,
                 etfa = etfa,
                 envases = envases,
                 muestreado_por_algoritmo = muestreado_por_algoritmo,
@@ -3437,6 +3440,7 @@ def generate_service(request, model_id):
                 filtros = modelo.filtro,
                 norma_de_referencia = modelo.norma_de_referencia.norma,
                 rCA = modelo.rCA.rca_asociada,
+                dias_habiles = habiles,
                 muestreado_por_algoritmo = modelo.muestreado_por_algoritmo,
                 creator_user = creator_user,
                 cliente = modelo.cliente.id,
@@ -3545,6 +3549,7 @@ def clone_service(request, service_id):
                         fecha_de_contenedores_o_filtros = fecha_de_contenedores,
                         norma_de_referencia = models.NormaDeReferencia.objects.get(id=norma_de_referencia).norma,
                         rCA = models.RCACliente.objects.get(id=rCA),
+                        dias_habiles = habiles,
                         etfa = service.etfa,
                         muestreado_por_algoritmo = muestreado_por_algoritmo,
                         creator_user = creator_user,
@@ -3601,7 +3606,7 @@ def add_service_cot(request, project_id):
         parameters = request.POST.getlist('parameters')
         
         
-        fecha_recepcion= datetime.strptime(fecha_de_recepcion[:10], "%Y-%m-%d")
+        fecha_recepcion= datetime.strptime(fecha_de_recepcion[:9], "%Y-%m-%d")
         fecha_de_entrega_cliente = add_workdays(fecha_recepcion, int(habiles))
         current_year = datetime.now().year
         current_year = str(current_year)[2:]
@@ -3637,6 +3642,7 @@ def add_service_cot(request, project_id):
             fecha_de_entrega_cliente = fecha_de_entrega_cliente,
             norma_de_referencia = models.NormaDeReferencia.objects.get(id=project.norma_de_referencia).norma,
             rCA = models.RCACliente.objects.get(id=project.rCA).rca_asociada,
+            dias_habiles = habiles,
             representante_legal = project.representante_legal,
             etfa = project.etfa,
             muestreado_por_algoritmo = muestreado_por_algoritmo,
@@ -4198,8 +4204,13 @@ def services(request):
         else:
             servicio = models.Servicio.objects.get(codigo_muestra=request.POST['servicio_id'])
             servicio.responsable = request.POST['responsable']
-            fecha_muestreo = request.POST['fecha_de_muestreo']
-            fecha_de_muestreo = datetime.strptime(fecha_muestreo, "%d-%m-%Y %H:%M")
+            fecha_de_muestreo = request.POST['fecha_de_muestreo']
+            fecha_muestreo = datetime.strptime(fecha_de_muestreo[:10], "%d-%m-%Y")
+            fecha_muestreo = fecha_muestreo.strftime("%Y-%m-%d")
+            fecha_muestreo= datetime.strptime(fecha_muestreo, "%Y-%m-%d")
+            fecha_de_entrega_cliente = add_workdays(fecha_muestreo, int(servicio.dias_habiles))
+            fecha_de_muestreo = datetime.strptime(fecha_de_muestreo, "%d-%m-%Y %H:%M")
+            servicio.fecha_de_entrega_cliente = fecha_de_entrega_cliente
             servicio.fecha_de_muestreo = fecha_de_muestreo.strftime("%Y-%m-%d %H:%M")
             fecha_recepcion = request.POST['fecha_de_recepcion']
             if len(fecha_recepcion)!=0:

@@ -215,6 +215,7 @@ class Servicio(models.Model):
     punto_de_muestreo = models.CharField(max_length=200)
     tipo_de_muestra = models.CharField(max_length=200)
     fecha_de_muestreo = models.DateTimeField(null=True, blank=True,)
+    dias_habiles = models.CharField(max_length=2, null=True, blank=True)
     envases = models.TextField(null=True, blank=True,)
     filtros = models.ForeignKey(Filtro, on_delete=models.PROTECT,null=True, blank=True)
     observacion = models.TextField(null=True, blank=True,)
